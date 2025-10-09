@@ -174,3 +174,7 @@ cython_debug/
 # for security purposes
 
 .vscode/
+
+
+# ignore any .sql file
+*.sql
