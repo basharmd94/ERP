@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-wide customizer-hide" dir="ltr" data-theme="theme-default" data-assets-path="{% static '/' %}" data-template="vertical-menu-template-free">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <title>{% block title %}POS System{% endblock %}</title>
+  <meta name="description" content="Point of Sale System" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="{% static 'img/favicon/favicon.ico' %}" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="{% static 'vendor/fonts/tabler-icons.css' %}" />
+  <link rel="stylesheet" href="{% static 'vendor/fonts/fontawesome.css' %}" />
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="{% static 'vendor/css/core.css' %}" class="template-customizer-core-css" />
+  <link rel="stylesheet" href="{% static 'vendor/css/theme-default.css' %}" class="template-customizer-theme-css" />
+  <link rel="stylesheet" href="{% static 'css/demo.css' %}" />
+
+  <!-- Vendors CSS -->
+  <link rel="stylesheet" href="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+  <link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+  <link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+
+  <!-- Page CSS -->
+  {% block stylesheets %}{% endblock %}
+
+  <!-- Helpers -->
+  <script src="{% static 'vendor/js/helpers.js' %}"></script>
+  <script src="{% static 'js/config.js' %}"></script>
+
+  <style>
+    /* POS specific styles */
+    body {
+      background-color: #f5f5f9;
+      font-family: 'Public Sans', sans-serif;
+    }
+    
+    .pos-container {
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .pos-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .pos-content {
+      padding: 1.5rem;
+      max-width: 100%;
+    }
+    
+    /* Touch-friendly buttons */
+    .btn-pos {
+      min-height: 48px;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-pos:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Card styling */
+    .pos-card {
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+      border: none;
+      transition: all 0.3s ease;
+    }
+    
+    .pos-card:hover {
+      box-shadow: 0 4px 25px rgba(0,0,0,0.12);
+    }
+    
+    /* Select2 customization for POS */
+    .select2-container--default .select2-selection--single {
+      height: 48px;
+      border-radius: 8px;
+      border: 2px solid #e7e7e7;
+      font-size: 1rem;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 44px;
+      padding-left: 12px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 44px;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .pos-content {
+        padding: 1rem;
+      }
+      
+      .pos-header {
+        padding: 0.75rem 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Layout wrapper -->
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+      <!-- Layout container -->
+      <div class="layout-page">
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+          <!-- Content -->
+          <div class="container-fluid flex-grow-1 pos-container">
+            {% block content %}{% endblock %}
+          </div>
+          <!-- / Content -->
+        </div>
+        <!-- Content wrapper -->
+      </div>
+      <!-- / Layout page -->
+    </div>
+  </div>
+  <!-- / Layout wrapper -->
+
+  <!-- Core JS -->
+  <script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+  <script src="{% static 'vendor/libs/popper/popper.js' %}"></script>
+  <script src="{% static 'vendor/js/bootstrap.js' %}"></script>
+  <script src="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+  <script src="{% static 'vendor/js/menu.js' %}"></script>
+
+  <!-- Vendors JS -->
+  <script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+  <script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+
+  <!-- Main JS -->
+  <script src="{% static 'js/main.js' %}"></script>
+
+  <!-- Page JS -->
+  {% block javascripts %}{% endblock %}
+
+  <!-- CSRF Token for AJAX -->
+  <script>
+    window.csrfToken = '{{ csrf_token }}';
+    
+    // Configure AJAX to include CSRF token
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", window.csrfToken);
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

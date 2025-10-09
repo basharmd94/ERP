@@ -1,0 +1,142 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Inventory - Item Ledger{% endblock %}
+
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/pickr/pickr-themes.css' %}" />
+{% comment %} datatables {% endcomment %}
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<!-- Vendors JS -->
+<script src="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+{% comment %} datatables {% endcomment %}
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+
+<!--Datatables-->
+<script src="{% static 'custom/select_item.js' %}"></script>
+<script src="{% static 'custom/item_ledger.js' %}"></script>
+<!-- Page JS -->
+<script src="{% static 'js/forms-pickers.js' %}"></script>
+<script src="{% static 'js/forms-selects.js' %}"></script>
+
+{% endblock page_js %}
+
+
+{% block content %}
+<nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Inventory</a>
+                      </li>
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Reports</a>
+                      </li>
+                      <li class="breadcrumb-item active">Item Ledger</li>
+                    </ol>
+                  </nav>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="card-title">Filter Options</h5>
+  </div>
+  <div class="card-body">
+    <form id="filter-form">
+      {% csrf_token %}
+      <div class="row g-3">
+        <!-- Warehouse Select -->
+        <div class="col-md-3">
+          <label for="warehouse" class="form-label">Warehouse</label>
+          <select class="form-select select2" id="warehouse" name="warehouse">
+            <option value="">All Warehouses</option>
+            <option value="WH001">Main Warehouse</option>
+            <option value="WH002">Secondary Warehouse</option>
+            <option value="WH003">Storage Warehouse</option>
+          </select>
+        </div>
+
+        <!-- From Date -->
+        <div class="col-md-2">
+          <label for="from_date" class="form-label">From Date</label>
+          <input type="text" class="form-control" id="from_date" name="from_date" placeholder="YYYY-MM-DD">
+        </div>
+
+        <!-- To Date -->
+        <div class="col-md-2">
+          <label for="to_date" class="form-label">To Date</label>
+          <input type="text" class="form-control" id="to_date" name="to_date" placeholder="YYYY-MM-DD">
+        </div>
+
+        <!-- Select Item -->
+        <div class="col-md-3">
+          <label for="select_item" class="form-label">Select Item</label>
+          <select class="form-select" id="select_item" name="select_item">
+            <option value="">All Items</option>
+          </select>
+        </div>
+
+        <!-- Search Button -->
+        <div class="col-md-2 d-flex align-items-end">
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Item Ledger DataTable -->
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">Item Ledger Report</h5>
+    <p class="card-text">View inventory transaction details for all items</p>
+  </div>
+  <div class="card-datatable table-responsive pt-0">
+    <table class="datatables-ajax table" id="item-ledger-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Document</th>
+          <th>Transaction #</th>
+          <th>Item</th>
+          <th>Type</th>
+          <th>Txn Qty</th>
+          <th>Txn Rate</th>
+          <th>Txn Value</th>
+          <th>Balance Qty</th>
+          <th>Balance Rate</th>
+          <th>Balance Value</th>
+          <th>Opening Qty</th>
+          <th>Opening Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be loaded via AJAX -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Complex Headers -->
+
+<!--/ Complex Headers -->
+{% endblock %}

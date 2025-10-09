@@ -1,0 +1,43 @@
+<!-- Receive Entry List DataTable -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">Receive Entry List</h5>
+    <div class="card-actions">
+      <button type="button" class="btn btn-sm btn-outline-primary" onclick="$('#receive-entry-list-table').DataTable().ajax.reload();">
+        <i class="ti ti-refresh"></i> Refresh
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table id="receive-entry-list-table" class="table table-striped table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>From Date</th>
+            <th>Voucher Number</th>
+            <th>Status</th>
+            <th>Warehouse</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data will be loaded via AJAX -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="receive-entry-list-loading" class="text-center py-4" style="display: none;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading receive entries...</p>
+    </div>
+
+    <!-- No data indicator -->
+    <div id="receive-entry-list-no-data" class="text-center py-4" style="display: none;">
+      <i class="ti ti-inbox text-muted" style="font-size: 3rem;"></i>
+      <p class="mt-2 text-muted">No receive entries found</p>
+    </div>
+  </div>
+</div>

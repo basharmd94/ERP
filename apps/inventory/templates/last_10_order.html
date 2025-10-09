@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Official Purchase Order Report - Legal Document</title>
+    <style>
+        @page {
+            size: legal landscape;
+            margin: .6.5in;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1;
+            color: #000;
+        }
+
+        .header-container {
+            width: 100%;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 8px;
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-table td {
+            vertical-align: top;
+            width: 50%;
+            padding: 0;
+        }
+
+        .business-details h1 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .business-info {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        .business-info p {
+            margin: 3px 0;
+            font-size: 12px;
+        }
+
+        .business-info .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 60px;
+        }
+
+        .report-info {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-left: 10px;
+            text-align: right;
+        }
+
+        .report-info h2 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .report-info p {
+            margin: 3px 0;
+            font-size: 12px;
+        }
+
+        .report-info .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 80px;
+        }
+
+        .document-info {
+            margin-bottom: 12px;
+            border: 1px solid #000;
+            padding: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .document-info table {
+            width: 100%;
+            border: none;
+            margin: 0;
+        }
+
+        .document-info td {
+            border: none;
+            padding: 2px 6px;
+            font-size: 10px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 11px;
+            border: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background:rgb(36, 35, 35);
+            color: #FFF;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+        }
+
+        .data-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .numeric {
+            text-align: right;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .legal-footer {
+            margin-top: 10px;
+            padding: 5px;
+            border-top: 1px solid #ccc;
+            font-size: 9px;
+            color: #666;
+            text-align: center;
+        }
+
+        .legal-footer p {
+            margin: 2px 0;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            border: 2px solid #000;
+            background-color: #fff0f0;
+            font-style: italic;
+        }
+    </style>
+</head>
+ <body>
+     <div class="header-container">
+         <table class="header-table">
+             <tr>
+                 <td>
+                     <div class="business-info">
+                         <h1>ERP SYSTEM</h1>
+                         <p><span class="label">Project:</span> Gulshan Trading</p>
+                         <p><span class="label">Address:</span> Tongi Gazipur</p>
+                         <p><span class="label">Zid:</span> {{ session_zid|default:"100001" }}</p>
+                     </div>
+                 </td>
+                 <td>
+                     <div class="report-info">
+                         <h2>Report Details</h2>
+                         <p><span class="label">Report Name:</span> Purchase Orders</p>
+                         <p><span class="label">Year:</span> {% now "Y" %}</p>
+                         <p><span class="label">Month:</span> {% now "F" %}</p>
+                     </div>
+                 </td>
+             </tr>
+         </table>
+     </div>
+
+     <div class="document-info">
+         <table>
+             <tr>
+                 <td><strong>Business Entity ID:</strong></td>
+                 <td>{{ session_zid }}</td>
+                 <td><strong>Report Generated:</strong></td>
+                 <td>{% now "F j, Y - g:i A T" %}</td>
+             </tr>
+             <tr>
+                 <td><strong>Document Type:</strong></td>
+                 <td>Purchase Order Details</td>
+                 <td><strong>Total Records:</strong></td>
+                 <td>{{ orders|length }}</td>
+             </tr>
+             <tr>
+                 <td><strong>Data Source:</strong></td>
+                 <td>OPODT Table</td>
+                 <td><strong>Page Format:</strong></td>
+                 <td>Legal Landscape</td>
+             </tr>
+         </table>
+     </div>
+
+     <!-- Test Table with 1 row, 8 columns (only td 7&8 merged) -->
+     <table class="data-table">
+         <thead>
+             <tr>
+                 <th>Col A</th>
+                 <th>Col B</th>
+                 <th>Col C</th>
+                 <th>Col D</th>
+                 <th>Col E</th>
+                 <th>Col F</th>
+                 <th>Col G</th>
+                 <th>Col H</th>
+             </tr>
+         </thead>
+         <tbody>
+             <tr>
+                 <td>Alpha-001</td>
+                 <td>Beta-234</td>
+                 <td>Gamma-567</td>
+                 <td>Delta-890</td>
+                 <td>Epsilon-123</td>
+                 <td>Zeta-456</td>
+                 <td colspan="2">Theta-789 & Iota-012</td>
+             </tr>
+         </tbody>
+     </table>
+
+     {% if orders %}
+         <table class="data-table">
+             <thead>
+                 <tr>
+                     <th>Timestamp</th>
+                     <th>Entity ID</th>
+                     <th>Order Number</th>
+                     <th>Row</th>
+                     <th>Item Code</th>
+                     <th>Description</th>
+                     <th>Type</th>
+                     <th>Warehouse</th>
+                     <th>Qty Ordered</th>
+                     <th>Qty Required</th>
+                     <th>Unit</th>
+                     <th>Currency</th>
+                     <th>Rate</th>
+                     <th>Amount (Ex-Tax)</th>
+                     <th>Tax Amount</th>
+                     <th>Transaction No</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {% for order in orders %}
+                 <tr>
+                     <td>{{ order.ztime|date:"Y-m-d H:i" }}</td>
+                     <td>{{ order.zid }}</td>
+                     <td>{{ order.xordernum }}</td>
+                     <td class="numeric">{{ order.xrow }}</td>
+                     <td>{{ order.xitem }}</td>
+                     <td>{{ order.xdesc|truncatechars:25 }}</td>
+                     <td>{{ order.xstype }}</td>
+                     <td>{{ order.xwh }}</td>
+                     <td class="numeric">{{ order.xqtyord|floatformat:2 }}</td>
+                     <td class="numeric">{{ order.xqtyreq|floatformat:2 }}</td>
+                     <td>pcs</td>
+                     <td>{{ order.xcur }}</td>
+                     <td class="numeric">{{ order.xrate|floatformat:4 }}</td>
+                     <td class="numeric">{{ order.xdtwotax|floatformat:2 }}</td>
+                     <td class="numeric">{{ order.xdttax|floatformat:2 }}</td>
+                     <td>{{ order.ximtrnnum }}</td>
+                 </tr>
+                 {% endfor %}
+             </tbody>
+         </table>
+     {% else %}
+         <div class="no-data">
+             <h3>NO PURCHASE ORDER DATA FOUND</h3>
+             <p>No purchase order details found for Business Entity ID: {{ session_zid }}</p>
+             <p>This may indicate no recent transactions or data access restrictions.</p>
+         </div>
+     {% endif %}
+
+
+
+       <div class="legal-footer">
+           <p>Generated: {% now "F j, Y \a\t g:i A" %} | Session: {{ session_zid }} | ERP System Report</p>
+       </div>
+ </body>
+</html>

@@ -1,0 +1,126 @@
+{
+  "menu": [
+    {
+      "name": "Dashboards",
+      "icon": "menu-icon tf-icons ti ti-smart-home",
+      "slug": "dashboard",
+      "badge": ["primary", "5"],
+      "submenu": [
+        {
+          "url": "index",
+          "name": "Analytics",
+          "slug": "dashboard-analytics"
+        },
+        {
+          "url": "dashboard-crm",
+          "name": "CRM",
+          "slug": "dashboard-crm"
+        },
+        {
+          "url": "/app/ecommerce/dashboard",
+          "external": true,
+          "name": "eCommerce",
+          "slug": "app-ecommerce-dashboard"
+        },
+        {
+          "url": "/app/logistics/dashboard",
+          "external": true,
+          "name": "Logistics",
+          "slug": "app-logistics-dashboard"
+        },
+        {
+          "url": "/app/academy/dashboard",
+          "external": true,
+          "name": "Academy",
+          "slug": "app-academy-dashboard"
+        }
+      ]
+    },
+    {
+      "name": "Cross App",
+      "icon": "menu-icon tf-icons ti ti-layout-navbar",
+      "slug": "cross-application",
+      "permission": "crossapp.view",
+      "submenu": [
+        {
+          "name": "Items",
+          "icon": "menu-icon tf-icons ti ti-box",
+          "slug": "crossapp-items",
+          "permission": "crossapp_items.view",
+          "submenu": [
+            {
+              "url": "crossapp-items",
+              "name": "Items List",
+              "slug": "crossapp-items-list",
+              "permission": "crossapp_items_list.view"
+            },
+            {
+              "url": "/crossapp/xcodes/brands/",
+              "name": "Brands",
+              "slug": "crossapp-xcodes-brands",
+              "permission": "crossapp_items_brands.view"
+            },
+            {
+              "url": "/crossapp/xcodes/item_group/",
+              "name": "Item Group",
+              "slug": "crossapp-xcodes-item-group",
+              "permission": "crossapp_item_group.view"
+            }
+          ]
+        },
+        {
+          "url": "crossapp-customers",
+          "name": "Customers",
+          "slug": "crossapp-customers",
+          "permission": "crossapp_customers.view"
+        },
+        {
+          "url": "crossapp-suppliers",
+          "name": "Suppliers",
+          "slug": "crossapp-suppliers",
+          "permission": "crossapp_suppliers.view"
+        },
+        {
+          "url": "crossapp-common-codes",
+          "name": "Common Codes",
+          "slug": "crossapp-common-codes"
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "icon": "menu-icon tf-icons ti ti-package",
+      "slug": "inventory-management",
+      "permission": "inventory.view",
+      "submenu": [
+        {
+          "name": "Transaction",
+          "slug": "inventory-transaction",
+          "permission": "inventory_transaction.view",
+          "submenu": [
+            {
+              "url": "/inventory/transaction/receive_entry/",
+              "name": "Receive Entry",
+              "slug": "receive-entry",
+              "permission": "receive_entry.view"
+            }
+          ]
+        },
+
+        {
+          "name": "Reports",
+          "slug": "inventory-reports",
+          "permission": "inventory_reports.view",
+          "submenu": [
+            {
+              "url": "/inventory/reports/item-ledger/",
+              "name": "Item Ledger",
+              "slug": "item-ledger",
+              "permission": "item_ledger.view"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

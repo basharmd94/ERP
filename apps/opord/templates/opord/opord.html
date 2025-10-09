@@ -1,0 +1,249 @@
+{% extends layout_path %}
+
+{% block title %}Operation Orders{% endblock %}
+
+{% block vendor_css %}
+<!-- Vendor CSS -->
+<link rel="stylesheet" href="{{ ASSETS_ROOT }}/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+<link rel="stylesheet" href="{{ ASSETS_ROOT }}/vendor/libs/typeahead-js/typeahead.css" />
+<link rel="stylesheet" href="{{ ASSETS_ROOT }}/vendor/libs/flatpickr/flatpickr.css" />
+<link rel="stylesheet" href="{{ ASSETS_ROOT }}/vendor/libs/select2/select2.css" />
+{% endblock %}
+
+{% block page_css %}
+<!-- Page CSS -->
+<style>
+  .form-label {
+    font-weight: 500;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold py-3 mb-4">
+  <span class="text-muted fw-light">Forms /</span> Operation Orders
+</h4>
+
+{% if messages %}
+<div class="messages mb-4">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Basic Layout -->
+<div class="row">
+  <div class="col-xl">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add New Operation Order</h5>
+        <small class="text-muted float-end">Default form</small>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label" for="id_xordernum">Order Number</label>
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-ordernum" class="input-group-text">
+                <i class="bx bx-hash"></i>
+              </span>
+              <input type="text" class="form-control" id="id_xordernum" name="xordernum" placeholder="ORD-12345"
+                {% if form.xordernum.value %}value="{{ form.xordernum.value }}"{% endif %} />
+            </div>
+            {% if form.xordernum.errors %}
+            <div class="form-text text-danger">{{ form.xordernum.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="id_xdate">Date</label>
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-date" class="input-group-text">
+                <i class="bx bx-calendar"></i>
+              </span>
+              <input type="date" id="id_xdate" name="xdate" class="form-control" placeholder="YYYY-MM-DD"
+                {% if form.xdate.value %}value="{{ form.xdate.value|date:'Y-m-d' }}"{% endif %} />
+            </div>
+            {% if form.xdate.errors %}
+            <div class="form-text text-danger">{{ form.xdate.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="id_xcus">Customer</label>
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-customer" class="input-group-text">
+                <i class="bx bx-user"></i>
+              </span>
+              <input type="text" id="id_xcus" name="xcus" class="form-control" placeholder="John Doe"
+                {% if form.xcus.value %}value="{{ form.xcus.value }}"{% endif %} />
+            </div>
+            {% if form.xcus.errors %}
+            <div class="form-text text-danger">{{ form.xcus.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="id_xstatusord">Status</label>
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-status" class="input-group-text">
+                <i class="bx bx-purchase-tag"></i>
+              </span>
+              <select id="id_xstatusord" name="xstatusord" class="form-select">
+                <option value="">Select Status</option>
+                <option value="Approved" {% if form.xstatusord.value == "Approved" %}selected{% endif %}>Approved</option>
+                <option value="Pending" {% if form.xstatusord.value == "Pending" %}selected{% endif %}>Pending</option>
+                <option value="Rejected" {% if form.xstatusord.value == "Rejected" %}selected{% endif %}>Rejected</option>
+                <option value="Processing" {% if form.xstatusord.value == "Processing" %}selected{% endif %}>Processing</option>
+              </select>
+            </div>
+            {% if form.xstatusord.errors %}
+            <div class="form-text text-danger">{{ form.xstatusord.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="id_xdisc">Discount</label>
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-discount" class="input-group-text">
+                <i class="bx bx-dollar"></i>
+              </span>
+              <input type="number" step="0.01" id="id_xdisc" name="xdisc" class="form-control" placeholder="0.00"
+                {% if form.xdisc.value %}value="{{ form.xdisc.value }}"{% endif %} />
+            </div>
+            {% if form.xdisc.errors %}
+            <div class="form-text text-danger">{{ form.xdisc.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="id_xdtwotax">Tax</label>
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-tax" class="input-group-text">
+                <i class="bx bx-receipt"></i>
+              </span>
+              <input type="number" step="0.01" id="id_xdtwotax" name="xdtwotax" class="form-control" placeholder="0.00"
+                {% if form.xdtwotax.value %}value="{{ form.xdtwotax.value }}"{% endif %} />
+            </div>
+            {% if form.xdtwotax.errors %}
+            <div class="form-text text-danger">{{ form.xdtwotax.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="id_xsltype">Type</label>
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-type" class="input-group-text">
+                <i class="bx bx-package"></i>
+              </span>
+              <select id="id_xsltype" name="xsltype" class="form-select">
+                <option value="">Select Type</option>
+                <option value="Standard" {% if form.xsltype.value == "Standard" %}selected{% endif %}>Standard</option>
+                <option value="Express" {% if form.xsltype.value == "Express" %}selected{% endif %}>Express</option>
+                <option value="Special" {% if form.xsltype.value == "Special" %}selected{% endif %}>Special</option>
+              </select>
+            </div>
+            {% if form.xsltype.errors %}
+            <div class="form-text text-danger">{{ form.xsltype.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary">Add Order</button>
+          <button type="reset" class="btn btn-outline-secondary">Reset</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Operation Orders List -->
+<div class="card">
+  <h5 class="card-header">Operation Orders List</h5>
+  <div class="table-responsive text-nowrap">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Discount</th>
+          <th>Tax</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        {% for opord in opords %}
+        <tr>
+          <td><strong>{{ opord.xordernum }}</strong></td>
+          <td>{{ opord.xdate|date:"M d, Y" }}</td>
+          <td>{{ opord.xcus }}</td>
+          <td>
+            {% if opord.xstatusord == "Approved" %}
+              <span class="badge bg-label-success">{{ opord.xstatusord }}</span>
+            {% elif opord.xstatusord == "Pending" %}
+              <span class="badge bg-label-warning">{{ opord.xstatusord }}</span>
+            {% elif opord.xstatusord == "Rejected" %}
+              <span class="badge bg-label-danger">{{ opord.xstatusord }}</span>
+            {% else %}
+              <span class="badge bg-label-info">{{ opord.xstatusord }}</span>
+            {% endif %}
+          </td>
+          <td>{{ opord.xdisc }}</td>
+          <td>{{ opord.xdtwotax }}</td>
+          <td>{{ opord.xsltype }}</td>
+          <td>
+            <div class="dropdown">
+              <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-edit-alt me-1"></i> Edit</a>
+                <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-printer me-1"></i> Print</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center">No operation orders found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block vendor_js %}
+<!-- Vendor JS -->
+<script src="{{ ASSETS_ROOT }}/vendor/libs/moment/moment.js"></script>
+<script src="{{ ASSETS_ROOT }}/vendor/libs/flatpickr/flatpickr.js"></script>
+<script src="{{ ASSETS_ROOT }}/vendor/libs/select2/select2.js"></script>
+{% endblock %}
+
+{% block page_js %}
+<!-- Page JS -->
+<script>
+  $(function() {
+    // Initialize flatpickr date pickers
+    const datePickers = document.querySelectorAll('input[type="date"]');
+    if (datePickers.length) {
+      datePickers.forEach(picker => {
+        flatpickr(picker, {
+          altInput: true,
+          altFormat: "F j, Y",
+          dateFormat: "Y-m-d",
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}

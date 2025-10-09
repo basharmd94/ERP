@@ -1,0 +1,23 @@
+{% load i18n menu_permissions %}
+
+{% with is_group=item.submenu|filter_by_url:request %}
+{% if user|has_menu_permission:item.permission %}
+{% if user|has_submenu_permissions:item.submenu %}
+<li class="menu-item {% if is_group %}active open{% endif %}">
+  <a href="javascript:void(0);" class="menu-link menu-toggle">
+    <i class="{{ item.icon }}"></i>
+    <div>{% trans item.name %}</div>
+    {% if item.badge %}
+    <div class="badge bg-{{ item.badge.0 }} rounded-pill ms-auto">{{ item.badge.1 }}</div>
+    {% endif %}  </a>
+  <ul class="menu-sub">
+    {% for sub_item in item.submenu %}
+      {% if user|has_menu_permission:sub_item.permission %}
+        {% include './menu_item_template.html' with item=sub_item %}
+      {% endif %}
+    {% endfor %}
+  </ul>
+</li>
+{% endif %}
+{% endif %}
+{% endwith %}

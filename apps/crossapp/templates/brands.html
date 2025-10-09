@@ -1,0 +1,62 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Brand Master{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'custom/brands.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Dashboard</a>
+                      </li>
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Items</a>
+                      </li>
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Brands</a>
+                      </li>
+                    </ol>
+                  </nav>
+<!-- Form with Tabs -->
+
+
+<!-- Brands DataTable -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Brands List</h5>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBrandModal">
+      <i class="bx bx-plus me-1"></i>Add Brand
+    </button>
+  </div>
+  <div class="card-datatable text-nowrap">
+    <table class="datatables-ajax table">
+    </table>
+  </div>
+</div>
+<!--/ Brands DataTable -->
+
+<!-- Include Brand Modals -->
+{% include "partials/_modals/modal_add_brand.html" %}
+{% include "partials/_modals/modal_edit_brand.html" %}
+
+{% endblock %}

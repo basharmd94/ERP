@@ -1,0 +1,180 @@
+<!-- Purchase Entry Form -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">Purchase Entry</h5>
+    <div class="card-actions">
+      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetForm();">
+        <i class="ti ti-refresh"></i> Reset
+      </button>
+      <button type="button" class="btn btn-sm btn-primary" onclick="savePurchaseEntry();">
+        <i class="ti ti-device-floppy"></i> Save
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <form id="purchase-entry-form">
+      <div class="row">
+        <!-- Purchase Date -->
+        <div class="col-md-6 mb-3">
+          <label for="purchase-date" class="form-label">Purchase Date</label>
+          <input type="date" class="form-control" id="purchase-date" name="purchase_date" required>
+        </div>
+        
+        <!-- Supplier -->
+        <div class="col-md-6 mb-3">
+          <label for="supplier" class="form-label">Supplier</label>
+          <select class="form-select" id="supplier" name="supplier" required>
+            <option value="">Select Supplier</option>
+            <option value="supplier1">ABC Suppliers Ltd.</option>
+            <option value="supplier2">XYZ Trading Co.</option>
+            <option value="supplier3">Global Imports Inc.</option>
+          </select>
+        </div>
+        
+        <!-- Invoice Number -->
+        <div class="col-md-6 mb-3">
+          <label for="invoice-number" class="form-label">Invoice Number</label>
+          <input type="text" class="form-control" id="invoice-number" name="invoice_number" placeholder="Enter invoice number" required>
+        </div>
+        
+        <!-- Warehouse -->
+        <div class="col-md-6 mb-3">
+          <label for="warehouse" class="form-label">Warehouse</label>
+          <select class="form-select" id="warehouse" name="warehouse" required>
+            <option value="">Select Warehouse</option>
+            <option value="main">Main Warehouse</option>
+            <option value="secondary">Secondary Warehouse</option>
+            <option value="storage">Storage Facility</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Items Table -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <h6 class="mb-3">Purchase Items</h6>
+          <div class="table-responsive">
+            <table class="table table-bordered" id="purchase-items-table">
+              <thead class="table-light">
+                <tr>
+                  <th>Item Code</th>
+                  <th>Item Name</th>
+                  <th>Quantity</th>
+                  <th>Unit Price</th>
+                  <th>Total</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <input type="text" class="form-control" name="item_code[]" placeholder="Item code">
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="item_name[]" placeholder="Item name">
+                  </td>
+                  <td>
+                    <input type="number" class="form-control" name="quantity[]" placeholder="0" min="1">
+                  </td>
+                  <td>
+                    <input type="number" class="form-control" name="unit_price[]" placeholder="0.00" step="0.01" min="0">
+                  </td>
+                  <td>
+                    <input type="number" class="form-control" name="total[]" placeholder="0.00" step="0.01" readonly>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeRow(this);">
+                      <i class="ti ti-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="mt-3">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addNewRow();">
+              <i class="ti ti-plus"></i> Add Item
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Total Section -->
+      <div class="row mt-4">
+        <div class="col-md-8"></div>
+        <div class="col-md-4">
+          <div class="card bg-light">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <strong>Grand Total:</strong>
+                <strong id="grand-total">$0.00</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Notes -->
+      <div class="row mt-3">
+        <div class="col-12">
+          <label for="notes" class="form-label">Notes</label>
+          <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Additional notes or comments..."></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function addNewRow() {
+    const tbody = document.querySelector('#purchase-items-table tbody');
+    const newRow = tbody.rows[0].cloneNode(true);
+    
+    // Clear input values
+    newRow.querySelectorAll('input').forEach(input => {
+        input.value = '';
+    });
+    
+    tbody.appendChild(newRow);
+}
+
+function removeRow(button) {
+    const tbody = document.querySelector('#purchase-items-table tbody');
+    if (tbody.rows.length > 1) {
+        button.closest('tr').remove();
+        calculateGrandTotal();
+    }
+}
+
+function calculateGrandTotal() {
+    let grandTotal = 0;
+    document.querySelectorAll('input[name="total[]"]').forEach(input => {
+        grandTotal += parseFloat(input.value) || 0;
+    });
+    document.getElementById('grand-total').textContent = '$' + grandTotal.toFixed(2);
+}
+
+function resetForm() {
+    document.getElementById('purchase-entry-form').reset();
+    calculateGrandTotal();
+}
+
+function savePurchaseEntry() {
+    // Add your save logic here
+    alert('Purchase entry saved successfully!');
+}
+
+// Auto-calculate totals when quantity or unit price changes
+document.addEventListener('input', function(e) {
+    if (e.target.name === 'quantity[]' || e.target.name === 'unit_price[]') {
+        const row = e.target.closest('tr');
+        const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
+        const unitPrice = parseFloat(row.querySelector('input[name="unit_price[]"]').value) || 0;
+        const total = quantity * unitPrice;
+        
+        row.querySelector('input[name="total[]"]').value = total.toFixed(2);
+        calculateGrandTotal();
+    }
+});
+</script>

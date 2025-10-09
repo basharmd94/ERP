@@ -1,0 +1,223 @@
+{% extends "layouts/pos_layout.html" %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}POS Sales{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+<link rel="stylesheet" href="{% static 'css/pos_sales.css' %}" />
+{% endblock stylesheets %}
+
+{% block javascripts %}
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+<script src="{% static 'custom/pos_validation.js' %}"></script>
+<script src="{% static 'custom/pos_sales.js' %}"></script>
+{% endblock javascripts %}
+
+{% block content %}
+
+<div class="pos-container">
+    <!-- POS Header -->
+    <div class="pos-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <!-- Header Input Fields -->
+            <div class="d-flex align-items-center gap-2">
+                <div class="header-field">
+                    <input type="text" id="header-customer-name" class="form-control-header" 
+                           placeholder="Customer" value="CUS-000001">
+                </div>
+                <div class="header-field">
+                    <input type="tel" id="header-customer-phone" class="form-control-header" 
+                           placeholder="Phone">
+                </div>
+                <div class="header-field">
+                    <select id="header-warehouse" class="form-control-header">
+                        <option value="Fixit Gulshan" selected>Fixit Gulshan</option>
+                        <option value="Fixit Dhanmondi">Fixit Dhanmondi</option>
+                        <option value="Fixit Uttara">Fixit Uttara</option>
+                    </select>
+                </div>
+                <div class="header-field">
+                    <select id="header-salesman" class="form-control-header">
+                        <option value="Ohidul" selected>Ohidul</option>
+                        <option value="Rahman">Rahman</option>
+                        <option value="Karim">Karim</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-light btn-xxs me-1" onclick="holdTransaction()">
+                    <i class="ti ti-device-floppy ti-xs"></i> Hold
+                </button>
+                <button class="btn btn-light btn-xxs me-1" id="hold-list-btn" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-html="true" data-bs-content="">
+                    <i class="ti ti-list ti-xs"></i> Hold List
+                </button>
+                <button class="btn btn-light btn-xxs me-1" onclick="clearCart(); clearInput();">
+                    <i class="ti ti-trash ti-xs"></i> Clear
+                </button>
+                <div class="dropdown d-inline">
+                    <button class="btn btn-light btn-xxs dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="ti ti-user ti-xs"></i> {{ request.user.username }}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'auth-logout' %}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Amount Display -->
+    <div class="total-amount-display">
+        <span id="main-total-display">Total: ৳0.00</span>
+    </div>
+
+    <!-- POS Main Content -->
+    <div class="pos-main row g-0">
+        <!-- Left Panel - Product Search & Cart (80%) -->
+        <div class="col-lg-9 col-xl-10 pos-left-panel">
+            <!-- Product Search Section -->
+            <div class="product-search-section">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Product Search</label>
+                        <select id="product-search" class="form-control form-control-touch"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Barcode Scanner</label>
+                        <input type="text" id="barcode-input" class="form-control form-control-touch barcode-input" 
+                               placeholder="Scan or type barcode..." autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Section -->
+            <div class="cart-section">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Shopping Cart</h6>
+                    <span class="badge bg-primary" id="cart-count">0 items</span>
+                </div>
+                
+                <div class="cart-items-container" id="cart-items">
+                    <!-- Cart items will be populated here -->
+                </div>
+                
+                <div id="cart-totals" class="cart-totals-fixed" style="display: none;">
+                    <!-- Cart totals will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Payment (20%) -->
+        <div class="col-lg-3 col-xl-2 pos-right-panel">
+            <!-- Payment Section -->
+            <div class="payment-section">
+                <h6 class="mb-2">Payment</h6>
+                <div class="payment-method-dropdown">
+                    <label class="form-label small">Payment Method</label>
+                    <select id="payment-method-select" class="form-control form-control-touch">
+                        <option value="cash" selected>💵 Cash</option>
+                        <option value="card">💳 Card</option>
+                    </select>
+                </div>
+
+                <!-- Card Amount Section -->
+                <div class="card-amount-section" id="card-amount-section">
+                    <label class="form-label small">Card Amount</label>
+                    <input type="number" id="card-amount" class="form-control form-control-touch" 
+                           placeholder="0.00" step="0.01" min="0">
+                    <small class="text-muted">Cash: $<span id="cash-amount">0.00</span></small>
+                </div>
+
+                <!-- Card Number Section -->
+                <div class="card-number-section" id="card-number-section" style="display: none;">
+                    <label class="form-label small">Card Number</label>
+                    <input type="text" id="card-number" name="xdocnum" class="form-control form-control-touch" 
+                           placeholder="Enter card number" maxlength="20">
+                </div>
+
+                <!-- Discount Section -->
+                <div class="discount-section">
+                    <label class="form-label small">Discount</label>
+                    <div class="discount-inputs">
+                        <input type="number" id="fixed-discount" class="form-control form-control-touch" 
+                               placeholder="Fixed (BDT)" value="0" step="0.01" min="0">
+                        <input type="number" id="percent-discount" class="form-control form-control-touch" 
+                               placeholder="Percent (%)" value="0" step="0.1" min="0" max="100">
+                    </div>
+                </div>
+
+                <div class="order-summary">
+                    <h6 class="mb-2">Summary</h6>
+                    <div class="d-flex justify-content-between">
+                        <small>Items:</small>
+                        <small id="summary-items">0</small>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <small>Subtotal:</small>
+                        <small id="summary-subtotal">৳0.00</small>
+                    </div>
+                    <div class="d-flex justify-content-between" id="fixed-discount-row" style="display: none;">
+                        <small>Fixed Discount:</small>
+                        <small id="summary-fixed-discount">-৳0.00</small>
+                    </div>
+                    <div class="d-flex justify-content-between" id="percent-discount-row" style="display: none;">
+                        <small>Percent Discount:</small>
+                        <small id="summary-percent-discount">-৳0.00</small>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <small>Tax:</small>
+                        <small id="summary-tax">৳0.00</small>
+                    </div>
+                    <hr class="my-1">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <small>Total:</small>
+                        <small id="summary-total">৳0.00</small>
+                    </div>
+                </div>
+
+                <!-- Pay Amount Section -->
+                <div class="pay-amount-section">
+                    <label class="form-label small">Pay Amount</label>
+                    <input type="number" id="pay-amount" class="form-control form-control-touch" 
+                           placeholder="0.00" step="0.01" min="0" value="0">
+                </div>
+
+                <!-- Return Amount Display -->
+                <div class="return-amount-section" id="return-amount-section" style="display: none;">
+                    <div class="return-amount-display">
+                        <span class="return-label">Return Amount:</span>
+                        <span class="return-value" id="return-amount">৳0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <div class="d-grid gap-1">
+                    <button type="button" class="btn btn-pos-success btn-touch" onclick="processPayment()">
+                        <i class="ti ti-check"></i> Complete
+                    </button>
+                    <div class="row g-1">
+                        <div class="col-6">
+                            <button type="button" class="btn btn-pos-warning btn-touch w-100" onclick="clearCart(); clearInput();">
+                                <i class="ti ti-trash"></i>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-pos-primary btn-touch w-100" onclick="holdTransaction()">
+                                <i class="ti ti-clock"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSRF Token -->
+{% csrf_token %}
+{% endblock %}

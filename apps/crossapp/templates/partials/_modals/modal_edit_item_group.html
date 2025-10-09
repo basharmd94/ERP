@@ -1,0 +1,51 @@
+<!-- Edit Item Group Modal -->
+<div class="modal fade" id="editItemGroupModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-simple modal-edit-item-group">
+    <div class="modal-content p-3 p-md-5">
+      <div class="modal-body">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="text-center mb-4">
+          <h3 class="mb-2">Edit Item Group</h3>
+          <p class="text-muted">Update item group information</p>
+        </div>
+        <form id="editItemGroupForm" class="row g-3">
+          {% csrf_token %}
+          <input type="hidden" id="editItemGroupCode" name="item_group_code" />
+          <div class="col-12">
+            <label class="form-label" for="editItemGroupName">Item Group Name</label>
+            <input type="text" id="editItemGroupName" name="item_group_description" class="form-control" placeholder="Enter item group name" required />
+          </div>
+          <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary me-sm-3 me-1">Update</button>
+            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div><!-- Edit Item Group Modal -->
+<div class="modal fade" id="editItemGroupModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-simple modal-edit-item-group">
+    <div class="modal-content p-3 p-md-5">
+      <div class="modal-body">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="text-center mb-4">
+          <h3 class="mb-2">Edit Item Group</h3>
+          <p class="text-muted">Update item group information</p>
+        </div>
+        <form id="editItemGroupForm" class="row g-3">
+          {% csrf_token %}
+          <input type="hidden" id="editItemGroupCode" name="item_group_code" />
+          <div class="col-12">
+            <label class="form-label" for="editItemGroupName">Item Group Name</label>
+            <input type="text" id="editItemGroupName" name="item_group_description" class="form-control" placeholder="Enter item group name" required />
+          </div>
+          <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary me-sm-3 me-1">Update</button>
+            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

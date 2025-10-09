@@ -1,0 +1,304 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Inventory - Item Ledger{% endblock %}
+
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/pickr/pickr-themes.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+{% comment %} datatables {% endcomment %}
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+
+{% endblock vendor_css %}
+
+{% block extra_css %}
+<style>
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .search-result-item {
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .search-result-item:hover {
+    border-left-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.05) !important;
+  }
+
+  .search-result-item.bg-primary {
+    border-left-color: var(--bs-white);
+  }
+
+  .table-warning {
+    animation: highlight 1.5s ease-in-out;
+  }
+
+  @keyframes highlight {
+    0% { background-color: rgba(var(--bs-warning-rgb), 0.3); }
+    50% { background-color: rgba(var(--bs-warning-rgb), 0.6); }
+    100% { background-color: transparent; }
+  }
+
+  #item-search-results {
+    border: 1px solid rgba(var(--bs-border-color-rgb), 0.5);
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  .dropdown-header {
+    background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1), rgba(var(--bs-primary-rgb), 0.05));
+  }
+
+  .rate-input[readonly] {
+    background-color: rgba(var(--bs-secondary-rgb), 0.1) !important;
+    cursor: not-allowed;
+    color: var(--bs-secondary) !important;
+  }
+    border-bottom: 1px solid rgba(var(--bs-border-color-rgb), 0.3);
+
+</style>
+{% endblock %}
+
+{% block vendor_js %}
+{{ block.super }}
+
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<!-- Vendors JS -->
+<script src="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+{% comment %} datatables {% endcomment %}
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+
+<!--Datatables-->
+<script src="{% static 'custom/select_item.js' %}"></script>
+<!-- Reusable AJAX function for getting average prices -->
+<script src="{% static 'custom/get_avg_price.js' %}"></script>
+<script src="{% static 'custom/receive_entry.js' %}"></script>
+<!-- Receive Entry List DataTable -->
+<script src="{% static 'custom/receive_entry_list.js' %}"></script>
+<!-- Page JS -->
+<script src="{% static 'js/forms-pickers.js' %}"></script>
+<script src="{% static 'js/forms-selects.js' %}"></script>
+
+{% endblock page_js %}
+
+
+{% block content %}
+<nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Inventory</a>
+                      </li>
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Transaction</a>
+                      </li>
+                      <li class="breadcrumb-item active">Receive Entry</li>
+                    </ol>
+                  </nav>
+
+<!-- Tabs Section -->
+<div class="nav-align-top nav-tabs-shadow mb-4">
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item">
+      <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#receive-entry-tab" aria-controls="receive-entry-tab" aria-selected="true">
+        <i class="tf-icons ti ti-package-import ti-xs me-1"></i> Receive Entry
+      </button>
+    </li>
+    <li class="nav-item">
+      <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#receipt-list-tab" aria-controls="receipt-list-tab" aria-selected="false">
+        <i class="tf-icons ti ti-list ti-xs me-1"></i> Receipt List
+      </button>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="receive-entry-tab" role="tabpanel">
+      <!-- Receive Entry Form Content -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Create New Receive Entry</h5>
+        </div>
+        <div class="card-body">
+          <form id="receive-entry-form">
+            <div class="row">
+              <!-- Transaction Prefix -->
+              <div class="col-md-3 mb-3">
+                <label for="transaction-prefix" class="form-label">Transaction Prefix</label>
+                <select id="transaction-prefix" class="form-select select2" data-allow-clear="true">
+                  <option value="IPRE">IPRE</option>
+                  <option value="PRE-">PRE-</option>
+                  <option value="RE--">RE--</option>
+                  <option value="REC-" selected>REC-</option>
+                </select>
+              </div>
+
+              <!-- Date -->
+              <div class="col-md-3 mb-3">
+                <label for="transaction-date" class="form-label">Date</label>
+                <input type="text" class="form-control" id="transaction-date" placeholder="Select date" readonly />
+              </div>
+
+              <!-- Invoice Date -->
+              <div class="col-md-3 mb-3">
+                <label for="invoice-date" class="form-label">Invoice Date</label>
+                <input type="text" class="form-control" id="invoice-date" placeholder="Select date" readonly />
+              </div>
+
+              <!-- Receive Type -->
+              <div class="col-md-3 mb-3">
+                <label for="receive-type" class="form-label">Receive Type <span class="text-danger">*</span></label>
+                <select id="receive-type" class="form-select select2" data-allow-clear="true" required>
+                  <option value="0" selected>0-Opening Balance</option>
+                  <option value="1">1-Cash Purchase</option>
+                  <option value="2">2-Credit Purchase</option>
+                  <option value="3">3-MRR</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Reference -->
+              <div class="col-md-4 mb-3">
+                <label for="reference" class="form-label">Reference</label>
+                <input type="text" class="form-control" id="reference" placeholder="Enter reference" />
+              </div>
+
+              <!-- Supplier Number -->
+              <div class="col-md-4 mb-3">
+                <label for="supplier-number" class="form-label">Supplier Number</label>
+                <input type="text" class="form-control" id="supplier-number" placeholder="Enter supplier number" />
+              </div>
+
+              <!-- Warehouse -->
+              <div class="col-md-4 mb-3">
+                <label for="warehouse" class="form-label">Warehouse <span class="text-danger">*</span></label>
+                <select id="warehouse" class="form-select select2" data-allow-clear="true" required>
+                  <option value="fixit-gulshan" selected>Fixit Gulshan</option>
+                  <option value="damage-warehouse">Damage Warehouse</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Notes -->
+              <div class="col-md-8 mb-3">
+                <label for="notes" class="form-label">Notes</label>
+                <textarea class="form-control" id="notes" rows="3" placeholder="Enter notes"></textarea>
+              </div>
+
+              <!-- Entered By -->
+              <div class="col-md-4 mb-3">
+                <label for="entered-by" class="form-label">Entered by</label>
+                <input type="text" class="form-control" id="entered-by" value="{{ user.username }}" readonly />
+              </div>
+            </div>
+
+            <!-- Smart Item Selector -->
+            <div class="row">
+              <div class="col-12 mb-4">
+                <label for="item-selector" class="form-label">
+                  <i class="tf-icons ti ti-search me-1"></i>Smart Item Selector
+                  <small class="text-muted ms-2">Type to search items with average rates</small>
+                </label>
+                <div class="position-relative">
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="tf-icons ti ti-barcode"></i>
+                    </span>
+                    <input type="text" class="form-control" id="item-selector"
+                           placeholder="Search by item code or description (min 2 characters)..."
+                           autocomplete="off" />
+                    <span class="input-group-text" id="search-status">
+                      <i class="tf-icons ti ti-search text-muted"></i>
+                    </span>
+                  </div>
+                  <!-- Search Results Dropdown -->
+                  <div id="item-search-results" class="dropdown-menu w-100 shadow-lg border-0"
+                       style="display: none; max-height: 350px; overflow-y: auto; z-index: 1050; margin-top: 2px;">
+                    <!-- Dynamic search results will be populated here -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Line Items Table -->
+            <div class="row">
+              <div class="col-12 mb-4">
+                <div class="card">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">Line Items</h6>
+                    <small class="text-muted">Items added to this receipt</small>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0" id="line-items-table">
+                        <thead class="table-light">
+                          <tr>
+                            <th style="width: 60px;">SL</th>
+                            <th style="width: 150px;">Item Code</th>
+                            <th>Description</th>
+                            <th style="width: 120px;">Rate</th>
+                            <th style="width: 100px;">Qty</th>
+                            <th style="width: 120px;">Value</th>
+                            <th style="width: 80px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody id="line-items-tbody">
+                          <tr id="no-items-row">
+                            <td colspan="7" class="text-center text-muted py-4">
+                              <i class="tf-icons ti ti-package-off ti-lg mb-2 d-block"></i>
+                              No items added yet. Use the item selector above to add items.
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tfoot class="table-light">
+                          <tr>
+                            <th colspan="5" class="text-end">Total Value:</th>
+                            <th id="total-value">0.00</th>
+                            <th></th>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary me-2">
+                  <i class="tf-icons ti ti-device-floppy me-1"></i>Save
+                </button>
+                <button type="reset" class="btn btn-outline-secondary">
+                  <i class="tf-icons ti ti-refresh me-1"></i>Reset
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="receipt-list-tab" role="tabpanel">
+      <!-- Receipt List Content -->
+      {% include 'receive_entry_list.html' %}
+    </div>
+  </div>
+</div>
+{% endblock %}
