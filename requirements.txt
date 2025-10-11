@@ -22,3 +22,5 @@ gunicorn==21.2.0
 # Additional utilities
 Pillow==10.1.0
 requests==2.31.0
+
+xhtml2pdf==0.2.17
