@@ -21,7 +21,7 @@ RUN apt-get update \
   libcairo2-dev \
   libffi-dev \
   libpango1.0-dev \
-  libgdk-pixbuf2.0-dev \
+  libgdk-pixbuf-xlib-2.0-dev \
   libjpeg-dev \
   libpng-dev \
   && rm -rf /var/lib/apt/lists/*
