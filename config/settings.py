@@ -35,7 +35,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", DEFAULT_SECRET_KEY)
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "web", "erp_web", "206.191.180.107", "206.191.180.107:8090"]
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "web", "erp_web", "206.191.180.107", "206.191.180.107:8090", "192.168.1.77"]
 
 # Current DJANGO_ENVIRONMENT
 ENVIRONMENT = os.environ.get("DJANGO_ENVIRONMENT", "local")
@@ -82,7 +82,6 @@ INSTALLED_APPS = [
     "apps.opord",  # New OpOrd app
     "apps.sales",  # New Sales Management app
     "apps.inventory",  # New Inventory Management app
-    "apps.helpers",
     # Celery
     "django_celery_beat",
     "django_celery_results",

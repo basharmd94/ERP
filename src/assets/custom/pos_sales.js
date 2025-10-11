@@ -1,4 +1,12 @@
 // POS System JavaScript
+
+// Global Configuration
+const POS_CONFIG = {
+    VAT_PERCENTAGE: 7.5, // Global VAT percentage - change here to affect all calculations
+    CURRENCY_SYMBOL: '$',
+    DECIMAL_PLACES: 2
+};
+
 $(document).ready(function() {
     // Initialize POS system
     initializePOS();
@@ -129,9 +137,21 @@ function clearInput() {
 }
 
 function initializePaymentMethods() {
+    // Initialize Select2 for payment method dropdown
+    $('#payment-method-select').select2({
+        minimumResultsForSearch: Infinity, // Disable search for simple dropdown
+        width: '100%'
+    });
+
+    // Initialize Select2 for bank name dropdown
+    $('#bank-name').select2({
+        minimumResultsForSearch: Infinity, // Disable search for simple dropdown
+        width: '100%'
+    });
+
     // Set default payment method
     window.selectedPaymentMethod = 'cash';
-    $('#payment-method-select').val('cash');
+    $('#payment-method-select').val('cash').trigger('change');
 
     // Handle payment method selection via dropdown
     $('#payment-method-select').on('change', function() {
@@ -141,12 +161,14 @@ function initializePaymentMethods() {
         // Store selected payment method
         window.selectedPaymentMethod = method;
 
-        // Show/hide card amount and card number sections
+        // Show/hide bank name section based on payment method
         if (method === 'card') {
+            $('#bank-name-section').show();
             $('#card-amount-section').addClass('show');
             $('#card-number-section').show();
             updateCardAmountFromTotal();
         } else {
+            $('#bank-name-section').hide();
             $('#card-amount-section').removeClass('show');
             $('#card-number-section').hide();
             $('#card-number').val(''); // Clear card number when switching to cash
@@ -372,14 +394,21 @@ function addToCart(product) {
         }
         existingItem.quantity += 1;
         existingItem.total = existingItem.quantity * existingItem.xstdprice;
+        existingItem.item_vat = (existingItem.total * POS_CONFIG.VAT_PERCENTAGE / 100).toFixed(POS_CONFIG.DECIMAL_PLACES);
     } else {
+        const itemTotal = product.xstdprice;
+        const itemVat = (itemTotal * POS_CONFIG.VAT_PERCENTAGE / 100).toFixed(POS_CONFIG.DECIMAL_PLACES);
+        
         cart.push({
             xitem: product.xitem,
             xdesc: product.xdesc,
             xstdprice: product.xstdprice,
+            item_cost: product.item_cost,
+            xunitstk: product.xunitstk,
             stock: product.stock,
             quantity: 1,
-            total: product.xstdprice
+            total: itemTotal,
+            item_vat: itemVat
         });
     }
 
@@ -412,6 +441,7 @@ function updateCartQuantity(xitem, quantity) {
 
         item.quantity = newQuantity;
         item.total = item.quantity * item.xstdprice;
+        item.item_vat = (item.total * POS_CONFIG.VAT_PERCENTAGE / 100).toFixed(POS_CONFIG.DECIMAL_PLACES);
         saveCart();
         updateCartDisplay();
     }
@@ -452,12 +482,14 @@ function updateCartDisplay() {
         <table class="cart-table">
             <thead>
                 <tr>
-                    <th style="width: 15%;">Code</th>
-                    <th style="width: 25%;">Item Name</th>
-                    <th style="width: 10%;">Stock</th>
-                    <th style="width: 15%;">Rate</th>
-                    <th style="width: 12%;">Qty</th>
-                    <th style="width: 15%;">Amount</th>
+                    <th style="width: 10%;">Code</th>
+                    <th style="width: 18%;">Item Name</th>
+                    <th style="width: 8%;">Unit</th>
+                    <th style="width: 8%;">Stock</th>
+                    <th style="width: 10%;">Rate</th>
+                    <th style="width: 8%;">Qty</th>
+                    <th style="width: 12%;">Amount</th>
+                    <th style="width: 10%;">VAT</th>
                     <th style="width: 8%;">Del</th>
                 </tr>
             </thead>
@@ -465,13 +497,22 @@ function updateCartDisplay() {
     `;
 
     let subtotal = 0;
+    let totalVat = 0;
 
     cart.forEach(item => {
+        // Ensure item_vat exists for backward compatibility
+        if (!item.item_vat) {
+            item.item_vat = (item.total * POS_CONFIG.VAT_PERCENTAGE / 100).toFixed(POS_CONFIG.DECIMAL_PLACES);
+        }
+        
         subtotal += item.total;
+        totalVat += parseFloat(item.item_vat);
+        
         html += `
             <tr data-xitem="${item.xitem}">
                 <td class="item-code">${item.xitem}</td>
                 <td class="item-name" title="${item.xdesc}">${item.xdesc}</td>
+                <td class="unit-cell">${item.xunitstk || 'N/A'}</td>
                 <td>${item.stock}</td>
                 <td class="rate-cell">৳${item.xstdprice.toFixed(2)}</td>
                 <td>
@@ -480,6 +521,7 @@ function updateCartDisplay() {
                            onchange="updateCartQuantity('${item.xitem}', this.value)">
                 </td>
                 <td class="amount-cell">৳${item.total.toFixed(2)}</td>
+                <td class="vat-cell">৳${parseFloat(item.item_vat).toFixed(2)}</td>
                 <td>
                     <button class="btn btn-outline-danger btn-sm delete-btn" onclick="removeFromCart('${item.xitem}')">
                         <i class="ti ti-trash"></i>
@@ -503,8 +545,8 @@ function updateCartDisplay() {
     const totalDiscountAmount = fixedDiscount + percentDiscountAmount;
     const discountedSubtotal = Math.max(0, subtotal - totalDiscountAmount);
 
-    // Calculate totals - VAT on original subtotal, not after discount
-    const tax = subtotal * 0.075; // 7.5% tax on original subtotal
+    // Calculate totals - Use individual VAT amounts
+    const tax = totalVat; // Sum of individual item VAT amounts
     const total = discountedSubtotal + tax;
 
     cartTotals.html(`
@@ -663,7 +705,7 @@ function calculateTotal() {
     const percentDiscount = parseFloat($('#percent-discount').val()) || 0;
     const discountAmount = fixedDiscount + (subtotal * percentDiscount / 100);
     const discountedSubtotal = Math.max(0, subtotal - discountAmount);
-    const tax = subtotal * 0.075; // 7.5% tax on original subtotal
+    const tax = cart.reduce((sum, item) => sum + parseFloat(item.item_vat || 0), 0); // Sum of individual VAT amounts on discounted subtotal on original subtotal
     return discountedSubtotal + tax;
 }
 
@@ -822,7 +864,7 @@ function processPayment() {
     const percentDiscountAmount = subtotal * percentDiscount / 100;
     const totalDiscountAmount = fixedDiscount + percentDiscountAmount;
     const discountedSubtotal = Math.max(0, subtotal - totalDiscountAmount);
-    const tax = subtotal * 0.075; // 7.5% tax
+    const tax = cart.reduce((sum, item) => sum + parseFloat(item.item_vat || 0), 0); // Sum of individual VAT amounts
     const grandTotal = discountedSubtotal + tax;
 
     // Prepare sale data
@@ -834,6 +876,7 @@ function processPayment() {
         },
         items: cart,
         payment_method: window.selectedPaymentMethod,
+        bank_name: $('#bank-name').val() || 'UCB',
         card_number: $('#card-number').val() || '',
         card_amount: parseFloat($('#card-amount').val()) || 0,
         cash_amount: parseFloat($('#cash-amount').text()) || 0,

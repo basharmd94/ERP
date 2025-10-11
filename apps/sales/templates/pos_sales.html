@@ -7,11 +7,13 @@
 
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
 <link rel="stylesheet" href="{% static 'css/pos_sales.css' %}" />
 {% endblock stylesheets %}
 
 {% block javascripts %}
 <script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
 <script src="{% static 'custom/pos_validation.js' %}"></script>
 <script src="{% static 'custom/pos_sales.js' %}"></script>
 {% endblock javascripts %}
@@ -117,9 +119,25 @@
                 <h6 class="mb-2">Payment</h6>
                 <div class="payment-method-dropdown">
                     <label class="form-label small">Payment Method</label>
-                    <select id="payment-method-select" class="form-control form-control-touch">
+                    <select id="payment-method-select" class="select2 form-select" data-allow-clear="false">
                         <option value="cash" selected>💵 Cash</option>
                         <option value="card">💳 Card</option>
+                    </select>
+                </div>
+
+                <!-- Bank Name Section (Hidden by default, shown only for card payments) -->
+                <div class="bank-name-section" id="bank-name-section" style="display: none;">
+                    <label class="form-label small">Bank Name <span class="text-danger">*</span></label>
+                    <select id="bank-name" class="select2 form-select" data-allow-clear="false" required>
+                        <option value="BASIA">BASIA</option>
+                        <option value="Bkash">Bkash</option>
+                        <option value="CBL">CBL</option>
+                        <option value="DBBl">DBBl</option>
+                        <option value="DBBL">DBBL</option>
+                        <option value="MTBL">MTBL</option>
+                        <option value="PBL">PBL</option>
+                        <option value="SSL">SSL</option>
+                        <option value="UCB" selected>UCB</option>
                     </select>
                 </div>
 
