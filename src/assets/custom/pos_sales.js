@@ -269,6 +269,49 @@ function initializeBarcodeScanner() {
     });
 }
 
+/**
+ * Print POS slip by opening a new window/tab with the print URL
+ * @param {string} transactionId - The transaction/order number
+ */
+function printPOSSlip(transactionId) {
+    try {
+        // Construct the print URL
+        const printUrl = `/pos/print-slip/${transactionId}/`;
+        
+        // Open in a new window/tab optimized for printing
+        const printWindow = window.open(
+            printUrl, 
+            'pos-print-' + transactionId,
+            'width=400,height=600,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
+        );
+        
+        if (printWindow) {
+            // Focus the new window
+            printWindow.focus();
+            
+            // Optional: Auto-print when the page loads (uncomment if desired)
+            printWindow.addEventListener('load', function() {
+                // Delay to ensure content is fully loaded
+                setTimeout(function() {
+                    // Uncomment the line below to auto-print
+                    // printWindow.print();
+                }, 500);
+            });
+            
+            toastr.info('Print window opened. Click the print button to print the receipt.', 'Print Ready');
+        } else {
+            // Fallback if popup is blocked
+            toastr.warning('Popup blocked. Please allow popups and try again, or manually navigate to: ' + printUrl, 'Print Blocked');
+            
+            // Alternative: Open in same tab (not recommended for POS workflow)
+            // window.open(printUrl, '_blank');
+        }
+    } catch (error) {
+        console.error('Error opening print window:', error);
+        toastr.error('Failed to open print window. Please try printing manually.', 'Print Error');
+    }
+}
+
 function loadSavedTransactions() {
     // Load saved transactions from localStorage
     console.log('Loading saved transactions...');
@@ -849,6 +892,12 @@ function processPayment() {
                 } else {
                     toastr.success(`Sale completed! Order: ${response.order_number}`);
                 }
+                
+                // Automatic POS slip printing
+                if (response.order_number) {
+                    printPOSSlip(response.order_number);
+                }
+                
                 clearCart();
                 clearInput(); // Clear all form fields
                 // Reset header customer fields to defaults
