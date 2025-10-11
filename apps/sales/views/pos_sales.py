@@ -2,10 +2,11 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView
 from web_project import TemplateLayout
 from apps.authentication.mixins import ZidRequiredMixin
+from apps.helpers.views.items_check_inventory import items_check_inventory
 from apps.authentication.mixins import ModulePermissionMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.db import transaction, connection
+from django.db import transaction
 
 import json
 import logging
@@ -125,88 +126,6 @@ def pos_products_api(request):
         }, status=500)
 
 
-def items_check_inventory(items, zid):
-    """
-    Validate item quantities against real-time inventory
-    
-    Args:
-        items: List of items with xitem and quantity
-        zid: Current business context ID
-        
-    Returns:
-        dict: {'success': bool, 'message': str, 'errors': list}
-    """
-    try:
-        # Extract item codes from the items list
-        item_codes = [item['xitem'] for item in items]
-        
-        if not item_codes:
-            return {
-                'success': False,
-                'message': 'No items to validate',
-                'errors': []
-            }
-        
-        # Build SQL query to get current inventory for all items
-        placeholders = ','.join(['%s'] * len(item_codes))
-        sql_query = f"""
-        SELECT 
-            xitem, 
-            SUM(xqty * xsign) as current_stock
-        FROM imtrn 
-        WHERE zid = %s AND xitem IN ({placeholders})
-        GROUP BY xitem
-        """
-        
-        # Prepare parameters: zid + item_codes
-        params = [zid] + item_codes
-        
-        # Execute query
-        with connection.cursor() as cursor:
-            cursor.execute(sql_query, params)
-            inventory_results = cursor.fetchall()
-        
-        # Convert results to dictionary for easy lookup
-        inventory_dict = {row[0]: float(row[1]) for row in inventory_results}
-        
-        # Validate each item
-        validation_errors = []
-        
-        for item in items:
-            xitem = item['xitem']
-            requested_qty = float(item['quantity'])
-            current_stock = inventory_dict.get(xitem, 0.0)
-            
-            if requested_qty > current_stock:
-                validation_errors.append({
-                    'xitem': xitem,
-                    'xdesc': item.get('xdesc', ''),
-                    'requested_quantity': requested_qty,
-                    'available_stock': current_stock,
-                    'message': f'Insufficient stock for {xitem}. Requested: {requested_qty}, Available: {current_stock}'
-                })
-        
-        if validation_errors:
-            return {
-                'success': False,
-                'message': 'Inventory validation failed',
-                'errors': validation_errors
-            }
-        
-        return {
-            'success': True,
-            'message': 'Inventory validation successful',
-            'errors': []
-        }
-        
-    except Exception as e:
-        logger.error(f"Inventory validation error: {str(e)}")
-        return {
-            'success': False,
-            'message': f'Inventory validation error: {str(e)}',
-            'errors': []
-        }
-
 
 @csrf_exempt
 @transaction.atomic
@@ -220,7 +139,7 @@ def pos_complete_sale(request):
     try:
         data = json.loads(request.body)
         logger.info(f"Received sale data: {data}")
-        
+
         # Get current ZID from session
         current_zid = request.session.get('current_zid')
         if not current_zid:
@@ -228,7 +147,7 @@ def pos_complete_sale(request):
                 'success': False,
                 'error': 'No business context found'
             }, status=400)
-        
+
         # Extract items from the request data
         items = data.get('items', [])
         if not items:
@@ -236,10 +155,10 @@ def pos_complete_sale(request):
                 'success': False,
                 'error': 'No items found in the order'
             }, status=400)
-        
+
         # Validate inventory for all items
         inventory_validation = items_check_inventory(items, current_zid)
-        
+
         if not inventory_validation['success']:
             # Return validation errors with detailed information
             return JsonResponse({
@@ -248,16 +167,16 @@ def pos_complete_sale(request):
                 'errors': inventory_validation['errors'],
                 'validation_failed': True
             }, status=400)
-        
+
         # If validation passes, log success and return success response
         logger.info(f"Inventory validation successful for order with {len(items)} items")
-        
+
         # TODO: Implement actual sale processing (opord, opodt, imtrn table insertions)
         # This will be implemented in the next step
-        
+
         return JsonResponse({
             'success': True,
-            'order_number': 'ORD-2024-001',
+            'order_number': 'CO--212748',
             'message': 'Inventory validation successful. Sale ready to process.',
             'validation_passed': True
         })

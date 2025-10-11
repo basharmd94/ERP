@@ -6,28 +6,28 @@ $(document).ready(function() {
 
 function initializePOS() {
     console.log('Initializing POS System...');
-    
+
     // Initialize product search
     initializeProductSearch();
-    
+
     // Initialize cart
     initializeCart();
-    
+
     // Initialize customer form
     initializeCustomerForm();
-    
+
     // Initialize payment methods
     initializePaymentMethods();
-    
+
     // Initialize barcode scanner
     initializeBarcodeScanner();
-    
+
     // Load saved transactions
     loadSavedTransactions();
-    
+
     // Initialize hold list popover
     initializeHoldListPopover();
-    
+
     console.log('POS System initialized successfully');
 }
 
@@ -59,7 +59,7 @@ function initializeProductSearch() {
         },
         templateResult: function(item) {
             if (item.loading) return item.text;
-            
+
             return $(`
                 <div class="product-result">
                     <div class="fw-bold">${item.text}</div>
@@ -73,7 +73,7 @@ function initializeProductSearch() {
             return item.text || item.id;
         }
     });
-    
+
     // Handle product selection
     $('#product-search').on('select2:select', function (e) {
         const product = e.params.data;
@@ -100,31 +100,31 @@ function initializeCustomerForm() {
 
 function clearInput() {
     console.log('Clearing all input fields...');
-    
+
     // Reset payment method to cash
     $('#payment-method-select').val('cash');
     window.selectedPaymentMethod = 'cash';
-    
+
     // Hide and clear card sections
     $('#card-amount-section').removeClass('show');
     $('#card-number-section').hide();
     $('#card-amount').val('');
     $('#card-number').val('');
-    
+
     // Clear discount fields
     $('#fixed-discount').val('0');
     $('#percent-discount').val('0');
-    
+
     // Clear customer notes
     $('#order-notes').val('');
-    
+
     // Clear pay amount and hide return amount
     $('#pay-amount').val('0');
     $('#return-amount-section').hide();
-    
+
     // Update cash amount display
     $('#cash-amount').text('0.00');
-    
+
     console.log('All input fields cleared successfully');
 }
 
@@ -132,15 +132,15 @@ function initializePaymentMethods() {
     // Set default payment method
     window.selectedPaymentMethod = 'cash';
     $('#payment-method-select').val('cash');
-    
+
     // Handle payment method selection via dropdown
     $('#payment-method-select').on('change', function() {
         const method = $(this).val();
         console.log('Payment method selected:', method);
-        
+
         // Store selected payment method
         window.selectedPaymentMethod = method;
-        
+
         // Show/hide card amount and card number sections
         if (method === 'card') {
             $('#card-amount-section').addClass('show');
@@ -152,7 +152,7 @@ function initializePaymentMethods() {
             $('#card-number').val(''); // Clear card number when switching to cash
         }
     });
-    
+
     // Handle card amount input
     $('#card-amount').on('input', function() {
         const cardAmount = parseFloat($(this).val()) || 0;
@@ -162,17 +162,17 @@ function initializePaymentMethods() {
         $('#pay-amount').val(cashAmount.toFixed(2));
         updateReturnAmount();
     });
-    
+
     // Handle pay amount input
     $('#pay-amount').on('input', function() {
         updateReturnAmount();
     });
-    
+
     // Handle discount inputs
     $('#fixed-discount, #percent-discount').on('input', function() {
         updateCartDisplay();
     });
-    
+
     console.log('Payment methods initialized');
 }
 
@@ -217,9 +217,9 @@ function updatePayAmount(total) {
 function updateReturnAmount() {
     const total = getCurrentTotal();
     const payAmount = parseFloat($('#pay-amount').val()) || 0;
-    
+
     let returnAmount = 0;
-    
+
     if (window.selectedPaymentMethod === 'card') {
         // For card payment: Return = Cash paid - Cash portion needed
         const cardAmount = parseFloat($('#card-amount').val()) || 0;
@@ -229,7 +229,7 @@ function updateReturnAmount() {
         // For cash payment: Return = Cash paid - Total amount
         returnAmount = Math.max(0, payAmount - total);
     }
-    
+
     if (returnAmount > 0) {
         $('#return-amount-section').show();
         $('#return-amount').text(`৳${returnAmount.toFixed(2)}`);
@@ -243,7 +243,7 @@ function updateCashAmountFromPayAmount() {
         const total = getCurrentTotal();
         const cardAmount = parseFloat($('#card-amount').val()) || 0;
         const cashAmount = Math.max(0, total - cardAmount);
-        
+
         // Update Pay Amount to reflect the cash portion
         $('#pay-amount').val(cashAmount.toFixed(2));
         updateReturnAmount();
@@ -253,7 +253,7 @@ function updateCashAmountFromPayAmount() {
 function initializeBarcodeScanner() {
     // Auto-focus the barcode input when page loads
     $('#barcode-input').focus();
-    
+
     $('#barcode-input').on('keypress', function(e) {
         if (e.which === 13) { // Enter key
             const barcode = $(this).val().trim();
@@ -276,19 +276,25 @@ function initializeBarcodeScanner() {
 function printPOSSlip(transactionId) {
     try {
         // Construct the print URL
-        const printUrl = `/pos/print-slip/${transactionId}/`;
-        
-        // Open in a new window/tab optimized for printing
+        const printUrl = `/sales/pos/print-slip/${transactionId}/`;
+
+        // Calculate window position to center it
+        const width = 400;
+        const height = 600;
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+
+        // Open in a new window/tab optimized for printing and centered
         const printWindow = window.open(
-            printUrl, 
+            printUrl,
             'pos-print-' + transactionId,
-            'width=400,height=600,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
+            `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no`
         );
-        
+
         if (printWindow) {
             // Focus the new window
             printWindow.focus();
-            
+
             // Optional: Auto-print when the page loads (uncomment if desired)
             printWindow.addEventListener('load', function() {
                 // Delay to ensure content is fully loaded
@@ -297,12 +303,12 @@ function printPOSSlip(transactionId) {
                     // printWindow.print();
                 }, 500);
             });
-            
+
             toastr.info('Print window opened. Click the print button to print the receipt.', 'Print Ready');
         } else {
             // Fallback if popup is blocked
             toastr.warning('Popup blocked. Please allow popups and try again, or manually navigate to: ' + printUrl, 'Print Blocked');
-            
+
             // Alternative: Open in same tab (not recommended for POS workflow)
             // window.open(printUrl, '_blank');
         }
@@ -329,10 +335,10 @@ function initializeHoldListPopover() {
             content: '<div class="p-2 text-muted">No held transactions</div>',
             placement: 'bottom'
         });
-        
+
         // Update popover content on initialization
         updateHoldListPopover();
-        
+
         // Close popover when clicking outside
         $(document).on('click', function (e) {
             if (!$(e.target).closest('#hold-list-btn').length) {
@@ -355,9 +361,9 @@ function addToCart(product) {
         toastr.error(`${product.xdesc} is out of stock and cannot be added to cart`);
         return;
     }
-    
+
     const existingItem = cart.find(item => item.xitem === product.xitem);
-    
+
     if (existingItem) {
         // Check if adding one more would exceed stock
         if (existingItem.quantity >= product.stock) {
@@ -376,10 +382,10 @@ function addToCart(product) {
             total: product.xstdprice
         });
     }
-    
+
     saveCart();
     updateCartDisplay();
-    
+
     toastr.success(`${product.xdesc} added to cart`);
 }
 
@@ -395,7 +401,7 @@ function updateCartQuantity(xitem, quantity) {
     const item = cart.find(item => item.xitem === xitem);
     if (item) {
         const newQuantity = Math.max(1, quantity);
-        
+
         // Check if new quantity exceeds available stock
         if (newQuantity > item.stock) {
             toastr.warning(`Cannot set quantity to ${newQuantity}. Only ${item.stock} items available in stock for ${item.xdesc}`);
@@ -403,7 +409,7 @@ function updateCartQuantity(xitem, quantity) {
             $(`input[onchange*="${xitem}"]`).val(item.quantity);
             return;
         }
-        
+
         item.quantity = newQuantity;
         item.total = item.quantity * item.xstdprice;
         saveCart();
@@ -414,7 +420,7 @@ function updateCartQuantity(xitem, quantity) {
 function updateCartDisplay() {
     const cartContainer = $('#cart-items');
     const cartTotals = $('#cart-totals');
-    
+
     if (cart.length === 0) {
         cartContainer.html(`
             <div class="empty-cart">
@@ -424,24 +430,24 @@ function updateCartDisplay() {
             </div>
         `);
         cartTotals.hide();
-        
+
         // Reset cart count displays
         $('#cart-count').text('0 items');
         $('#summary-items').text('0');
         $('#main-total-display').text('Total: ৳0.00');
-        
+
         // Reset summary displays
         $('#summary-subtotal').text('৳0.00');
         $('#summary-tax').text('৳0.00');
         $('#summary-total').text('৳0.00');
-        
+
         // Hide discount rows
         $('#fixed-discount-row').hide();
         $('#percent-discount-row').hide();
-        
+
         return;
     }
-    
+
     let html = `
         <table class="cart-table">
             <thead>
@@ -457,9 +463,9 @@ function updateCartDisplay() {
             </thead>
             <tbody>
     `;
-    
+
     let subtotal = 0;
-    
+
     cart.forEach(item => {
         subtotal += item.total;
         html += `
@@ -469,8 +475,8 @@ function updateCartDisplay() {
                 <td>${item.stock}</td>
                 <td class="rate-cell">৳${item.xstdprice.toFixed(2)}</td>
                 <td>
-                    <input type="number" class="quantity-input" 
-                           value="${item.quantity}" min="1" 
+                    <input type="number" class="quantity-input"
+                           value="${item.quantity}" min="1"
                            onchange="updateCartQuantity('${item.xitem}', this.value)">
                 </td>
                 <td class="amount-cell">৳${item.total.toFixed(2)}</td>
@@ -482,25 +488,25 @@ function updateCartDisplay() {
             </tr>
         `;
     });
-    
+
     html += `
             </tbody>
         </table>
     `;
-    
+
     cartContainer.html(html);
-    
+
     // Calculate discounts
     const fixedDiscount = parseFloat($('#fixed-discount').val()) || 0;
     const percentDiscount = parseFloat($('#percent-discount').val()) || 0;
     const percentDiscountAmount = subtotal * percentDiscount / 100;
     const totalDiscountAmount = fixedDiscount + percentDiscountAmount;
     const discountedSubtotal = Math.max(0, subtotal - totalDiscountAmount);
-    
+
     // Calculate totals - VAT on original subtotal, not after discount
     const tax = subtotal * 0.075; // 7.5% tax on original subtotal
     const total = discountedSubtotal + tax;
-    
+
     cartTotals.html(`
         <div class="total-line">
             <span>Subtotal:</span>
@@ -523,40 +529,40 @@ function updateCartDisplay() {
             <span>৳${total.toFixed(2)}</span>
         </div>
     `).show();
-    
+
     // Update main total display
     $('#main-total-display').text(`Total: ৳${total.toFixed(2)}`);
-    
+
     // Update cart count displays
     const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
     $('#cart-count').text(`${itemCount} item${itemCount !== 1 ? 's' : ''}`);
     $('#summary-items').text(itemCount);
-    
+
     // Update summary section
     $('#summary-subtotal').text(`৳${subtotal.toFixed(2)}`);
     $('#summary-tax').text(`৳${tax.toFixed(2)}`);
     $('#summary-total').text(`৳${total.toFixed(2)}`);
-    
+
     // Update discount displays
     const fixedDiscountAmount = fixedDiscount;
-    
+
     if (fixedDiscountAmount > 0) {
         $('#fixed-discount-row').show();
         $('#summary-fixed-discount').text(`-৳${fixedDiscountAmount.toFixed(2)}`);
     } else {
         $('#fixed-discount-row').hide();
     }
-    
+
     if (percentDiscountAmount > 0) {
         $('#percent-discount-row').show();
         $('#summary-percent-discount').text(`-৳${percentDiscountAmount.toFixed(2)} (${percentDiscount}%)`);
     } else {
         $('#percent-discount-row').hide();
     }
-    
+
     // Update card amount if card is selected
     updateCardAmount(total);
-    
+
     // Update pay amount
     updatePayAmount(total);
 }
@@ -585,7 +591,7 @@ function clearCart() {
     clearDiscountFields();
     updateCartDisplay();
     toastr.success('Cart cleared');
-    
+
     // Reload the page to reset all fields and state
     setTimeout(() => {
         location.reload();
@@ -616,7 +622,7 @@ function holdTransaction() {
         toastr.warning('Cart is empty');
         return;
     }
-    
+
     const transactionId = 'HOLD-' + Date.now();
     const transaction = {
         id: transactionId,
@@ -633,18 +639,18 @@ function holdTransaction() {
         timestamp: new Date().toISOString(),
         total: calculateTotal()
     };
-    
+
     // Save to localStorage
     const heldTransactions = JSON.parse(localStorage.getItem('pos_held_transactions') || '[]');
     heldTransactions.push(transaction);
     localStorage.setItem('pos_held_transactions', JSON.stringify(heldTransactions));
-    
+
     // Clear current cart
     clearCart();
-    
+
     toastr.success(`Transaction ${transactionId} held successfully`);
     updateHoldListPopover();
-    
+
     // Reload the page to reset all fields and state
     setTimeout(() => {
         location.reload();
@@ -663,17 +669,17 @@ function calculateTotal() {
 
 function updateHoldListPopover() {
     const heldTransactions = JSON.parse(localStorage.getItem('pos_held_transactions') || '[]');
-    
+
     let content;
     if (heldTransactions.length === 0) {
         content = '<div class="p-2 text-muted">No held transactions</div>';
     } else {
         content = '<div class="hold-list-popover" style="max-width: 300px; max-height: 400px; overflow-y: auto;">';
-        
+
         heldTransactions.forEach((transaction, index) => {
             const date = new Date(transaction.timestamp).toLocaleString();
             const itemCount = transaction.items.reduce((sum, item) => sum + item.quantity, 0);
-            
+
             content += `
                 <div class="hold-item p-2 border-bottom" style="cursor: pointer;" onclick="loadHeldTransaction('${transaction.id}')">
                     <div class="d-flex justify-content-between align-items-start">
@@ -690,10 +696,10 @@ function updateHoldListPopover() {
                 </div>
             `;
         });
-        
+
         content += '</div>';
     }
-    
+
     // Update Bootstrap 5 popover content
     if (window.holdListPopover) {
         // Dispose of the old popover and create a new one with updated content
@@ -714,12 +720,12 @@ function updateHoldListPopover() {
 function loadHeldTransaction(transactionId) {
     const heldTransactions = JSON.parse(localStorage.getItem('pos_held_transactions') || '[]');
     const transaction = heldTransactions.find(t => t.id === transactionId);
-    
+
     if (!transaction) {
         toastr.error('Transaction not found');
         return;
     }
-    
+
     // Save current cart if it has items
     if (cart.length > 0) {
         const currentTransactionId = 'HOLD-' + Date.now();
@@ -737,28 +743,28 @@ function loadHeldTransaction(transactionId) {
             timestamp: new Date().toISOString(),
             total: calculateTotal()
         };
-        
+
         const updatedHeldTransactions = JSON.parse(localStorage.getItem('pos_held_transactions') || '[]');
         updatedHeldTransactions.push(currentTransaction);
         localStorage.setItem('pos_held_transactions', JSON.stringify(updatedHeldTransactions));
-        
+
         toastr.info(`Current order saved as ${currentTransactionId}`);
     }
-    
+
     // Load the selected transaction
     cart = [...transaction.items];
     window.cart = cart; // Sync with validation module
-    
+
     // Restore customer information
     $('#customer-name').val(transaction.customer.name || '');
     $('#customer-phone').val(transaction.customer.phone || '');
     $('#customer-email').val(transaction.customer.email || '');
-    
+
     // Restore payment method
     if (transaction.paymentMethod) {
         $('#payment-method-select').val(transaction.paymentMethod);
         window.selectedPaymentMethod = transaction.paymentMethod;
-        
+
         // Show/hide card amount and card number sections based on payment method
         if (transaction.paymentMethod === 'card') {
             $('#card-amount-section').addClass('show');
@@ -771,26 +777,26 @@ function loadHeldTransaction(transactionId) {
             $('#card-number').val('');
         }
     }
-    
+
     // Restore notes
     $('#order-notes').val(transaction.notes || '');
-    
+
     // Restore pay amount
     $('#pay-amount').val(transaction.payAmount || 0);
-    
+
     // Remove the loaded transaction from held transactions
     const remainingTransactions = heldTransactions.filter(t => t.id !== transactionId);
     localStorage.setItem('pos_held_transactions', JSON.stringify(remainingTransactions));
-    
+
     // Update displays
     updateCartDisplay();
     updateHoldListPopover();
-    
+
     // Hide popover
     if (window.holdListPopover) {
         window.holdListPopover.hide();
     }
-    
+
     toastr.success(`Loaded transaction ${transactionId}`);
 }
 
@@ -798,7 +804,7 @@ function deleteHeldTransaction(transactionId) {
     const heldTransactions = JSON.parse(localStorage.getItem('pos_held_transactions') || '[]');
     const remainingTransactions = heldTransactions.filter(t => t.id !== transactionId);
     localStorage.setItem('pos_held_transactions', JSON.stringify(remainingTransactions));
-    
+
     updateHoldListPopover();
     toastr.success('Held transaction deleted');
 }
@@ -808,7 +814,7 @@ function processPayment() {
         toastr.warning('Cart is empty');
         return;
     }
-    
+
     // Calculate totals for logging
     const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
     const fixedDiscount = parseFloat($('#fixed-discount').val()) || 0;
@@ -818,7 +824,7 @@ function processPayment() {
     const discountedSubtotal = Math.max(0, subtotal - totalDiscountAmount);
     const tax = subtotal * 0.075; // 7.5% tax
     const grandTotal = discountedSubtotal + tax;
-    
+
     // Prepare sale data
     const saleData = {
         customer: {
@@ -854,7 +860,7 @@ function processPayment() {
         notes: $('#order-notes').val(),
         timestamp: new Date().toISOString()
     };
-    
+
     // Console logging for debugging
     console.log('=== POS ORDER PROCESSING ===');
     console.log('Complete Sale Data Structure:');
@@ -878,7 +884,7 @@ function processPayment() {
     console.log(`Pay Amount: ৳${saleData.pay_amount.toFixed(2)}`);
     console.log(`Return Amount: ৳${saleData.return_amount.toFixed(2)}`);
     console.log('=== END SUMMARY ===');
-    
+
     // Send to server
     $.ajax({
         url: '/sales/api/pos/complete-sale/',
@@ -892,12 +898,12 @@ function processPayment() {
                 } else {
                     toastr.success(`Sale completed! Order: ${response.order_number}`);
                 }
-                
+
                 // Automatic POS slip printing
                 if (response.order_number) {
                     printPOSSlip(response.order_number);
                 }
-                
+
                 clearCart();
                 clearInput(); // Clear all form fields
                 // Reset header customer fields to defaults
@@ -912,11 +918,11 @@ function processPayment() {
         error: function(xhr) {
             try {
                 const errorResponse = JSON.parse(xhr.responseText);
-                
+
                 if (errorResponse.validation_failed && errorResponse.errors) {
                     // Handle inventory validation errors
                     toastr.error(errorResponse.message || 'Inventory validation failed');
-                    
+
                     // Show detailed error for each item with insufficient stock
                     errorResponse.errors.forEach(function(error) {
                         toastr.error(

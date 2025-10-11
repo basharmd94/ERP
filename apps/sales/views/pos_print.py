@@ -1,8 +1,7 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, Http404
+from django.shortcuts import render
+from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from apps.authentication.mixins import ZidRequiredMixin
 import logging
 
 # Set up logging
