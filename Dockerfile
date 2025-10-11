@@ -11,13 +11,21 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        postgresql-client \
-        build-essential \
-        libpq-dev \
-        gettext \
-        curl \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get install -y --no-install-recommends \
+  postgresql-client \
+  build-essential \
+  libpq-dev \
+  gettext \
+  curl \
+  pkg-config \
+  libcairo2-dev \
+  libffi-dev \
+  libpango1.0-dev \
+  libgdk-pixbuf2.0-dev \
+  libjpeg-dev \
+  libpng-dev \
+  && rm -rf /var/lib/apt/lists/*
+
 
 # Install Python dependencies
 COPY requirements.txt /app/
