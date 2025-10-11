@@ -87,3 +87,31 @@ Files updated:
 - **nginx**: Proxy (80, 443)
 - **celery**: Background tasks
 - **celery-beat**: Scheduler
+
+
+<!-- delete containers -->
+🧩 If you’re using Windows Command Prompt (cmd.exe)
+
+Use this syntax instead:
+
+for /f "tokens=*" %i in ('docker ps -q') do docker stop %i
+
+
+Then remove containers:
+
+for /f "tokens=*" %i in ('docker ps -aq') do docker rm -f %i
+
+
+Remove images:
+
+for /f "tokens=*" %i in ('docker images -q') do docker rmi -f %i
+
+
+Remove volumes:
+
+for /f "tokens=*" %i in ('docker volume ls -q') do docker volume rm %i
+
+
+Remove networks:
+
+for /f "tokens=*" %i in ('docker network ls -q') do docker network rm %i
