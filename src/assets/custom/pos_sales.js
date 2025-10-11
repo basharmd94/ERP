@@ -267,14 +267,6 @@ function initializeBarcodeScanner() {
             }
         }
     });
-    
-    // Re-focus barcode input when clicking anywhere on the page
-    $(document).on('click', function(e) {
-        // Don't interfere with other input fields or buttons
-        if (!$(e.target).is('input, button, select, textarea, a')) {
-            $('#barcode-input').focus();
-        }
-    });
 }
 
 function loadSavedTransactions() {
