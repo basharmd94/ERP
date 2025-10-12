@@ -82,9 +82,11 @@ INSTALLED_APPS = [
     "apps.opord",  # New OpOrd app
     "apps.sales",  # New Sales Management app
     "apps.inventory",  # New Inventory Management app
+    "apps.api",
     # Celery
     "django_celery_beat",
     "django_celery_results",
+
 ]
 
 MIDDLEWARE = [
@@ -186,7 +188,7 @@ LANGUAGES = [
 # Set default language
 LANGUAGE_CODE = "en"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Dhaka"
 
 USE_I18N = True
 

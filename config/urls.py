@@ -112,6 +112,9 @@ urlpatterns = [
     # Cross App urls
     path("crossapp/", include("apps.crossapp.urls")),
 
+    # API urls
+    path("api/", include("apps.api.urls")),
+
     # Sales Management urls
     path("sales/", include("apps.sales.urls")),
 

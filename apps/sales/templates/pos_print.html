@@ -380,13 +380,18 @@
                 <span>{{ header.xstatusord|default:"Completed" }}</span>
             </div>
             
-            <!-- Payment Amounts (Card and Cash) -->
+            <!-- Payment Amounts (Card and Cash) with QR Code -->
             {% if payments.card_amount > 0 or payments.cash_amount > 0 %}
             <div class="payment-amounts" style="margin-top: 8px; border-top: 1px dotted #ccc; padding-top: 5px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
                     <div style="flex: 1; text-align: left;">
                         <span style="font-size: 11px;">Card Amount:</span>
                         <div style="font-weight: bold;">৳{{ payments.card_amount|floatformat:2 }}</div>
+                    </div>
+                    <!-- QR Code in Center -->
+                    <div style="flex: 0 0 auto; text-align: center; margin: 0 10px;">
+                        <canvas id="qrcode" style="display: block;"></canvas>
+                        <div style="font-size: 8px; margin-top: 2px; color: #666;">{{ transaction_id }}</div>
                     </div>
                     <div style="flex: 1; text-align: right;">
                         <span style="font-size: 11px;">Cash Amount:</span>
@@ -415,9 +420,23 @@
         🖨️ Print Receipt
     </button>
 
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    
     <script>
-        // Auto-print when page loads (can be disabled if needed)
+        // Generate QR Code
         window.addEventListener('load', function() {
+            // Generate QR code with transaction ID
+            var qr = new QRious({
+                element: document.getElementById('qrcode'),
+                value: '{{ transaction_id }}',
+                size: 60,
+                level: 'M',
+                background: 'white',
+                foreground: 'black'
+            });
+            
+            // Auto-print when page loads (can be disabled if needed)
             // Uncomment the line below to auto-print on page load
             // window.print();
         });

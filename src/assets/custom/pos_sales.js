@@ -3,7 +3,7 @@
 // Global Configuration
 const POS_CONFIG = {
     VAT_PERCENTAGE: 7.5, // Global VAT percentage - change here to affect all calculations
-    CURRENCY_SYMBOL: '$',
+    CURRENCY_SYMBOL: 'Tk',
     DECIMAL_PLACES: 2
 };
 
@@ -15,8 +15,12 @@ $(document).ready(function() {
 function initializePOS() {
     console.log('Initializing POS System...');
 
-    // Initialize product search
-    initializeProductSearch();
+    // Initialize product search using the new module
+    if (typeof window.PosProductsAPI !== 'undefined') {
+        window.PosProductsAPI.initializeProductSearch('#product-search', addToCart);
+    } else {
+        console.error('PosProductsAPI module not loaded');
+    }
 
     // Initialize cart
     initializeCart();
@@ -39,56 +43,7 @@ function initializePOS() {
     console.log('POS System initialized successfully');
 }
 
-function initializeProductSearch() {
-    $('#product-search').select2({
-        placeholder: 'Search products by name, code, or barcode...',
-        allowClear: true,
-        minimumInputLength: 1,
-        ajax: {
-            url: '/sales/api/pos/products/',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    search: params.term,
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data, params) {
-                params.page = params.page || 1;
-                return {
-                    results: data.results,
-                    pagination: {
-                        more: data.pagination.more
-                    }
-                };
-            },
-            cache: true
-        },
-        templateResult: function(item) {
-            if (item.loading) return item.text;
-
-            return $(`
-                <div class="product-result">
-                    <div class="fw-bold">${item.text}</div>
-                    <div class="small text-muted">
-                        Price: ৳${item.xstdprice} | Stock: ${item.stock} | Barcode: ${item.xbarcode || 'N/A'}
-                    </div>
-                </div>
-            `);
-        },
-        templateSelection: function(item) {
-            return item.text || item.id;
-        }
-    });
-
-    // Handle product selection
-    $('#product-search').on('select2:select', function (e) {
-        const product = e.params.data;
-        addToCart(product);
-        $(this).val(null).trigger('change');
-    });
-}
+// Product search functionality moved to pos_products_api.js
 
 function initializeCart() {
     // Load cart from localStorage
@@ -168,7 +123,7 @@ function initializePaymentMethods() {
             $('#bank-name-section').show();
             $('#card-amount-section').addClass('show');
             $('#card-number-section').show();
-            
+
             // Initialize card payment: Card Amount = total, Pay/Cash Amount = 0
             $('#card-amount').val(total.toFixed(2));
             $('#cash-amount').text('0.00');
@@ -178,11 +133,11 @@ function initializePaymentMethods() {
             $('#card-amount-section').removeClass('show');
             $('#card-number-section').hide();
             $('#card-number').val(''); // Clear card number when switching to cash
-            
+
             // Initialize cash payment: Pay Amount = total
             $('#pay-amount').val(total.toFixed(2));
         }
-        
+
         updateReturnAmount();
     });
 
@@ -206,13 +161,13 @@ function initializePaymentMethods() {
     // Handle discount inputs
     $('#fixed-discount, #percent-discount').on('input', function() {
         updateCartDisplay();
-        
+
         // Recalculate payment amounts after discount change
         const total = getCurrentTotal();
-        
+
         if (window.selectedPaymentMethod === 'card') {
             const currentCardAmount = parseFloat($('#card-amount').val()) || 0;
-            
+
             // If card amount is greater than new total, adjust it
             if (currentCardAmount > total) {
                 $('#card-amount').val(total.toFixed(2));
@@ -228,7 +183,7 @@ function initializePaymentMethods() {
             // For cash payment, update pay amount to new total
             $('#pay-amount').val(total.toFixed(2));
         }
-        
+
         updateReturnAmount();
     });
 
@@ -248,7 +203,7 @@ function getCurrentTotal() {
 function updateCardAmount(total) {
     if (window.selectedPaymentMethod === 'card') {
         const currentCardAmount = parseFloat($('#card-amount').val()) || 0;
-        
+
         // If card amount is 0 or greater than total, set it to total and cash to 0
         if (currentCardAmount === 0 || currentCardAmount > total) {
             $('#card-amount').val(total.toFixed(2));
@@ -325,7 +280,11 @@ function initializeBarcodeScanner() {
         if (e.which === 13) { // Enter key
             const barcode = $(this).val().trim();
             if (barcode) {
-                searchProductByBarcode(barcode);
+                if (typeof window.PosProductsAPI !== 'undefined') {
+                    window.PosProductsAPI.searchProductByBarcode(barcode, addToCart);
+                } else {
+                    console.error('PosProductsAPI module not loaded');
+                }
                 $(this).val('');
                 // Re-focus after processing barcode
                 setTimeout(() => {
@@ -443,7 +402,7 @@ function addToCart(product) {
     } else {
         const itemTotal = product.xstdprice;
         const itemVat = (itemTotal * POS_CONFIG.VAT_PERCENTAGE / 100).toFixed(POS_CONFIG.DECIMAL_PLACES);
-        
+
         cart.push({
             xitem: product.xitem,
             xdesc: product.xdesc,
@@ -549,10 +508,10 @@ function updateCartDisplay() {
         if (!item.item_vat) {
             item.item_vat = (item.total * POS_CONFIG.VAT_PERCENTAGE / 100).toFixed(POS_CONFIG.DECIMAL_PLACES);
         }
-        
+
         subtotal += item.total;
         totalVat += parseFloat(item.item_vat);
-        
+
         html += `
             <tr data-xitem="${item.xitem}">
                 <td class="item-code">${item.xitem}</td>
@@ -685,23 +644,7 @@ function clearCart() {
     }, 1000); // Wait 1 second to show the success message
 }
 
-function searchProductByBarcode(barcode) {
-    // Search product by barcode
-    $.ajax({
-        url: '/sales/api/pos/products/',
-        data: { search: barcode },
-        success: function(data) {
-            if (data.results && data.results.length > 0) {
-                addToCart(data.results[0]);
-            } else {
-                toastr.error('Product not found');
-            }
-        },
-        error: function() {
-            toastr.error('Error searching product');
-        }
-    });
-}
+// Barcode search functionality moved to pos_products_api.js
 
 // Transaction management
 function holdTransaction() {
