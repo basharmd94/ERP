@@ -161,28 +161,41 @@ function initializePaymentMethods() {
         // Store selected payment method
         window.selectedPaymentMethod = method;
 
+        const total = getCurrentTotal();
+
         // Show/hide bank name section based on payment method
         if (method === 'card') {
             $('#bank-name-section').show();
             $('#card-amount-section').addClass('show');
             $('#card-number-section').show();
-            updateCardAmountFromTotal();
+            
+            // Initialize card payment: Card Amount = total, Pay/Cash Amount = 0
+            $('#card-amount').val(total.toFixed(2));
+            $('#cash-amount').text('0.00');
+            $('#pay-amount').val('0.00');
         } else {
             $('#bank-name-section').hide();
             $('#card-amount-section').removeClass('show');
             $('#card-number-section').hide();
             $('#card-number').val(''); // Clear card number when switching to cash
+            
+            // Initialize cash payment: Pay Amount = total
+            $('#pay-amount').val(total.toFixed(2));
         }
+        
+        updateReturnAmount();
     });
 
     // Handle card amount input
     $('#card-amount').on('input', function() {
-        const cardAmount = parseFloat($(this).val()) || 0;
-        const total = getCurrentTotal();
-        const cashAmount = Math.max(0, total - cardAmount);
-        $('#cash-amount').text(cashAmount.toFixed(2));
-        $('#pay-amount').val(cashAmount.toFixed(2));
-        updateReturnAmount();
+        if (window.selectedPaymentMethod === 'card') {
+            const cardAmount = parseFloat($(this).val()) || 0;
+            const total = getCurrentTotal();
+            const cashAmount = Math.max(0, total - cardAmount);
+            $('#cash-amount').text(cashAmount.toFixed(2));
+            $('#pay-amount').val(cashAmount.toFixed(2));
+            updateReturnAmount();
+        }
     });
 
     // Handle pay amount input
@@ -193,6 +206,30 @@ function initializePaymentMethods() {
     // Handle discount inputs
     $('#fixed-discount, #percent-discount').on('input', function() {
         updateCartDisplay();
+        
+        // Recalculate payment amounts after discount change
+        const total = getCurrentTotal();
+        
+        if (window.selectedPaymentMethod === 'card') {
+            const currentCardAmount = parseFloat($('#card-amount').val()) || 0;
+            
+            // If card amount is greater than new total, adjust it
+            if (currentCardAmount > total) {
+                $('#card-amount').val(total.toFixed(2));
+                $('#cash-amount').text('0.00');
+                $('#pay-amount').val('0.00');
+            } else {
+                // Recalculate cash portion
+                const cashAmount = Math.max(0, total - currentCardAmount);
+                $('#cash-amount').text(cashAmount.toFixed(2));
+                $('#pay-amount').val(cashAmount.toFixed(2));
+            }
+        } else {
+            // For cash payment, update pay amount to new total
+            $('#pay-amount').val(total.toFixed(2));
+        }
+        
+        updateReturnAmount();
     });
 
     console.log('Payment methods initialized');
@@ -211,11 +248,14 @@ function getCurrentTotal() {
 function updateCardAmount(total) {
     if (window.selectedPaymentMethod === 'card') {
         const currentCardAmount = parseFloat($('#card-amount').val()) || 0;
+        
+        // If card amount is 0 or greater than total, set it to total and cash to 0
         if (currentCardAmount === 0 || currentCardAmount > total) {
             $('#card-amount').val(total.toFixed(2));
             $('#cash-amount').text('0.00');
             $('#pay-amount').val('0.00');
         } else {
+            // Calculate cash portion needed
             const cashAmount = Math.max(0, total - currentCardAmount);
             $('#cash-amount').text(cashAmount.toFixed(2));
             $('#pay-amount').val(cashAmount.toFixed(2));
@@ -226,13 +266,18 @@ function updateCardAmount(total) {
 
 function updateCardAmountFromTotal() {
     const total = getCurrentTotal();
-    $('#card-amount').val(total.toFixed(2));
-    $('#cash-amount').text('0.00');
+    if (window.selectedPaymentMethod === 'card') {
+        $('#card-amount').val(total.toFixed(2));
+        $('#cash-amount').text('0.00');
+        $('#pay-amount').val('0.00');
+    }
 }
 
 function updatePayAmount(total) {
-    // Always update Pay Amount field to match the current total
-    $('#pay-amount').val(total.toFixed(2));
+    // Only update Pay Amount for cash payments
+    if (window.selectedPaymentMethod === 'cash') {
+        $('#pay-amount').val(total.toFixed(2));
+    }
     updateReturnAmount();
 }
 

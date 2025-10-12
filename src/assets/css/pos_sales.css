@@ -500,11 +500,11 @@ body, html {
     .pos-main {
         flex-direction: column;
     }
-    
+
     .pos-left-panel, .pos-right-panel {
         height: 50vh;
     }
-    
+
     .payment-methods {
         grid-template-columns: repeat(4, 1fr);
     }

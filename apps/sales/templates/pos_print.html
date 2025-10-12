@@ -54,32 +54,56 @@
         }
 
         .business-name {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
+            line-height: 1.1;
         }
 
         .business-info {
-            font-size: 12px;
-            margin-bottom: 3px;
+            font-size: 10px;
+            margin-bottom: 1px;
+            line-height: 1.1;
         }
 
         .receipt-title {
-            font-size: 16px;
+            font-size: 12px;
             font-weight: bold;
-            margin: 10px 0;
+            margin: 5px 0;
+            line-height: 1.1;
         }
 
         .transaction-info {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border-bottom: 1px dashed #000;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
+            font-size: 11px;
+            line-height: 1.1;
+        }
+
+        .info-row-flex {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+            font-size: 11px;
+            line-height: 1.1;
+        }
+
+        .info-row-flex .flex-item {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            margin-right: 10px;
+        }
+
+        .info-row-flex .flex-item:last-child {
+            margin-right: 0;
         }
 
         .customer-info {
@@ -213,53 +237,64 @@
 
         <!-- Transaction Information -->
         <div class="transaction-info">
-            <div class="info-row">
-                <span>Receipt #:</span>
-                <span class="bold">{{ transaction_id }}</span>
+            <!-- Receipt and Date in same row -->
+            <div class="info-row-flex">
+                <div class="flex-item">
+                    <span>Receipt #:</span>
+                    <span class="bold">{{ transaction_id }}</span>
+                </div>
+                <div class="flex-item">
+                    <span>Date:</span>
+                    <span>{{ header.xdate|date:"M d, Y" }}</span>
+                </div>
             </div>
-            <div class="info-row">
-                <span>Date:</span>
-                <span>{{ header.xdate|date:"M d, Y" }}</span>
-            </div>
+            
+            <!-- Time in separate row -->
             <div class="info-row">
                 <span>Time:</span>
                 <span>{% now "H:i:s" %}</span>
             </div>
-            <div class="info-row">
-                <span>Cashier:</span>
-                <span>{{ request.user.username|title }}</span>
+            
+            <!-- Cashier and Salesman in same row -->
+            <div class="info-row-flex">
+                <div class="flex-item">
+                    <span>Cashier:</span>
+                    <span>{{ request.user.username|title }}</span>
+                </div>
+                {% if header.xsp %}
+                <div class="flex-item">
+                    <span>Salesman:</span>
+                    <span>{{ header.xsp }}</span>
+                </div>
+                {% else %}
+                <div class="flex-item">
+                    <span></span>
+                    <span></span>
+                </div>
+                {% endif %}
             </div>
-            {% if header.xsp %}
-            <div class="info-row">
-                <span>Salesman:</span>
-                <span>{{ header.xsp }}</span>
-            </div>
-            {% endif %}
-            {% if header.xwh %}
-            <div class="info-row">
-                <span>Warehouse:</span>
-                <span>{{ header.xwh }}</span>
-            </div>
-            {% endif %}
         </div>
 
         <!-- Customer Information -->
-        {% if header.customer_name %}
+        {% if header.xcus %}
         <div class="customer-info">
-            <div class="bold">Customer Information:</div>
-            <div>{{ header.customer_name }}</div>
-            {% if header.customer_address1 %}
-                <div>{{ header.customer_address1 }}</div>
-            {% endif %}
-            {% if header.customer_city %}
-                <div>{{ header.customer_city }}{% if header.customer_state %}, {{ header.customer_state }}{% endif %}</div>
-            {% endif %}
-            {% if header.customer_phone %}
-                <div>Phone: {{ header.customer_phone }}</div>
-            {% endif %}
-            {% if header.xmobile %}
-                <div>Mobile: {{ header.xmobile }}</div>
-            {% endif %}
+            <div class="info-row-flex">
+                <div class="flex-item">
+                    <span>Customer:</span>
+                    <span>{{ header.xcus }}</span>
+                </div>
+                {% if header.xmobile %}
+                <div class="flex-item">
+                    <span>Mobile:</span>
+                    <span>{{ header.xmobile }}</span>
+                </div>
+                {% else %}
+                <div class="flex-item">
+                    <span></span>
+                    <span></span>
+                </div>
+                {% endif %}
+            </div>
         </div>
         {% endif %}
 
@@ -307,10 +342,17 @@
                 <span>৳{{ totals.subtotal|floatformat:2 }}</span>
             </div>
 
-            {% if totals.discount > 0 %}
+            {% if totals.fixed_discount > 0 %}
             <div class="total-row">
-                <span>Discount:</span>
-                <span>-৳{{ totals.discount|floatformat:2 }}</span>
+                <span>Fixed Discount:</span>
+                <span>-৳{{ totals.fixed_discount|floatformat:2 }}</span>
+            </div>
+            {% endif %}
+
+            {% if totals.percent_discount > 0 %}
+            <div class="total-row">
+                <span>Percent Discount ({{ totals.percent_discount }}%):</span>
+                <span>-৳{{ totals.percent_discount_amount|floatformat:2 }}</span>
             </div>
             {% endif %}
 
@@ -337,6 +379,22 @@
                 <span>Status:</span>
                 <span>{{ header.xstatusord|default:"Completed" }}</span>
             </div>
+            
+            <!-- Payment Amounts (Card and Cash) -->
+            {% if payments.card_amount > 0 or payments.cash_amount > 0 %}
+            <div class="payment-amounts" style="margin-top: 8px; border-top: 1px dotted #ccc; padding-top: 5px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                    <div style="flex: 1; text-align: left;">
+                        <span style="font-size: 11px;">Card Amount:</span>
+                        <div style="font-weight: bold;">৳{{ payments.card_amount|floatformat:2 }}</div>
+                    </div>
+                    <div style="flex: 1; text-align: right;">
+                        <span style="font-size: 11px;">Cash Amount:</span>
+                        <div style="font-weight: bold;">৳{{ payments.cash_amount|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Footer -->

@@ -30,7 +30,9 @@ def pos_print_slip(request, transaction_id):
                 o.xcus, -- customer code
                 o.xwh, -- warehouse
                 o.zemail,
-                o.xdtdisc,
+                o.xdtdisc, -- total discount amount
+                o.xdisc, -- percentage discount
+                o.xdiscf, -- fixed discount amount
                 o.xdttax AS header_tax,
                 o.xtotamt, -- total amount
                 o.xsp, -- salesman
@@ -94,6 +96,8 @@ def pos_print_slip(request, transaction_id):
                 'xwh': first_row['xwh'],
                 'zemail': first_row['zemail'],
                 'xdtdisc': first_row['xdtdisc'],
+                'xdisc': first_row['xdisc'],
+                'xdiscf': first_row['xdiscf'],
                 'header_tax': first_row['header_tax'],
                 'xtotamt': first_row['xtotamt'],
                 'xsp': first_row['xsp'],
@@ -129,13 +133,23 @@ def pos_print_slip(request, transaction_id):
 
         # Calculate totals using the new field names
         subtotal = sum(float(item['line_total'] or 0) for item in detail_data)
-        discount_amount = float(header_data['xdtdisc'] or 0)
+        
+        # Separate discount calculations
+        percent_discount = float(header_data['xdisc'] or 0)
+        fixed_discount = float(header_data['xdiscf'] or 0)
+        percent_discount_amount = subtotal * percent_discount / 100
+        total_discount_amount = fixed_discount + percent_discount_amount
+        
         tax_amount = float(header_data['header_tax'] or 0)
         grand_total = float(header_data['xtotamt'] or 0)  # Use the total amount from header
 
         # If grand total is not available, calculate it
         if grand_total == 0:
-            grand_total = subtotal - discount_amount + tax_amount
+            grand_total = subtotal - total_discount_amount + tax_amount
+            
+        # Calculate payment amounts
+        card_amount = float(header_data['xdtcomm'] or 0)
+        cash_amount = grand_total - card_amount if card_amount > 0 else grand_total
 
         # Get business information
         business_sql = """
@@ -160,9 +174,17 @@ def pos_print_slip(request, transaction_id):
             'business': business_data,
             'totals': {
                 'subtotal': subtotal,
-                'discount': discount_amount,
+                'fixed_discount': fixed_discount,
+                'percent_discount': percent_discount,
+                'percent_discount_amount': percent_discount_amount,
+                'total_discount': total_discount_amount,
                 'tax': tax_amount,
                 'grand_total': grand_total
+            },
+            'payments': {
+                'card_amount': card_amount,
+                'cash_amount': cash_amount,
+                'payment_method': header_data['xsltype']
             },
             'current_zid': current_zid,
         }
