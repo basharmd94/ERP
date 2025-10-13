@@ -17,6 +17,110 @@
 <script src="{% static 'custom/pos_validation.js' %}"></script>
 <script src="{% static 'custom/pos_products_api.js' %}"></script>
 <script src="{% static 'custom/pos_sales.js' %}"></script>
+
+<!-- Digital Clock Script -->
+<script>
+function updateDigitalClock() {
+    console.log('updateDigitalClock called');
+    const now = new Date();
+
+    // Format time (HH:MM:SS)
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    const timeString = `${hours}:${minutes}:${seconds}`;
+
+    // Format date (Day, Month DD, YYYY)
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+    const dateString = now.toLocaleDateString('en-US', options);
+
+    console.log('Time:', timeString, 'Date:', dateString);
+
+    // Update clock elements
+    const timeElement = document.getElementById('clock-time');
+    const dateElement = document.getElementById('clock-date');
+
+    if (timeElement && dateElement) {
+        timeElement.textContent = timeString;
+        dateElement.textContent = dateString;
+        console.log('Clock updated successfully');
+    } else {
+        console.error('Clock elements not found!', {timeElement, dateElement});
+    }
+}
+
+// Initialize clock when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing clock');
+    updateDigitalClock();
+    // Update every second
+    setInterval(updateDigitalClock, 1000);
+    console.log('Clock initialized successfully');
+});
+
+// Full-screen toggle functionality
+function toggleFullScreen() {
+    if (!document.fullscreenElement &&
+        !document.mozFullScreenElement &&
+        !document.webkitFullscreenElement &&
+        !document.msFullscreenElement) {
+        // Enter full-screen
+        const element = document.documentElement;
+
+        if (element.requestFullscreen) {
+            element.requestFullscreen().catch(err => {
+                console.log('Error attempting to enable full-screen mode:', err.message);
+            });
+        } else if (element.mozRequestFullScreen) { // Firefox
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) { // Chrome, Safari and Opera
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) { // IE/Edge
+            element.msRequestFullscreen();
+        }
+    } else {
+        // Exit full-screen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { // Firefox
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { // IE/Edge
+            document.msExitFullscreen();
+        }
+    }
+}
+
+// Update button icon based on full-screen state
+document.addEventListener('fullscreenchange', updateFullScreenButton);
+document.addEventListener('mozfullscreenchange', updateFullScreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullScreenButton);
+document.addEventListener('msfullscreenchange', updateFullScreenButton);
+
+function updateFullScreenButton() {
+    const button = document.querySelector('button[onclick="toggleFullScreen()"]');
+    const icon = button.querySelector('i');
+
+    if (document.fullscreenElement ||
+        document.mozFullScreenElement ||
+        document.webkitFullscreenElement ||
+        document.msFullscreenElement) {
+        // In full-screen mode
+        icon.className = 'ti ti-minimize ti-xs';
+        button.title = 'Exit Full Screen';
+    } else {
+        // Not in full-screen mode
+        icon.className = 'ti ti-maximize ti-xs';
+        button.title = 'Enter Full Screen';
+    }
+}
+</script>
 {% endblock javascripts %}
 
 {% block content %}
@@ -28,11 +132,11 @@
             <!-- Header Input Fields -->
             <div class="d-flex align-items-center gap-2">
                 <div class="header-field">
-                    <input type="text" id="header-customer-name" class="form-control-header" 
+                    <input type="text" id="header-customer-name" class="form-control-header"
                            placeholder="Customer" value="CUS-000001">
                 </div>
                 <div class="header-field">
-                    <input type="tel" id="header-customer-phone" class="form-control-header" 
+                    <input type="tel" id="header-customer-phone" class="form-control-header"
                            placeholder="Phone">
                 </div>
                 <div class="header-field">
@@ -50,7 +154,25 @@
                     </select>
                 </div>
             </div>
+
+            <!-- Digital Clock in Header Center -->
+            {% comment %} <div class="header-clock">
+                <div id="digital-clock" class="digital-clock-header">
+                    <span id="clock-time">00:00:00</span>
+                    <span id="clock-date">Loading...</span>
+                </div>
+            </div> {% endcomment %}
+
             <div>
+                <button class="btn btn-light btn-xxs me-1" onclick="toggleFullScreen()" title="Toggle Full Screen">
+                    <i class="ti ti-maximize ti-xs"></i> Full Screen
+                </button>
+                <a href="/" class="btn btn-light btn-xxs me-1" title="Home">
+                    <i class="ti ti-home ti-xs"></i> Home
+                </a>
+                <a href="/sales/sales-list/" class="btn btn-light btn-xxs me-1" title="Sales List">
+                    <i class="ti ti-list-details ti-xs"></i> Sales List
+                </a>
                 <button class="btn btn-light btn-xxs me-1" onclick="holdTransaction()">
                     <i class="ti ti-device-floppy ti-xs"></i> Hold
                 </button>
@@ -90,7 +212,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Barcode Scanner</label>
-                        <input type="text" id="barcode-input" class="form-control form-control-touch barcode-input" 
+                        <input type="text" id="barcode-input" class="form-control form-control-touch barcode-input"
                                placeholder="Scan or type barcode..." autocomplete="off">
                     </div>
                 </div>
@@ -102,11 +224,11 @@
                     <h6 class="mb-0">Shopping Cart</h6>
                     <span class="badge bg-primary" id="cart-count">0 items</span>
                 </div>
-                
+
                 <div class="cart-items-container" id="cart-items">
                     <!-- Cart items will be populated here -->
                 </div>
-                
+
                 <div id="cart-totals" class="cart-totals-fixed" style="display: none;">
                     <!-- Cart totals will be populated here -->
                 </div>
@@ -130,9 +252,9 @@
                 <div class="discount-section">
                     <label class="form-label small">Discount</label>
                     <div class="discount-inputs">
-                        <input type="number" id="fixed-discount" class="form-control form-control-touch" 
+                        <input type="number" id="fixed-discount" class="form-control form-control-touch"
                                placeholder="Fixed (BDT)" value="0" step="0.01" min="0">
-                        <input type="number" id="percent-discount" class="form-control form-control-touch" 
+                        <input type="number" id="percent-discount" class="form-control form-control-touch"
                                placeholder="Percent (%)" value="0" step="0.1" min="0" max="100">
                     </div>
                 </div>
@@ -141,29 +263,29 @@
                 <div class="bank-name-section" id="bank-name-section" style="display: none;">
                     <label class="form-label small">Bank Name <span class="text-danger">*</span></label>
                     <select id="bank-name" class="select2 form-select" data-allow-clear="false" required>
+                        <option value="">-- Select a bank --</option>
                         <option value="BASIA">BASIA</option>
                         <option value="Bkash">Bkash</option>
                         <option value="CBL">CBL</option>
-                        <option value="DBBl">DBBl</option>
                         <option value="DBBL">DBBL</option>
                         <option value="MTBL">MTBL</option>
                         <option value="PBL">PBL</option>
                         <option value="SSL">SSL</option>
-                        <option value="UCB" selected>UCB</option>
+                        <option value="UCB" >UCB</option>
                     </select>
                 </div>
 
                 <!-- Card Number Section -->
                 <div class="card-number-section" id="card-number-section" style="display: none;">
                     <label class="form-label small">Card Number</label>
-                    <input type="text" id="card-number" name="xdocnum" class="form-control form-control-touch" 
+                    <input type="text" id="card-number" name="xdocnum" class="form-control form-control-touch"
                            placeholder="Enter card number" maxlength="20">
                 </div>
 
                 <!-- Card Amount Section -->
                 <div class="card-amount-section" id="card-amount-section">
                     <label class="form-label small">Card Amount</label>
-                    <input type="number" id="card-amount" class="form-control form-control-touch" 
+                    <input type="number" id="card-amount" class="form-control form-control-touch"
                            placeholder="0.00" step="0.01" min="0">
                     <small class="text-muted">Cash: $<span id="cash-amount">0.00</span></small>
                 </div>
@@ -171,7 +293,7 @@
                 <!-- Pay Amount Section -->
                 <div class="pay-amount-section">
                     <label class="form-label small">Pay/Cash Amount</label>
-                    <input type="number" id="pay-amount" class="form-control form-control-touch" 
+                    <input type="number" id="pay-amount" class="form-control form-control-touch"
                            placeholder="0.00" step="0.01" min="0" value="0">
                 </div>
 

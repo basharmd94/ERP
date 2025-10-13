@@ -30,12 +30,12 @@ def sales_item_list_ajax(request):
         order_direction = request.GET.get('order[0][dir]', 'desc')
 
         # Column mapping for ordering
-        columns = ['xdate', 'xordernum', 'xstatusord', 'xwh', 'xtotamt']
+        columns = ['xdate', 'xordernum', 'xstatusord', 'xwh', 'xsltype', 'xsalescat', 'xdtcomm', 'xtotamt']
         order_column = columns[order_column_index] if order_column_index < len(columns) else 'xdate'
 
         # Base query
         base_query = """
-            SELECT xdate, xordernum, xstatusord, xwh, xtotamt
+            SELECT xdate, xordernum, xstatusord, xwh, xsltype, xsalescat, xdtcomm, xtotamt
             FROM opord
             WHERE zid = %s
         """
@@ -50,11 +50,14 @@ def sales_item_list_ajax(request):
                     xordernum LIKE %s OR
                     xstatusord LIKE %s OR
                     xwh LIKE %s OR
+                    xsltype LIKE %s OR
+                    xsalescat LIKE %s OR
                     CAST(xdate AS CHAR) LIKE %s OR
+                    CAST(xdtcomm AS CHAR) LIKE %s OR
                     CAST(xtotamt AS CHAR) LIKE %s
                 )
             """
-            search_params = [f'%{search_value}%'] * 5
+            search_params = [f'%{search_value}%'] * 8
             params.extend(search_params)
 
         # Count total records
@@ -86,9 +89,18 @@ def sales_item_list_ajax(request):
             for row in rows:
                 # Format date
                 formatted_date = row[0].strftime('%Y-%m-%d') if row[0] else ''
-                
+
+                # Format payment type (Cash/Card)
+                payment_type = row[4] or ''  # xsltype
+
+                # Format bank name
+                bank_name = row[5] or ''  # xsalescat
+
+                # Format card amount
+                card_amount = float(row[6]) if row[6] else 0.00  # xdtcomm
+
                 # Format total amount - send as number for frontend formatting
-                formatted_amount = float(row[4]) if row[4] else 0.00
+                formatted_amount = float(row[7]) if row[7] else 0.00  # xtotamt
 
                 # Create action buttons
                 actions = f"""
@@ -116,6 +128,9 @@ def sales_item_list_ajax(request):
                     row[1] or '',  # xordernum
                     row[2] or '',  # xstatusord
                     row[3] or '',  # xwh
+                    payment_type,  # xsltype
+                    bank_name,     # xsalescat
+                    card_amount,   # xdtcomm
                     formatted_amount,  # xtotamt
                     actions
                 ])

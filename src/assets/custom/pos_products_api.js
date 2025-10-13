@@ -17,7 +17,6 @@ const PRODUCT_SEARCH_CONFIG = {
  * @param {function} onProductSelect - Callback function when product is selected
  */
 function initializeProductSearch(selector = '#product-search', onProductSelect = null) {
-    'use strict';
 
     $(selector).select2({
         placeholder: PRODUCT_SEARCH_CONFIG.PLACEHOLDER,

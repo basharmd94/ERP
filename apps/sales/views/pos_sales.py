@@ -71,8 +71,8 @@ def pos_complete_sale(request):
             }, status=400)
 
         # If validation passes, extract additional data
-        bank_name = data.get('bank_name', 'UCB')
-        payment_method = data.get('payment_method', 'cash')
+        bank_name = data.get('bank_name', '')
+        payment_method = data.get('payment_method', 'Cash Sale')
         card_number = data.get('card_number', '')
         card_amount = data.get('card_amount', 0)
         cash_amount = data.get('cash_amount', 0)

@@ -84,6 +84,67 @@ $(function () {
                 },
                 {
                     data: 4,
+                    title: 'Payment Type',
+                    orderable: true,
+                    searchable: true,
+                    render: function(data, type, row) {
+                        if (type === 'display' && data) {
+                            const paymentType = data.toLowerCase();
+                            let badgeClass = '';
+
+                            if (paymentType === 'cash') {
+                                badgeClass = 'bg-success text-white';  // Green for Cash
+                            } else if (paymentType === 'card') {
+                                badgeClass = 'bg-primary text-white';  // Blue for Card
+                            } else {
+                                badgeClass = 'bg-secondary text-white'; // Gray for others
+                            }
+
+                            return `<span class="badge ${badgeClass}">${data}</span>`;
+                        }
+                        return data || '';
+                    }
+                },
+                {
+                    data: 5,
+                    title: 'Bank Name',
+                    orderable: true,
+                    searchable: true
+                },
+                {
+                    data: 6,
+                    title: 'Card Amount',
+                    orderable: true,
+                    searchable: true,
+                    render: function(data, type, row) {
+                        if (type === 'display' && data !== null && data !== undefined) {
+                            // Get payment type from the same row (index 4)
+                            const paymentType = row[4] ? row[4].toLowerCase() : '';
+
+                            // Format number with commas and 2 decimal places
+                            const amount = parseFloat(data);
+                            const formattedAmount = amount.toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+
+                            // Apply conditional colors based on payment type
+                            let colorClass = '';
+                            if (paymentType === 'cash') {
+                                colorClass = 'text-success fw-bold';  // Green for Cash
+                            } else if (paymentType === 'card') {
+                                colorClass = 'text-primary fw-bold';  // Blue for Card
+                            } else {
+                                colorClass = 'text-secondary fw-bold'; // Gray for others
+                            }
+
+                            return `<span class="${colorClass}">${formattedAmount}</span>`;
+                        }
+                        return '<span class="text-muted">0.00</span>';
+                    }
+                },
+                {
+                    data: 7,
                     title: 'Total Amount',
                     orderable: true,
                     searchable: true,
@@ -101,7 +162,7 @@ $(function () {
                     }
                 },
                 {
-                    data: 5,
+                    data: 8,
                     title: 'Actions',
                     orderable: false,
                     searchable: false,

@@ -864,7 +864,7 @@ function processPayment() {
         },
         items: cart,
         payment_method: window.selectedPaymentMethod,
-        bank_name: $('#bank-name').val() || 'UCB',
+        bank_name: $('#bank-name').val() || '',
         card_number: $('#card-number').val() || '',
         card_amount: parseFloat($('#card-amount').val()) || 0,
         cash_amount: parseFloat($('#cash-amount').text()) || 0,
