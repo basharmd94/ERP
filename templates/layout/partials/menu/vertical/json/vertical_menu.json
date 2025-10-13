@@ -121,6 +121,42 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Sales",
+      "icon": "menu-icon tf-icons ti ti-shopping-cart",
+      "slug": "sales-management",
+      "permission": "sales_transaction.view",
+      "submenu": [
+        {
+          "url": "/sales/pos-sales/",
+          "icon": "menu-icon tf-icons ti ti-shopping-cart",
+          "name": "Pos Sales",
+          "slug": "pos-sales",
+          "permission": "pos_sales.view"
+        },
+        {
+          "url": "/sales/sales-list/",
+          "icon": "menu-icon tf-icons ti ti-shopping-cart",
+          "name": "Sales List",
+          "slug": "sales-list",
+          "permission": "sales_list.view"
+        },
+
+        {
+          "name": "Reports",
+          "slug": "sales-reports",
+          "permission": "sales_reports.view",
+          "submenu": [
+            {
+              "url": "/sales/reports/pos_sale/",
+              "name": "Pos Sale",
+              "slug": "pos-sale",
+              "permission": "pos_sale.view"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

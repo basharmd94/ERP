@@ -17,6 +17,8 @@ const PRODUCT_SEARCH_CONFIG = {
  * @param {function} onProductSelect - Callback function when product is selected
  */
 function initializeProductSearch(selector = '#product-search', onProductSelect = null) {
+    'use strict';
+
     $(selector).select2({
         placeholder: PRODUCT_SEARCH_CONFIG.PLACEHOLDER,
         allowClear: true,
@@ -62,7 +64,7 @@ function initializeProductSearch(selector = '#product-search', onProductSelect =
     // Handle product selection
     $(selector).on('select2:select', function (e) {
         const product = e.params.data;
-        
+
         // Call the provided callback or default behavior
         if (onProductSelect && typeof onProductSelect === 'function') {
             onProductSelect(product);
@@ -72,7 +74,7 @@ function initializeProductSearch(selector = '#product-search', onProductSelect =
         } else {
             console.warn('No product selection handler provided');
         }
-        
+
         // Clear the selection
         $(this).val(null).trigger('change');
     });
@@ -96,7 +98,7 @@ function searchProductByBarcode(barcode, onSuccess = null, onError = null) {
         success: function(data) {
             if (data.results && data.results.length > 0) {
                 const product = data.results[0];
-                
+
                 // Call the provided success callback or default behavior
                 if (onSuccess && typeof onSuccess === 'function') {
                     onSuccess(product);
@@ -119,7 +121,7 @@ function searchProductByBarcode(barcode, onSuccess = null, onError = null) {
         },
         error: function(xhr, status, error) {
             const errorMessage = 'Error searching product';
-            
+
             if (onError && typeof onError === 'function') {
                 onError(errorMessage);
             } else if (typeof toastr !== 'undefined') {

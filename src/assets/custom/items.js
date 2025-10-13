@@ -1,4 +1,6 @@
 $(function () {
+  'use strict';
+  
   var dt_ajax_table = $('.datatables-ajax');
   if (dt_ajax_table.length) {
     dt_ajax_table.DataTable({

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class SalesView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
-    module_code = 'sales'
+    module_code = 'sales_transaction'
     template_name = 'pos_sales.html'
 
     def get_context_data(self, **kwargs):

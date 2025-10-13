@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Invoice</title>
+    <style>
+      {% comment %} custom size {% endcomment %}
+        @page {
+            size: 7.2in 10.1in;
+            margin-top: 1.5in;
+            margin-left: .5in;
+            margin-right: .5in;
+            margin-bottom: 0.2in;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.1;
+            color: #000;
+            margin: 0;
+            padding: 10px;
+            max-width: 100%;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .company-name {
+            font-size: 15px;
+            font-weight: bold;
+            margin: 0 0 3px 0;
+        }
+
+        /* Invoice Info Section */
+        .invoice-info {
+            margin-bottom: 8px;
+        }
+
+        .invoice-info table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8px;
+        }
+
+        .invoice-info td {
+            padding: 1px 3px;
+            vertical-align: top;
+        }
+
+        .invoice-info .left-section {
+            width: 50%;
+        }
+
+        .invoice-info .right-section {
+            width: 50%;
+            text-align: right;
+        }
+
+        /* Customer Details */
+        .customer-details {
+            margin: 5px 0;
+            font-size: 10px;
+            line-height: 1.2;
+        }
+
+        /* Main Table */
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 9px;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            border: 1px solid #000;
+            padding: 2px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        .invoice-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            font-size: 7px;
+        }
+
+        .invoice-table .left {
+            text-align: left;
+        }
+
+        .invoice-table .right {
+            text-align: right;
+        }
+
+        /* Optimized column widths for better content distribution */
+        .invoice-table {
+            table-layout: fixed !important;
+            width: 100% !important;
+        }
+
+        .invoice-table th:nth-child(1), .invoice-table td:nth-child(1) { width: 4% !important; }   /* S.I. - minimal */
+        .invoice-table th:nth-child(2), .invoice-table td:nth-child(2) { width: 8% !important; }   /* Code - compact */
+        .invoice-table th:nth-child(3), .invoice-table td:nth-child(3) { width: 45% !important; }  /* Item Name - MUCH BIGGER */
+        .invoice-table th:nth-child(4), .invoice-table td:nth-child(4) { width: 6% !important; }   /* Unit - minimal */
+        .invoice-table th:nth-child(5), .invoice-table td:nth-child(5) { width: 6% !important; }   /* Qty - minimal */
+        .invoice-table th:nth-child(6), .invoice-table td:nth-child(6) { width: 10% !important; }  /* Rate - compact */
+        .invoice-table th:nth-child(7), .invoice-table td:nth-child(7) { width: 9% !important; }   /* Off.Rate - compact */
+        .invoice-table th:nth-child(8), .invoice-table td:nth-child(8) { width: 12% !important; }  /* Amount - moderate */
+
+        /* Summary Section */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8px;
+            margin: 5px 0;
+        }
+
+        .summary-table td {
+            border: 1px solid #000;
+            padding: 2px 4px;
+        }
+
+        .summary-table .label {
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .summary-table .amount {
+            text-align: right;
+            width: 60px;
+        }
+
+        .grand-total {
+            font-weight: bold;
+        }
+
+        /* Signature Section */
+        .signature-section {
+            clear: both;
+            margin-top: 20px;
+            font-size: 7px;
+        }
+
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .signature-table td {
+            border-top: 1px solid #000;
+            padding: 10px 5px 3px 5px;
+            text-align: center;
+            width: 20%;
+            vertical-align: bottom;
+        }
+
+        .signature-name {
+            margin-top: 3px;
+            font-size: 7px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Company Header -->
+    <div class="header">
+        <div class="company-name">HMBR T & C Ltd.</div>
+    </div>
+
+    <!-- Invoice Information -->
+    <div class="invoice-info">
+        <table>
+            <tr>
+                <td class="left-section">
+                    <strong>Previous Due:</strong> -0.16<br>
+                    <strong>D.O. Number:</strong> {{ transaction_id }}<br>
+                    <strong>C.O. Number:</strong> COM0400745
+                </td>
+                <td class="right-section">
+                    <strong>Date:</strong> {{ order_header.xdate|date:"j-M-y" }} GULSHAN TRADING<br>
+                    <strong>Sub Area:</strong> Muktagachha<br>
+                    <strong>Area:</strong> Mymensingh<br>
+                    <strong>Mobile:</strong> {{ order_header.xmobile|default:"01951141340" }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Customer Details -->
+    <div class="customer-details">
+        <strong>Customer:</strong> {{ order_header.xcus|default:"CUS-006001" }}<br>
+        <strong>Cus. Address:</strong> {{ order_header.xadd|default:"Main Road, Boro Hissa Bazar, Muktagasa" }}
+    </div>
+
+    {% if order_details %}
+        <!-- Invoice Table -->
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th width="4%">S.I.</th>
+                    <th width="8%">Code</th>
+                    <th width="45%">Item Name</th>
+                    <th width="6%">Unit</th>
+                    <th width="6%">Qty</th>
+                    <th width="10%">Rate</th>
+                    <th width="9%">Off.Rate</th>
+                    <th width="12%">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detail in order_details %}
+                <tr>
+                    <td>{{ detail.xrow }}</td>
+                    <td>{{ detail.xitem }}</td>
+                    <td class="left">{{ detail.xdesc|default:detail.xitem }}</td>
+                    <td>Pcs</td>
+                    <td>{{ detail.xqtyord|floatformat:0 }}</td>
+                    <td class="right">{{ detail.xrate|floatformat:2 }}</td>
+                    <td class="right">0.00</td>
+                    <td class="right">{{ detail.xlineamt|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Summary Section -->
+        <table class="summary-table">
+            <tr>
+                <td colspan="2" style="border: none;"></td>
+                <td class="label">Total</td>
+                <td class="amount">{{ order_header.xdtwotax|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: none;"></td>
+                <td class="label">Honour Discount</td>
+                <td class="amount">0</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: none;"></td>
+                <td class="label">Special Discount</td>
+                <td class="amount">{% if order_header.xdiscamt and order_header.xdiscamt != "0.00" %}{{ order_header.xdiscamt|floatformat:2 }}{% else %}0{% endif %}</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: none;"></td>
+                <td class="label">Offer Discount</td>
+                <td class="amount">0</td>
+            </tr>
+            <tr class="grand-total">
+                <td colspan="2" style="border: none;"></td>
+                <td class="label">Grand Total</td>
+                <td class="amount">{{ order_header.xtotamt|floatformat:2 }}</td>
+            </tr>
+        </table>
+
+    {% else %}
+        <div style="text-align: center; margin: 50px 0; color: #666;">
+            <h3>NO SALES DATA FOUND</h3>
+            <p>No sales details found for Invoice: {{ transaction_id }}</p>
+        </div>
+    {% endif %}
+
+    <!-- Signature Section -->
+    <div class="signature-section">
+        <table class="signature-table">
+            <tr>
+                <td>
+                    <div class="signature-name">Received</div>
+                </td>
+                <td>
+                    <div class="signature-name">Sales<br>Representative</div>
+                </td>
+                <td>
+                    <div class="signature-name">Delivery<br>Representative</div>
+                </td>
+                <td>
+                    <div class="signature-name">SOP<br>Representative</div>
+                </td>
+                <td>
+                    <div class="signature-name">Store<br>Authorization</div>
+                </td>
+            </tr>
+        </table>
+        <div style="text-align: center; margin-top: 10px; font-size: 9px;">
+            <div>Sumon Miah</div>
+            <div>sogr@hmbrbd.com</div>
+        </div>
+    </div>
+</body>
+</html>
