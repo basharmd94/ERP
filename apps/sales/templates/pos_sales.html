@@ -156,12 +156,12 @@ function updateFullScreenButton() {
             </div>
 
             <!-- Digital Clock in Header Center -->
-            {% comment %} <div class="header-clock">
+            <div class="header-clock">
                 <div id="digital-clock" class="digital-clock-header">
                     <span id="clock-time">00:00:00</span>
                     <span id="clock-date">Loading...</span>
                 </div>
-            </div> {% endcomment %}
+            </div>
 
             <div>
                 <button class="btn btn-light btn-xxs me-1" onclick="toggleFullScreen()" title="Toggle Full Screen">
@@ -277,14 +277,14 @@ function updateFullScreenButton() {
 
                 <!-- Card Number Section -->
                 <div class="card-number-section" id="card-number-section" style="display: none;">
-                    <label class="form-label small">Card Number</label>
+                    <label class="form-label small">Card Number <span class="text-danger">*</span></label>
                     <input type="text" id="card-number" name="xdocnum" class="form-control form-control-touch"
                            placeholder="Enter card number" maxlength="20">
                 </div>
 
                 <!-- Card Amount Section -->
                 <div class="card-amount-section" id="card-amount-section">
-                    <label class="form-label small">Card Amount</label>
+                    <label class="form-label small">Card Amount <span class="text-danger">*</span></label>
                     <input type="number" id="card-amount" class="form-control form-control-touch"
                            placeholder="0.00" step="0.01" min="0">
                     <small class="text-muted">Cash: $<span id="cash-amount">0.00</span></small>
@@ -348,7 +348,7 @@ function updateFullScreenButton() {
                             </button>
                         </div>
                         <div class="col-6">
-                            <button type="button" class="btn btn-pos-primary btn-touch w-100" onclick="holdTransaction()">
+                            <button type="button" class="btn btn-pos-primary btn-touch w-100" data-bs-toggle="offcanvas" data-bs-target="#todaysSalesOffcanvas" aria-controls="todaysSalesOffcanvas">
                                 <i class="ti ti-clock"></i>
                             </button>
                         </div>
@@ -361,4 +361,8 @@ function updateFullScreenButton() {
 
 <!-- CSRF Token -->
 {% csrf_token %}
+
+<!-- Include Today's Sales Offcanvas -->
+{% include 'today_sales.html' %}
+
 {% endblock %}

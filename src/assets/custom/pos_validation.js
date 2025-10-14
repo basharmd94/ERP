@@ -129,6 +129,17 @@ const Validators = {
         return { valid: true, value: parseFloat(numAmount.toFixed(2)) };
     },
     
+    validateBankName(bankName) {
+        if (!bankName || bankName.trim() === '' || bankName === '-- Select a bank --') {
+            if (window.selectedPaymentMethod === 'card') {
+                return { valid: false, message: 'Please select a bank for card payment' };
+            }
+            return { valid: true, value: '' };
+        }
+        
+        return { valid: true, value: bankName.trim() };
+    },
+    
     // Discount Validators
     validateFixedDiscount(discount, subtotal) {
         const numDiscount = parseFloat(discount) || 0;
@@ -240,6 +251,7 @@ const Validators = {
         if (window.selectedPaymentMethod === 'card') {
             const cardAmount = parseFloat($('#card-amount').val()) || 0;
             const cardNumber = $('#card-number').val().trim();
+            const bankName = $('#bank-name').val();
             
             if (cardAmount === 0) {
                 errors.push('Card amount is required for card payment');
@@ -247,6 +259,10 @@ const Validators = {
             
             if (!cardNumber) {
                 errors.push('Card number is required for card payment');
+            }
+            
+            if (!bankName || bankName === '') {
+                errors.push('Please select a bank for card payment');
             }
         } else if (window.selectedPaymentMethod === 'cash') {
             const payAmount = parseFloat($('#pay-amount').val()) || 0;
@@ -348,6 +364,16 @@ const ValidationSetup = {
             } else {
                 ValidationState.clearError('pay-amount');
                 $(this).val(result.value);
+            }
+        });
+        
+        // Bank Name
+        $('#bank-name').on('change', function() {
+            const result = Validators.validateBankName($(this).val());
+            if (!result.valid) {
+                ValidationState.setError('bank-name', result.message);
+            } else {
+                ValidationState.clearError('bank-name');
             }
         });
     },
@@ -460,6 +486,12 @@ const ValidationSetup = {
             const cardNumber = Validators.validateCardNumber($('#card-number').val());
             if (!cardNumber.valid) {
                 ValidationState.setError('card-number', cardNumber.message);
+                allValid = false;
+            }
+            
+            const bankName = Validators.validateBankName($('#bank-name').val());
+            if (!bankName.valid) {
+                ValidationState.setError('bank-name', bankName.message);
                 allValid = false;
             }
         }

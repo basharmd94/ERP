@@ -1,0 +1,257 @@
+<!-- Today's Sales Offcanvas -->
+<div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="todaysSalesOffcanvas" aria-labelledby="todaysSalesOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="todaysSalesOffcanvasLabel">
+            <i class="ti ti-calendar-event me-2"></i>Today's Sales
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <!-- Summary Statistics -->
+        <div class="row mb-4">
+            <div class="col-6 mb-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center p-3">
+                        <h6 class="card-title mb-1">Total Orders</h6>
+                        <h4 class="text-primary mb-0" id="total-orders-count">0</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 mb-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center p-3">
+                        <h6 class="card-title mb-1">Cash Sales</h6>
+                        <h4 class="text-info mb-0" id="cash-sales-amount">৳0.00</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card bg-light">
+                    <div class="card-body text-center p-3">
+                        <h6 class="card-title mb-1">Card Sales</h6>
+                        <h4 class="text-warning mb-0" id="card-sales-amount">৳0.00</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card bg-light">
+                    <div class="card-body text-center p-3">
+                        <h6 class="card-title mb-1">Total Sales</h6>
+                        <h4 class="text-success mb-0" id="total-sales-amount">৳0.00</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Orders List -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">Today's Orders</h6>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="refreshTodaysOrders()">
+                <i class="ti ti-refresh"></i>
+            </button>
+        </div>
+
+        <!-- Orders List Container -->
+        <div id="todays-orders-list">
+            <div class="text-center text-muted p-4">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <div>Loading orders...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Today's Sales Functionality -->
+<script>
+// Wait for jQuery and DOM to be ready
+function initTodaysSales() {
+    if (typeof $ === 'undefined') {
+        console.log('Waiting for jQuery to load...');
+        setTimeout(initTodaysSales, 200);
+        return;
+    }
+    
+    console.log('Initializing Today\'s Sales functionality...');
+    
+    $(document).ready(function() {
+        console.log('DOM ready, setting up Today\'s Sales...');
+
+        // Load today's sales when offcanvas is shown
+        $('#todaysSalesOffcanvas').on('shown.bs.offcanvas', function () {
+            console.log('Offcanvas shown, loading data...');
+            loadTodaysSales();
+            loadTodaysSummary();
+        });
+        
+        console.log('Today\'s Sales initialization complete');
+    });
+}
+
+// Initialize when window loads (after all scripts)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initTodaysSales, 500);
+    });
+} else {
+    setTimeout(initTodaysSales, 500);
+}
+
+function loadTodaysSales() {
+    if (typeof $ === 'undefined') {
+        console.error('jQuery not available');
+        return;
+    }
+    
+    $.ajax({
+        url: '/sales/api/todays-sales/',
+        method: 'GET',
+        success: function(response) {
+            if (response.data && response.data.length > 0) {
+                renderTodaysSalesCards(response.data);
+            } else {
+                $('#todays-orders-list').html('<div class="text-center text-muted p-4"><i class="ti ti-shopping-cart-off"></i><div>No orders found for today</div></div>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading today\'s sales:', error);
+            $('#todays-orders-list').html('<div class="text-center text-danger p-4"><i class="ti ti-alert-circle"></i><div>Error loading orders</div></div>');
+        }
+    });
+}
+
+function loadTodaysSummary() {
+    if (typeof $ === 'undefined') {
+        console.error('jQuery not available');
+        return;
+    }
+    
+    $.ajax({
+        url: '/sales/api/todays-sales/',
+        method: 'GET',
+        success: function(response) {
+            if (response.data && response.data.length > 0) {
+                let totalOrders = response.data.length;
+                let totalSales = 0;
+                let cashSales = 0;
+                let cardSales = 0;
+                
+                response.data.forEach(function(order) {
+                    const xtotamt = parseFloat(order[8]) || 0; // Total amount (index 8)
+                    const xdtcomm = parseFloat(order[7]) || 0; // Card amount (index 7)
+                    
+                    totalSales += xtotamt;
+                    cardSales += xdtcomm;
+                    cashSales += (xtotamt - xdtcomm);
+                });
+                
+                $('#total-orders-count').text(totalOrders);
+                $('#cash-sales-amount').text('৳' + cashSales.toFixed(2));
+                $('#card-sales-amount').text('৳' + cardSales.toFixed(2));
+                $('#total-sales-amount').text('৳' + totalSales.toFixed(2));
+            } else {
+                $('#total-orders-count').text('0');
+                $('#cash-sales-amount').text('৳0.00');
+                $('#card-sales-amount').text('৳0.00');
+                $('#total-sales-amount').text('৳0.00');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading today\'s summary:', error);
+            $('#total-orders-count').text('0');
+            $('#cash-sales-amount').text('৳0.00');
+            $('#card-sales-amount').text('৳0.00');
+            $('#total-sales-amount').text('৳0.00');
+        }
+    });
+}
+
+
+
+function renderTodaysSalesCards(orders) {
+    let html = '';
+    
+    orders.forEach(function(order) {
+        html += `
+            <div class="card mb-3 order-card" data-order-id="${order[1]}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">${order[1]}</h6>
+                        <span class="badge bg-${getStatusColor(order[4])}">${order[4]}</span>
+                    </div>
+                    <p class="card-text small text-muted mb-2">
+                        <i class="ti ti-calendar"></i> ${formatDateTime(order[0])}<br>
+                        <i class="ti ti-building-warehouse"></i> ${order[5]}<br>
+                        <i class="ti ti-credit-card"></i> ${order[6]}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong class="text-primary">৳${parseFloat(order[8]).toFixed(2)}</strong>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="editOrder('${order[1]}')">
+                                <i class="ti ti-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="returnOrder('${order[1]}')">
+                                <i class="ti ti-arrow-back"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="printOrder('${order[1]}')">
+                                <i class="ti ti-printer"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#todays-orders-list').html(html);
+}
+
+function getStatusColor(status) {
+    switch(status) {
+        case 'Confirmed': return 'success';
+        case 'Pending': return 'warning';
+        case 'Cancelled': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+function formatDateTime(dateTimeStr) {
+    const date = new Date(dateTimeStr);
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+
+
+function refreshTodaysOrders() {
+    loadTodaysSales();
+    loadTodaysSummary();
+    toastr.info('Refreshing today\'s orders...');
+}
+
+function editOrder(orderNumber) {
+    toastr.info('Edit functionality will be implemented later');
+    console.log('Edit order:', orderNumber);
+}
+
+function returnOrder(orderNumber) {
+    toastr.info('Return functionality will be implemented later');
+    console.log('Return order:', orderNumber);
+}
+
+function printOrder(orderNumber) {
+    // Use the existing POS print functionality
+    const printUrl = `/sales/pos/print-slip/${orderNumber}/`;
+    const printWindow = window.open(printUrl, 'POSPrint', 'width=800,height=600,scrollbars=yes,resizable=yes');
+    
+    if (printWindow) {
+        toastr.success('Opening print window...');
+    } else {
+        toastr.warning('Please allow pop-ups for this site');
+    }
+}
+</script>
