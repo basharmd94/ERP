@@ -75,9 +75,12 @@ $(function () {
                     title: 'Date',
                     render: function(data) {
                         if (data) {
-                            // Format date as DD/MM/YYYY
+                            // Format date as YYYY-MM-DD
                             var date = new Date(data);
-                            return date.toLocaleDateString('en-GB');
+                            var year = date.getFullYear();
+                            var month = String(date.getMonth() + 1).padStart(2, '0');
+                            var day = String(date.getDate()).padStart(2, '0');
+                            return year + '-' + month + '-' + day;
                         }
                         return '-';
                     }
@@ -398,14 +401,37 @@ $(function () {
             console.error("Error initializing warehouse Select2:", error);
         }
 
-        // Initialize Select2 for item selection using reusable function
-        if (typeof window.initItemSelect === 'function') {
-            initItemSelect('#select_item', {
-                placeholder: 'Search for an item...',
-                minimumInputLength: 1
+        // Initialize POS Products API for item selection
+        if (typeof window.PosProductsAPI !== 'undefined') {
+            // Initialize the product search
+            window.PosProductsAPI.initializeProductSearch('#select_item');
+            
+            // Override the select2:select event to keep the selection displayed
+            $('#select_item').off('select2:select').on('select2:select', function (e) {
+                const product = e.params.data;
+                console.log('Item selected:', product);
+                
+                // Create a new option and set it as selected
+                const newOption = new Option(product.text, product.id, true, true);
+                $(this).append(newOption);
+                
+                // Store the selected product data for later use
+                $(this).data('selected-product', product);
+                
+                // Trigger change event for any listeners
+                $(this).trigger('change');
+                
+                console.log('Item selection completed and displayed');
             });
+            
+            console.log("Item selection initialized with POS Products API");
         } else {
-            console.error("initItemSelect function not found. Make sure items.js is loaded.");
+            console.error("POS Products API not loaded. Falling back to basic Select2.");
+            // Fallback to basic Select2 if POS API is not available
+            $('#select_item').select2({
+                placeholder: 'Search for an item...',
+                allowClear: true
+            });
         }
 
 
