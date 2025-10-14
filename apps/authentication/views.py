@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.views.generic.edit import FormView, CreateView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
@@ -101,7 +101,7 @@ class UserBusinessManagementView(LoginRequiredMixin, UserPassesTestMixin, FormVi
         messages.success(self.request, f"Business access updated for {user.username}")
         return super().form_valid(form)
 
-    
+
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
         return context

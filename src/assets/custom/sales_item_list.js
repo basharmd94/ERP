@@ -274,6 +274,50 @@ function viewSalesOrder(orderNumber) {
     }
 }
 
+function printPosInvoice(orderNumber) {
+    console.log('Print POS invoice:', orderNumber);
+
+    try {
+        // Construct the print URL for POS invoice using existing pattern
+        const printUrl = `/sales/pos/print-slip/${orderNumber}/`;
+
+        console.log('Opening POS print URL:', printUrl);
+
+        // Calculate window position to center it (similar to POS sales)
+        const width = 400;
+        const height = 600;
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+
+        // Open in a new window/tab optimized for printing and centered
+        const printWindow = window.open(
+            printUrl,
+            'pos-invoice-' + orderNumber,
+            `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no`
+        );
+
+        if (printWindow) {
+            // Focus on the new window
+            printWindow.focus();
+
+            // Show success message
+            if (typeof toastr !== 'undefined') {
+                toastr.info('POS Invoice opened in new window. Click the print button to print the receipt.', 'Print Ready');
+            }
+        } else {
+            // Handle popup blocker
+            if (typeof toastr !== 'undefined') {
+                toastr.warning('Popup blocked. Please allow popups and try again, or manually navigate to: ' + printUrl, 'Print Blocked');
+            }
+        }
+    } catch (error) {
+        console.error('Error opening POS print window:', error);
+        if (typeof toastr !== 'undefined') {
+            toastr.error('Failed to open POS print window. Please try printing manually.', 'Print Error');
+        }
+    }
+}
+
 function editSalesOrder(orderNumber) {
     console.log('Edit sales order:', orderNumber);
     // TODO: Implement edit functionality

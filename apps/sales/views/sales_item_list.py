@@ -116,6 +116,8 @@ def sales_item_list_ajax(request):
                                 <i class="tf-icons ti ti-edit me-1"></i>Edit</a></li>
                             <li><a class="dropdown-item" href="#" onclick="printSalesOrder('{row[1]}')">
                                 <i class="tf-icons ti ti-printer me-1"></i>Print</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="printPosInvoice('{row[1]}')">
+                                <i class="tf-icons ti ti-receipt me-1"></i>Print POS Invoice</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="#" onclick="deleteSalesOrder('{row[1]}')">
                                 <i class="tf-icons ti ti-trash me-1"></i>Delete</a></li>
