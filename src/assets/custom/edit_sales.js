@@ -52,11 +52,6 @@ function setupFormHandlers() {
  * Setup item management handlers
  */
 function setupItemHandlers() {
-    // Add item button
-    $('#add-item-btn').on('click', function() {
-        addNewItem();
-    });
-    
     // Quantity and rate change handlers for automatic calculation
     $(document).on('input', '.quantity-input, .rate-input', function() {
         calculateItemAmount($(this).closest('tr'));
@@ -217,58 +212,7 @@ function togglePaymentFields() {
     }
 }
 
-/**
- * Add new item row to the table
- */
-function addNewItem() {
-    const tbody = $('#items-tbody');
-    const rowCount = tbody.find('tr').length + 1;
-    
-    const newRow = `
-        <tr data-row="${rowCount}">
-            <td>${rowCount}</td>
-            <td>
-                <input type="text" class="item-input" name="item_code" 
-                       value="" data-field="xitem" placeholder="Item Code">
-            </td>
-            <td>
-                <input type="text" class="item-input" name="item_desc" 
-                       value="" data-field="xdesc" placeholder="Description">
-            </td>
-            <td>
-                <input type="text" class="item-input" name="item_unit" 
-                       value="PCS" data-field="xunitsel">
-            </td>
-            <td>
-                <input type="number" class="item-input quantity-input" name="item_qty" 
-                       value="1" step="0.001" min="0" data-field="xqtyord">
-            </td>
-            <td>
-                <input type="number" class="item-input rate-input" name="item_rate" 
-                       value="0" step="0.01" min="0" data-field="xrate">
-            </td>
-            <td>
-                <input type="number" class="item-input amount-input" name="item_amount" 
-                       value="0" step="0.01" readonly data-field="xlineamt">
-            </td>
-            <td>
-                <input type="number" class="item-input" name="item_tax" 
-                       value="0" step="0.01" min="0" data-field="xdttax">
-            </td>
-            <td>
-                <button type="button" class="remove-item-btn" onclick="removeItem(this)">
-                    <i class="ti ti-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `;
-    
-    tbody.append(newRow);
-    markFormAsDirty();
-    
-    // Focus on the first input of the new row
-    tbody.find('tr:last .item-input:first').focus();
-}
+
 
 /**
  * Add new item row with product data
