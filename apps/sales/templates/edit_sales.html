@@ -1,0 +1,363 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Edit Sales - {{ transaction_data.header.xordernum }}{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
+{% endblock vendor_css %}
+
+{% block page_css %}
+<style>
+    .items-table th, .items-table td {
+        vertical-align: middle;
+    }
+
+    .items-table input {
+        border: none;
+        background: transparent;
+        width: 100%;
+    }
+
+    .items-table input:focus {
+        outline: none;
+        background: #f8f9fa;
+    }
+
+    .btn-remove {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .summary-row {
+        font-weight: 600;
+        background-color: #f8f9fa;
+    }
+
+    .total-row {
+        font-weight: 700;
+        background-color: #e9ecef;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'custom/pos_products_api.js' %}"></script>
+<script src="{% static 'custom/edit_sales.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Sales</a>
+                      </li>
+                      <li class="breadcrumb-item">
+                        <a href="javascript:void(0);">Transaction</a>
+                      </li>
+                      <li class="breadcrumb-item active">Edit Sales</li>
+                    </ol>
+                  </nav>
+
+<div class="row">
+    <!-- Transaction Header Information -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <h5 class="card-header">
+                <i class="ti ti-file-text me-2"></i> Transaction Details
+                <span class="text-muted ms-2">Order: {{ transaction_data.header.xordernum }}</span>
+            </h5>
+            <div class="card-body">
+                <form id="edit-sales-form">
+                    {% csrf_token %}
+                    <input type="hidden" id="transaction-id" value="{{ transaction_id }}">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Order Number</label>
+                            <input type="text" class="form-control" value="{{ transaction_data.header.xordernum }}" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="text" class="form-control" id="transaction-date"
+                                   placeholder="YYYY-MM-DD" value="{{ transaction_data.header.xdate|date:'Y-m-d' }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Customer Code</label>
+                            <input type="text" class="form-control" id="customer-code"
+                                   value="{{ transaction_data.header.xcus }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customer-name"
+                                   value="{{ transaction_data.header.customer_name }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Warehouse</label>
+                            <select class="select2 form-select" id="warehouse">
+                                <option value="Fixit Gulshan" {% if transaction_data.header.xwh == 'Fixit Gulshan' %}selected{% endif %}>Fixit Gulshan</option>
+                                <option value="Fixit Dhanmondi" {% if transaction_data.header.xwh == 'Fixit Dhanmondi' %}selected{% endif %}>Fixit Dhanmondi</option>
+                                <option value="Fixit Uttara" {% if transaction_data.header.xwh == 'Fixit Uttara' %}selected{% endif %}>Fixit Uttara</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Salesman</label>
+                            <select class="select2 form-select" id="salesman">
+                                <option value="Ohidul" {% if transaction_data.header.xsp == 'Ohidul' %}selected{% endif %}>Ohidul</option>
+                                <option value="Rahman" {% if transaction_data.header.xsp == 'Rahman' %}selected{% endif %}>Rahman</option>
+                                <option value="Karim" {% if transaction_data.header.xsp == 'Karim' %}selected{% endif %}>Karim</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mobile</label>
+                            <input type="tel" class="form-control" id="customer-mobile"
+                                   value="{{ transaction_data.header.xmobile }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="select2 form-select" id="transaction-status">
+                                <option value="Confirmed" {% if transaction_data.header.xstatusord == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                                <option value="Pending" {% if transaction_data.header.xstatusord == 'Pending' %}selected{% endif %}>Pending</option>
+                                <option value="Cancelled" {% if transaction_data.header.xstatusord == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <h5 class="card-header">
+                <i class="ti ti-credit-card me-2"></i> Payment Information
+            </h5>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Payment Type</label>
+                    <select class="select2 form-select" id="payment-type">
+                        <option value="Cash Sale" {% if transaction_data.header.xsltype == 'Cash Sale' %}selected{% endif %}>Cash Sale</option>
+                        <option value="Card Sale" {% if transaction_data.header.xsltype == 'Card Sale' %}selected{% endif %}>Card Sale</option>
+                        <option value="Credit Sale" {% if transaction_data.header.xsltype == 'Credit Sale' %}selected{% endif %}>Credit Sale</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="bank-section" style="{% if transaction_data.header.xsltype != 'Card Sale' %}display: none;{% endif %}">
+                    <label class="form-label">Bank Name</label>
+                    <select class="select2 form-select" id="bank-name">
+                        <option value="">-- Select Bank --</option>
+                        <option value="BASIA" {% if transaction_data.header.xsalescat == 'BASIA' %}selected{% endif %}>BASIA</option>
+                        <option value="Bkash" {% if transaction_data.header.xsalescat == 'Bkash' %}selected{% endif %}>Bkash</option>
+                        <option value="CBL" {% if transaction_data.header.xsalescat == 'CBL' %}selected{% endif %}>CBL</option>
+                        <option value="DBBL" {% if transaction_data.header.xsalescat == 'DBBL' %}selected{% endif %}>DBBL</option>
+                        <option value="MTBL" {% if transaction_data.header.xsalescat == 'MTBL' %}selected{% endif %}>MTBL</option>
+                        <option value="PBL" {% if transaction_data.header.xsalescat == 'PBL' %}selected{% endif %}>PBL</option>
+                        <option value="SSL" {% if transaction_data.header.xsalescat == 'SSL' %}selected{% endif %}>SSL</option>
+                        <option value="UCB" {% if transaction_data.header.xsalescat == 'UCB' %}selected{% endif %}>UCB</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="card-number-section" style="{% if transaction_data.header.xsltype != 'Card Sale' %}display: none;{% endif %}">
+                    <label class="form-label">Card Number</label>
+                    <input type="text" class="form-control" id="card-number"
+                           value="{{ transaction_data.header.xdocnum }}" maxlength="20">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Card Amount</label>
+                    <input type="number" class="form-control" id="card-amount"
+                           value="{{ transaction_data.header.xdtcomm }}" step="0.01" min="0">
+                </div>
+
+                <div class="border-top pt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Percent Discount:</span>
+                        <span id="display-discount-percent">{{ transaction_data.header.xdisc }}%</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Fixed Discount:</span>
+                        <span id="display-discount-amount">৳{{ transaction_data.header.xdiscf }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax Amount:</span>
+                        <span id="display-tax-amount">৳{{ transaction_data.header.xdttax }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total Amount:</span>
+                        <span id="display-total-amount">৳{{ transaction_data.header.xtotamt }}</span>
+                    </div>
+
+                    <!-- Hidden input fields for form submission -->
+                    <input type="hidden" id="xdiscountper" name="xdiscountper" value="{{ transaction_data.header.xdisc }}">
+                    <input type="hidden" id="xdiscountamt" name="xdiscountamt" value="{{ transaction_data.header.xdiscf }}">
+                    <input type="hidden" id="xtotamt" name="xtotamt" value="{{ transaction_data.header.xtotamt }}">
+                    <input type="hidden" id="xdttax" name="xdttax" value="{{ transaction_data.header.xdttax }}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Search Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="ti ti-search me-2"></i> Add Products
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Product Search</label>
+                        <select id="product-search" class="form-control"></select>
+                        <small class="text-muted">Search by product name, code, or barcode</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Barcode Scanner</label>
+                        <input type="text" id="barcode-input" class="form-control"
+                               placeholder="Scan or type barcode..." autocomplete="off">
+                        <small class="text-muted">Scan barcode or type manually</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Items Section -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="ti ti-package me-2"></i> Order Items
+                </h5>
+                <button type="button" class="btn btn-sm btn-primary" id="add-item-btn">
+                    <i class="ti ti-plus me-1"></i> Add Item
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="items-table">
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="15%">Item Code</th>
+                                <th width="25%">Description</th>
+                                <th width="10%">Unit</th>
+                                <th width="10%">Quantity</th>
+                                <th width="12%">Rate</th>
+                                <th width="12%">Amount</th>
+                                <th width="8%">Tax</th>
+                                <th width="3%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="items-tbody">
+                            {% for item in transaction_data.items %}
+                            <tr data-row="{{ item.xrow }}">
+                                <td>{{ item.xrow }}</td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm" name="item_code"
+                                           value="{{ item.xitem }}" data-field="xitem">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm" name="item_desc"
+                                           value="{{ item.xdesc }}" data-field="xdesc">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm" name="item_unit"
+                                           value="{{ item.xunitsel }}" data-field="xunitsel">
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm quantity-input" name="item_qty"
+                                           value="{{ item.xqtyord }}" step="0.001" min="0" data-field="xqtyord">
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm rate-input" name="item_rate"
+                                           value="{{ item.xrate }}" step="0.01" min="0" data-field="xrate">
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm amount-input" name="item_amount"
+                                           value="{{ item.xlineamt }}" step="0.01" readonly data-field="xlineamt">
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" name="item_tax"
+                                           value="{{ item.item_tax }}" step="0.01" min="0" data-field="xdttax">
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <button type="button" class="btn btn-danger me-3" id="delete-transaction-btn">
+            <i class="ti ti-trash me-1"></i> Delete Transaction
+        </button>
+        <a href="/sales/sales-list/" class="btn btn-secondary me-3">
+            <i class="ti ti-arrow-left me-1"></i> Back to Sales List
+        </a>
+        <button type="button" class="btn btn-primary" id="save-changes-btn">
+            <i class="ti ti-device-floppy me-1"></i> Save Changes
+        </button>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this transaction?</p>
+                <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -320,15 +320,8 @@ function printPosInvoice(orderNumber) {
 
 function editSalesOrder(orderNumber) {
     console.log('Edit sales order:', orderNumber);
-    // TODO: Implement edit functionality
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            icon: 'info',
-            title: 'Edit Sales Order',
-            text: `Edit functionality for ${orderNumber} will be implemented later.`,
-            confirmButtonText: 'OK'
-        });
-    }
+    // Redirect to edit sales page
+    window.location.href = `/sales/edit-sales/${orderNumber}/`;
 }
 
 function printSalesOrder(orderNumber) {

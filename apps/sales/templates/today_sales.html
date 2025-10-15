@@ -234,8 +234,8 @@ function refreshTodaysOrders() {
 }
 
 function editOrder(orderNumber) {
-    toastr.info('Edit functionality will be implemented later');
-    console.log('Edit order:', orderNumber);
+    // Redirect to edit sales page
+    window.location.href = `/sales/edit-sales/${orderNumber}/`;
 }
 
 function returnOrder(orderNumber) {
