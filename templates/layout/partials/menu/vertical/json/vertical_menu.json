@@ -142,6 +142,13 @@
           "slug": "sales-list",
           "permission": "sales_list.view"
         },
+        {
+          "url": "/sales/day-end-process/",
+          "icon": "menu-icon tf-icons ti ti-shopping-cart",
+          "name": "Day End Process",
+          "slug": "day-end-process",
+          "permission": "day_end_process.view"
+        },
 
         {
           "name": "Reports",

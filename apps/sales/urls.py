@@ -7,7 +7,7 @@ from .views.print_invoice import print_invoice
 from .views.todays_sales import todays_sales_ajax, todays_sales_summary
 from .views.edit_sales import SalesEditView
 from .views.edit_sales_api import update_transaction_api, delete_transaction_api
-
+from .views.day_end_process import DayEndProcess, delete_day_end_process
 
 urlpatterns = [
     # Sales Management URLs
@@ -15,6 +15,9 @@ urlpatterns = [
     path("sales-list/", SalesListView.as_view(), name="sales-list"),
     # edit sales
     path("edit-sales/<str:transaction_id>/", SalesEditView.as_view(), name="edit-sales"),
+    # Day End Process
+    path("day-end-process/", DayEndProcess.as_view(), name="day-end-process"),
+    path("api/delete-day-end-process/<str:date>/", delete_day_end_process, name="delete-day-end-process"),
 
 
     # AJAX API endpoints

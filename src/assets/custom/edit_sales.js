@@ -70,14 +70,40 @@ function setupItemHandlers() {
 }
 
 /**
- * Setup payment type handlers
+ * Setup payment method handlers with POS-style logic
  */
 function setupPaymentHandlers() {
-    $('#payment-type').on('change', function() {
+    // Payment method change handler
+    $('#payment-method-select').on('change', function() {
+        window.selectedPaymentMethod = $(this).val();
         togglePaymentFields();
+        updatePaymentCalculations();
     });
     
-    // Initialize payment fields visibility
+    // Card amount change handler
+    $('#card-amount').on('input', function() {
+        updatePaymentCalculations();
+        validateCardAmount();
+    });
+    
+    // Pay amount change handler
+    $('#pay-amount').on('input', function() {
+        updateReturnAmount();
+        validatePayAmount();
+    });
+    
+    // Bank name validation
+    $('#bank-name').on('change', function() {
+        validateBankName();
+    });
+    
+    // Card number validation
+    $('#card-number').on('input', function() {
+        validateCardNumber();
+    });
+    
+    // Initialize payment method
+    window.selectedPaymentMethod = $('#payment-method-select').val() || 'cash';
     togglePaymentFields();
 }
 
@@ -105,12 +131,18 @@ function setupValidation() {
  * Initialize Select2 components
  */
 function initializeSelect2() {
-    // Initialize select2 with Vuexy template styling (no theme specified)
-    $('#warehouse, #salesman, #payment-type, #bank-name, #transaction-status').select2({
-        width: '100%',
-        minimumResultsForSearch: Infinity, // Hide search box for simple dropdowns
-        allowClear: false
-    });
+    // Initialize select2 with the same approach as ecommerce implementation
+    var select2 = $('.select2');
+    if (select2.length) {
+        select2.each(function () {
+            var $this = $(this);
+            $this.wrap('<div class="position-relative"></div>').select2({
+                dropdownParent: $this.parent(),
+                placeholder: $this.data('placeholder') || 'Select an option',
+                allowClear: true
+            });
+        });
+    }
 }
 
 /**
@@ -198,17 +230,266 @@ function addProductToTable(product) {
 }
 
 /**
- * Toggle payment fields based on payment type
+ * Toggle payment fields based on payment method
  */
 function togglePaymentFields() {
-    const paymentType = $('#payment-type').val();
-    const isCardSale = paymentType === 'Card Sale';
+    const paymentMethod = window.selectedPaymentMethod || 'cash';
+    const isCardPayment = paymentMethod === 'card';
     
-    $('#bank-section, #card-number-section').toggle(isCardSale);
+    // Show/hide card-specific fields
+    $('#bank-name-section, #card-number-section').toggle(isCardPayment);
     
-    if (!isCardSale) {
+    // Update card amount section visibility and label
+    if (isCardPayment) {
+        $('#card-amount-section').show();
+        $('#card-amount-section label').html('Card Amount <span class="text-danger">*</span>');
+    } else {
+        $('#card-amount-section').show();
+        $('#card-amount-section label').text('Total Amount');
+        $('#cash-amount').text('0.00');
+    }
+    
+    // Clear card-specific fields when not card payment
+    if (!isCardPayment) {
         $('#bank-name').val('');
         $('#card-number').val('');
+        $('#card-amount').val('0');
+        $('#return-amount-section').hide();
+    }
+    
+    // Update pay amount based on payment method
+     updatePaymentCalculations();
+}
+
+/**
+ * Update payment calculations based on payment method
+ */
+function updatePaymentCalculations() {
+    const total = getCurrentTotal();
+    const paymentMethod = window.selectedPaymentMethod || 'cash';
+    
+    if (paymentMethod === 'card') {
+        updateCardAmount(total);
+    } else {
+        updatePayAmount(total);
+    }
+}
+
+/**
+ * Update card amount and cash portion for card payments
+ */
+function updateCardAmount(total) {
+    const currentCardAmount = parseFloat($('#card-amount').val()) || 0;
+    
+    if (currentCardAmount === 0 || currentCardAmount > total) {
+        $('#card-amount').val(total.toFixed(2));
+        $('#cash-amount').text('0.00');
+        $('#pay-amount').val('0.00');
+    } else {
+        const cashAmount = Math.max(0, total - currentCardAmount);
+        $('#cash-amount').text(cashAmount.toFixed(2));
+        $('#pay-amount').val(cashAmount.toFixed(2));
+    }
+    updateReturnAmount();
+}
+
+/**
+ * Update pay amount for cash payments
+ */
+function updatePayAmount(total) {
+    if (window.selectedPaymentMethod === 'cash') {
+        $('#pay-amount').val(total.toFixed(2));
+        $('#card-amount').val('0');
+    }
+    updateReturnAmount();
+}
+
+/**
+ * Calculate and display return amount
+ */
+function updateReturnAmount() {
+    const total = getCurrentTotal();
+    const payAmount = parseFloat($('#pay-amount').val()) || 0;
+    let returnAmount = 0;
+    
+    if (window.selectedPaymentMethod === 'card') {
+        const cardAmount = parseFloat($('#card-amount').val()) || 0;
+        const cashPortionNeeded = Math.max(0, total - cardAmount);
+        returnAmount = Math.max(0, payAmount - cashPortionNeeded);
+    } else {
+        returnAmount = Math.max(0, payAmount - total);
+    }
+    
+    if (returnAmount > 0) {
+        $('#return-amount-section').show();
+        $('#return-amount').text(`৳${returnAmount.toFixed(2)}`);
+    } else {
+        $('#return-amount-section').hide();
+    }
+}
+
+/**
+  * Get current total amount from the display
+  */
+ function getCurrentTotal() {
+     const totalText = $('#display-total-amount').text().replace('৳', '').replace(',', '');
+     return parseFloat(totalText) || 0;
+ }
+
+/**
+ * POS-style validation functions
+ */
+
+/**
+ * Validate card amount
+ */
+function validateCardAmount() {
+    const cardAmount = parseFloat($('#card-amount').val()) || 0;
+    const total = getCurrentTotal();
+    const $field = $('#card-amount');
+    
+    // Clear previous validation
+    clearFieldValidation($field);
+    
+    if (window.selectedPaymentMethod === 'card') {
+        if (cardAmount < 0) {
+            showFieldError($field, 'Card amount cannot be negative');
+            return false;
+        }
+        
+        if (cardAmount > total) {
+            showFieldError($field, 'Card amount cannot exceed total amount');
+            return false;
+        }
+        
+        if (cardAmount === 0) {
+            showFieldError($field, 'Card amount is required for card payment');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Validate pay amount
+ */
+function validatePayAmount() {
+    const payAmount = parseFloat($('#pay-amount').val()) || 0;
+    const total = getCurrentTotal();
+    const $field = $('#pay-amount');
+    
+    // Clear previous validation
+    clearFieldValidation($field);
+    
+    if (payAmount < 0) {
+        showFieldError($field, 'Pay amount cannot be negative');
+        return false;
+    }
+    
+    if (window.selectedPaymentMethod === 'cash' && payAmount < total) {
+        showFieldError($field, `Cash payment must be at least ৳${total.toFixed(2)}`);
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Validate bank name for card payments
+ */
+function validateBankName() {
+    const bankName = $('#bank-name').val();
+    const $field = $('#bank-name');
+    
+    // Clear previous validation
+    clearFieldValidation($field);
+    
+    if (window.selectedPaymentMethod === 'card') {
+        if (!bankName || bankName.trim() === '' || bankName === '-- Select a bank --') {
+            showFieldError($field, 'Please select a bank for card payment');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Validate card number
+ */
+function validateCardNumber() {
+    const cardNumber = $('#card-number').val();
+    const $field = $('#card-number');
+    
+    // Clear previous validation
+    clearFieldValidation($field);
+    
+    if (window.selectedPaymentMethod === 'card') {
+        if (!cardNumber || cardNumber.trim().length === 0) {
+            showFieldError($field, 'Card number is required for card payment');
+            return false;
+        }
+        
+        // Clean card number (remove spaces, dashes)
+        const cleanCard = cardNumber.replace(/[\s\-]/g, '');
+        
+        if (!/^\d{4}$/.test(cleanCard)) {
+            showFieldError($field, 'Card number must be 4 digits');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Show field validation error
+ */
+function showFieldError($field, message) {
+    $field.addClass('is-invalid');
+    
+    // Remove existing error message
+    $field.siblings('.validation-error').remove();
+    
+    // Add new error message
+    $field.after(`<div class="validation-error text-danger small mt-1">${message}</div>`);
+}
+
+/**
+ * Clear field validation
+ */
+function clearFieldValidation($field) {
+    $field.removeClass('is-invalid');
+    $field.siblings('.validation-error').remove();
+}
+
+/**
+ * Validate all payment fields
+ */
+function validatePaymentFields() {
+    let isValid = true;
+    
+    if (window.selectedPaymentMethod === 'card') {
+        isValid = validateCardAmount() && isValid;
+        isValid = validateCardNumber() && isValid;
+        isValid = validateBankName() && isValid;
+    }
+    
+    isValid = validatePayAmount() && isValid;
+    
+    return isValid;
+}
+
+/**
+ * Convert payment method to payment type format
+ */
+function getPaymentTypeFromMethod(method) {
+    switch(method) {
+        case 'cash': return 'Cash Sale';
+        case 'card': return 'Card Sale';
+        case 'credit': return 'Credit Sale';
+        default: return 'Cash Sale';
     }
 }
 
@@ -401,17 +682,9 @@ function validateForm() {
         }
     });
     
-    // Validate payment specific fields
-    if ($('#payment-type').val() === 'Card Sale') {
-        if (!validateCardNumber($('#card-number'))) {
-            isValid = false;
-        }
-        
-        if (!$('#bank-name').val()) {
-            $('#bank-name').addClass('is-invalid');
-            showFieldError($('#bank-name'), 'Please select a bank for card sales');
-            isValid = false;
-        }
+    // Validate payment fields using POS validation
+    if (!validatePaymentFields()) {
+        isValid = false;
     }
     
     // Validate items
@@ -453,7 +726,7 @@ function collectFormData() {
             xsp: $('#salesman').val(),
             xmobile: $('#customer-mobile').val(),
             xstatusord: $('#transaction-status').val(),
-            xsltype: $('#payment-type').val(),
+            xsltype: getPaymentTypeFromMethod($('#payment-method-select').val()),
             xsalescat: $('#bank-name').val(),
             xdocnum: $('#card-number').val(),
             xdtcomm: parseFloat($('#card-amount').val()) || 0
@@ -698,6 +971,9 @@ function calculateTotals() {
     $('#display-discount-amount').text('৳' + discountAmount.toFixed(2));
     $('#display-tax-amount').text('৳' + totalTax.toFixed(2));
     $('#display-total-amount').text('৳' + total.toFixed(2));
+    
+    // Update payment calculations when totals change
+    updatePaymentCalculations();
     
     // Mark form as dirty when totals change
     markFormAsDirty();

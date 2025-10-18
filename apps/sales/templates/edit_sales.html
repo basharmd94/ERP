@@ -1,3 +1,23 @@
+<!--
+now remove save changes button add two button header update and full update.
+
+for header update
+at first check if this order posted to glheader means account table using co order date like
+
+select xdate from glheader where xvoucher like '%SALE%' and xdate = order's xdate
+
+if the voucher date exist of SALE voucher then show a swal prompt This CO is Posted on Accounts Table. Need to delete Day End process of the {xdate}. Are You sure you want update?
+
+yes or no
+
+if yes then at first delete
+
+ its only update the opord table by using CO Number and session ZID at 
+
+-->
+
+
+
 {% extends layout_path %}
 
 {% load static %}
@@ -45,6 +65,8 @@
         background-color: #e9ecef;
         font-size: 1.1rem;
     }
+
+
 </style>
 {% endblock %}
 
@@ -158,19 +180,21 @@
                 <i class="ti ti-credit-card me-2"></i> Payment Information
             </h5>
             <div class="card-body">
+                <!-- Payment Method Selection -->
                 <div class="mb-3">
-                    <label class="form-label">Payment Type</label>
-                    <select class="select2 form-select" id="payment-type">
-                        <option value="Cash Sale" {% if transaction_data.header.xsltype == 'Cash Sale' %}selected{% endif %}>Cash Sale</option>
-                        <option value="Card Sale" {% if transaction_data.header.xsltype == 'Card Sale' %}selected{% endif %}>Card Sale</option>
-                        <option value="Credit Sale" {% if transaction_data.header.xsltype == 'Credit Sale' %}selected{% endif %}>Credit Sale</option>
+                    <label class="form-label">Payment Method</label>
+                    <select class="select2 form-select" id="payment-method-select" data-allow-clear="false">
+                        <option value="cash" {% if transaction_data.header.xsltype == 'Cash Sale' %}selected{% endif %}>💵 Cash</option>
+                        <option value="card" {% if transaction_data.header.xsltype == 'Card Sale' %}selected{% endif %}>💳 Card</option>
+                        <option value="credit" {% if transaction_data.header.xsltype == 'Credit Sale' %}selected{% endif %}>📝 Credit</option>
                     </select>
                 </div>
 
-                <div class="mb-3" id="bank-section" style="{% if transaction_data.header.xsltype != 'Card Sale' %}display: none;{% endif %}">
-                    <label class="form-label">Bank Name</label>
-                    <select class="select2 form-select" id="bank-name">
-                        <option value="">-- Select Bank --</option>
+                <!-- Bank Name Section (Hidden by default, shown only for card payments) -->
+                <div class="mb-3" id="bank-name-section" style="{% if transaction_data.header.xsltype != 'Card Sale' %}display: none;{% endif %}">
+                    <label class="form-label">Bank Name <span class="text-danger">*</span></label>
+                    <select class="select2 form-select" id="bank-name" data-allow-clear="false" required>
+                        <option value="">-- Select a bank --</option>
                         <option value="BASIA" {% if transaction_data.header.xsalescat == 'BASIA' %}selected{% endif %}>BASIA</option>
                         <option value="Bkash" {% if transaction_data.header.xsalescat == 'Bkash' %}selected{% endif %}>Bkash</option>
                         <option value="CBL" {% if transaction_data.header.xsalescat == 'CBL' %}selected{% endif %}>CBL</option>
@@ -182,16 +206,34 @@
                     </select>
                 </div>
 
+                <!-- Card Number Section -->
                 <div class="mb-3" id="card-number-section" style="{% if transaction_data.header.xsltype != 'Card Sale' %}display: none;{% endif %}">
-                    <label class="form-label">Card Number</label>
-                    <input type="text" class="form-control" id="card-number"
-                           value="{{ transaction_data.header.xdocnum }}" maxlength="20">
+                    <label class="form-label">Card Number <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="card-number" name="xdocnum"
+                           value="{{ transaction_data.header.xdocnum }}" placeholder="Enter card number" maxlength="20">
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Card Amount</label>
+                <!-- Card Amount Section -->
+                <div class="mb-3" id="card-amount-section">
+                    <label class="form-label">Card Amount <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" id="card-amount"
-                           value="{{ transaction_data.header.xdtcomm }}" step="0.01" min="0">
+                           value="{{ transaction_data.header.xdtcomm }}" placeholder="0.00" step="0.01" min="0">
+                    <small class="text-muted">Cash: ৳<span id="cash-amount">0.00</span></small>
+                </div>
+
+                <!-- Pay/Cash Amount Section -->
+                <div class="mb-3">
+                    <label class="form-label">Pay/Cash Amount</label>
+                    <input type="number" class="form-control" id="pay-amount"
+                           placeholder="0.00" step="0.01" min="0" value="0">
+                </div>
+
+                <!-- Return Amount Display -->
+                <div class="mb-3" id="return-amount-section" style="display: none;">
+                    <div class="alert alert-success d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Return Amount:</span>
+                        <span class="fw-bold fs-5" id="return-amount">৳0.00</span>
+                    </div>
                 </div>
 
                 <div class="border-top pt-3">
