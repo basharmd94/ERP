@@ -99,7 +99,7 @@
           "permission": "inventory_transaction.view",
           "submenu": [
             {
-              "url": "/inventory/transaction/receive_entry/",
+              "url": "/inventory/transaction/receive-entry/",
               "name": "Receive Entry",
               "slug": "receive-entry",
               "permission": "receive_entry.view"
@@ -148,6 +148,13 @@
           "name": "Day End Process",
           "slug": "day-end-process",
           "permission": "day_end_process.view"
+        },
+        {
+          "url": "/sales/sales-return/",
+          "icon": "menu-icon tf-icons ti ti-return-right",
+          "name": "Sales Return",
+          "slug": "sales-return",
+          "permission": "sales_return.view"
         },
 
         {

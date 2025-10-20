@@ -34,11 +34,10 @@ function initializeProductSearch(selector = '#product-search', onProductSelect =
             },
             processResults: function (data, params) {
                 params.page = params.page || 1;
+                
                 return {
-                    results: data.results,
-                    pagination: {
-                        more: data.pagination.more
-                    }
+                    results: data.results || [],
+                    pagination: data.pagination || { more: false }
                 };
             },
             cache: true
@@ -46,11 +45,14 @@ function initializeProductSearch(selector = '#product-search', onProductSelect =
         templateResult: function(item) {
             if (item.loading) return item.text;
 
+            const price = item.xstdprice || item.price || 0;
+            const stock = item.stock || 0;
+
             return $(`
                 <div class="product-result">
                     <div class="fw-bold">${item.text}</div>
                     <div class="small text-muted">
-                        Price: ৳${item.xstdprice} | Stock: ${item.stock} | Barcode: ${item.xbarcode || 'N/A'}
+                        Price: ৳${parseFloat(price).toFixed(2)} | Stock: ${parseFloat(stock).toFixed(2)} | Barcode: ${item.xbarcode || 'N/A'}
                     </div>
                 </div>
             `);

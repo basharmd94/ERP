@@ -1,0 +1,232 @@
+select * from opord where zid = 100001 and xordernum = 'CO--116761'
+select xtotamt, xdtcomm, xstatusord from opord where zid = 100001 and xordernum = 'CO--116761'
+select * from opodt where zid = 100001 and xordernum = 'CO--210280'
+select * from imtrn where zid = 100001 and xdocnum = 'CO--210280'
+
+
+select xdate (Date), xordernum (Ordernumber), xstatusord (Status), xwh (Warehouse), xtotamt (Total Amt) from opord where zid = 100001 
+
+
+
+select * from caitem where xitem = '08-921' and zid = 100001
+SELECT CASE 
+         WHEN SUM(xqty * xsign) > 0 THEN SUM(xval * xsign) / SUM(xqty * xsign)
+         ELSE 0
+       END AS safe_average
+FROM imtrn
+WHERE zid = 100001
+  AND xitem = '25-220'
+  AND xdate <= '2025-05-27';
+
+
+select  sum (xqty * xsign)  from imtrn where zid = 100001 and xitem = '25-220' and xdate <= '2025-05-27' 
+
+
+select * from gl_journal
+
+
+select xitem, xstdcost, xstdprice from caitem where zid = 100001  and xitem = '25-220'
+
+SELECT *
+FROM opord
+WHERE xdisc > 0 AND xdiscf > 0 and xsalescat != '';
+
+
+select xordernum, xdate, xcus, xwh, zemail, xdtdisc, xdttax, xtotamt, xsp, xsltype, xsalescat, xdocnum, xdtcomm, xmobile
+from opord where zid= 100001 and xordernum = 'CO--212748'
+
+
+select xrow, xitem, xqtyreq, xunitsel, xrate, xlineamt, xdttax, xcost    from opodt where zid = 100001 and xordernum = 'CO--212546'
+
+
+SELECT key AS column_name, value AS column_value
+FROM json_each_text(
+  (SELECT row_to_json(imtrn)
+   FROM imtrn
+   WHERE xdocnum = 'CO--212546' and zid = 100001 limit 1)
+);
+
+----------- 
+
+
+SELECT key AS column_name, value AS column_value
+FROM json_each_text(
+  (SELECT row_to_json(gldetail)
+   FROM gldetail
+   WHERE xvoucher = 'SALE001036' limit 1) ) ;
+
+
+
+---------------- opord table ----------
+
+"ztime"	"2025-05-30T19:20:05.753" -- timestamp
+"zutime"	"2025-05-30T19:22:48.524"  --timestamp
+"zid"	100001 --session.zid
+"xordernum"	"CO--212546" -- order number.  will get the next ordernumber using voucher generator
+"xdate"	"2025-05-30" -- date
+"xcus"	"CUS-000001"  -- customer code
+"xstatusord"	"Confirmed" -- status 
+"xcur"	"BDT"
+"xdisc"	7.00 -- percent_discount
+"xdiscf"	0.00  -- fixed_discount
+"xwh"	"Fixit Gulshan"
+"zemail"	"counter@fixit.com" -- session username
+"xemail"	"counter@fixit.com" -- session username
+"xdtwotax"	0.00
+"xdtdisc"	6243.30 --percent_discount_amount
+"xdttax"	6689.25  --tax_amount
+"xval"	0.00
+"xdiscamt"	0.00
+"xtotamt"	89635.95 --grand_total
+"xsp"	"Ohidul"  --salesman
+"xsltype"	"Card Sale" -- payment_method
+"xsalescat"	"DBBL" --bank_name
+"xtrnord"	"CO--" default CO-- 
+"xdocnum"	4802 -- card_number
+"xdtcomm"	20000.00 --card_amount
+"xcounterno"	"CT04"  ---default- "CT04"
+"xyear"	2025 -- year
+"xper"	5  -- month
+"xemp"	"counter@fixit.com" -- logged session user
+"xmobile"	"01711235529" --customer_phone
+"xdatecon"	"2025-05-30T19:22:58" --timestamp 
+"xamtpaid"	0.00
+"xamt"	7.50 default -- 7.50
+
+
+-------------- opodt table ---------
+"ztime"	"2025-05-27T18:40:21.279" -- timestamp
+"zid"	100001 --session.zid
+"xordernum"	"CO--212546"  -- next order number
+"xrow"	"1" -- serial number
+"xcode"	-- xitem
+"xitem"	"25-220" --xitem
+"xstype"	"Stock-N-Sell" -- default "Stock-N-Sell"
+"xwh"	"Fixit Gulshan" -- header_info > warehouse
+"xqtyreq"	"4.000"  -- quantity
+"xqtyord"	"4.000" -- quantity
+"xunitsel"	"Pcs" -- selling_unit
+"xcur"	"BDT" -- default BDT
+"xrate"	"1650.0000"  --xstdprice
+"xlineamt"	"6600.00" -- total
+"xdtwotax"	"6600.00" -- total 
+"xdttax"	"495.00"  -- item_vat
+"ximtrnnum"	"IS--477646" -- take next ximtrnnum from imtrn using generate next voucher 
+"xcost"	"1035.00" --item_cost
+"xsign"	0 default 0
+"xdesc"	"Hinges 5x3.5""x5mm GP 579g Youngfu Solid Brass" --xdesc
+
+
+-- get average price calculation
+SELECT CASE 
+         WHEN SUM(xqty * xsign) > 0 THEN SUM(xval * xsign) / SUM(xqty * xsign)
+         ELSE 0
+       END AS average
+FROM imtrn
+WHERE zid = session zid
+  AND xitem = item
+  AND xdate <= current date;
+
+
+---------------- imtrn table ------------------
+"ztime"	 timestamp
+"zid"	100001 session.zid
+"ximtrnnum"	"IS--477646" -- -- take next ximtrnnum from imtrn using generate next voucher 
+"xitem"	"25-220" -- xitem
+"xitemrow"	"Card Sale" -- payment_method
+"xwh"	"Fixit Gulshan" -- warehouse
+"xdate"	"2025-05-27" -- date
+"xyear"	"2025"  -- year
+"xper"	"5" -- month
+"xqty"	"4.000"  -- quantity
+"xval"	"4140.000000" -- get average price calculation
+"xvalpost"	"0.000000" 
+"xdoctype"	"IS--" --default IS--
+"xdocnum"	"CO--212546" -- invoice number 
+"xdocrow"	1 -- serial number
+"xdateexp"	"2025-05-27" -- date
+"xdaterec"	"2025-05-27"  -- date
+"xlicense"	
+"xcus"	"CUS-000001" -- customer_name
+"xaction"	"Issue" --default Issue
+"xsign"	"-1" default -1
+"xtime"	"2025-05-27T18:42:47" -- timestamp
+"zemail"	"counter@fixit.com" -- session.username
+"xtrnim"	"IS--" default IS--
+"xstdprice"	"1650.0000" --  xstdprice
+
+select * from glmst where zid = 100001
+
+
+
+select * from glheader where xvoucher = 'SALE000108' and zid = 100001 
+select * from gldetail where xvoucher = 'SALE002029' and zid = 100001 
+
+
+select  xdate, xordernum, xdisc, xdiscf, xdtwotax, xdtdisc, xdttax, xval, xdiscamt, xtotamt, xdtcomm  from opord  where xdate = '2023-03-06' and zid = 100001 order by xordernum
+
+
+select xdateclr, xvoucher,xrow,xaccusage, xaccsource, xsub, xproj, xprime, xbase, xacctype,  xcur  from gldetail where xvoucher = 'SALE002029' and zid = 100001 
+
+
+
+select xdateclr, xvoucher,xrow,xaccusage, xaccsource, xsub, xproj, xprime, xbase, xacctype,  xcur  from gldetail where xvoucher = 'SALE002787' and zid = 100001 
+select *  from glheader where xvoucher = 'SALE002787' and zid = 100001 
+
+select *  from gldetail where xvoucher = 'SALE002783' and zid = 100001 
+
+
+delete from glheader where xvoucher = 'SALE002787' and zid = 100001 
+delete from gldetail where xvoucher = 'SALE002787' and zid = 100001 
+
+SALE002788
+
+
+
+
+
+select xdate, xordernum, xdiscf, xdtdisc, xlineamt from opordnview where xdiscf > 0 or xdtdisc > 
+
+
+SELECT key AS column_name, value AS column_value
+FROM json_each_text(
+  (SELECT row_to_json(gldetail)
+   FROM gldetail
+   WHERE xvoucher = 'SALE001036' limit 1) ) ;
+
+
+select * from opordnview where xdate = '2020-02-06' and zid = 100001
+select * from glheader where zid = 100001 and xvoucher = 'SALE001036' 
+select * from glheader where zid = 100001 and xdate = '2025-10-18' 
+select *  from gldetail where zid = 100001 and xvoucher = 'SALE002789' 
+
+select xvoucher, xrow,xaccusage, xaccsource, xsub,   xprime, xbase, xacctype  from gldetail where zid = 100001 and xvoucher = 'SALE001036' 
+select * from gldetailview where zid = 100001 and xvoucher = 'SALE002789'
+
+select xwh from imtrn where zid = 100001
+
+
+SELECT column_name
+FROM information_schema.columns
+WHERE table_name = 'opordnview';
+
+select xsalescat, sum(xdtcomm) from opordnview where zid = 100001 and xdate = '2025-10-18' and xsltype = 'Card Sale' group by xsalescat
+
+select sum(xtotamt) from 
+
+select * from xcodes where zid = 100002 and xtype = 'Project'
+
+-- GL Master 
+
+select * from glmst where   xdesc = 'Sales' 
+
+select * from glsub where zid = 100001 order by xacc
+
+
+
+
+select glmst.xacc, glmst.xdesc, glmst.xacctype, glmst.xaccusage, glmst.xaccsource, glmst.xmsttype, glmst.xhrc1, glmst.xhrc2,glmst.xhrc3, glsub.xsub, glsub.xdesc from glmst join glsub on 
+glmst.xacc = glsub.xacc where glmst.zid = 100001 and glsub.zid = 100001 order by glmst.xacc
+
+
+select * from gldetailview where zid = 100001

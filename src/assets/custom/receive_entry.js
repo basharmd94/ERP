@@ -13,10 +13,43 @@ function updateTotalValue() {
     $('#total-value').text(`৳${total.toFixed(2)}`);
 }
 
+// Helper function to get cookie value
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 $(function () {
     'use strict';
 
+    console.log("=== RECEIVE ENTRY INITIALIZATION ===");
     console.log("Receive Entry Form loaded");
+    console.log("jQuery version:", $.fn.jquery);
+    console.log("Document ready state:", document.readyState);
+    console.log("Select2 available:", typeof $.fn.select2 !== 'undefined');
+    
+    // Setup AJAX defaults to include credentials
+    $.ajaxSetup({
+        xhrFields: {
+            withCredentials: true
+        },
+        beforeSend: function(xhr, settings) {
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                // Only send the token to relative URLs i.e. locally.
+                xhr.setRequestHeader("X-CSRFToken", $('[name=csrfmiddlewaretoken]').val() || getCookie('csrftoken'));
+            }
+        }
+    });
 
     // Initialize Select2 dropdowns
     $('.select2').select2({
@@ -133,182 +166,11 @@ $(function () {
     // Initialize line items from storage on page load
     loadLineItemsFromStorage();
 
-    // Debounced search function
-    function debounceSearch(func, delay) {
-        return function(args) {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
+    // Product search functionality will be implemented here
 
-    // Search items using reusable getAvgPrice function
-    function searchItems(query) {
-        if (query.length < 2) {
-            hideSearchResults();
-            updateSearchStatus('search');
-            return;
-        }
-
-        // Use the reusable getAvgPrice function
-        getAvgPrice(
-            query,
-            // Success callback
-            function(data, searchQuery) {
-                updateSearchStatus('success');
-                displaySearchResults(data, searchQuery);
-            },
-            // Error callback
-            function(errorMessage) {
-                updateSearchStatus('error');
-                showSearchError(errorMessage);
-            },
-            // Loading callback
-            function() {
-                updateSearchStatus('loading');
-                showSearchLoading();
-            }
-        );
-    }
+    // Product selection functionality will be implemented here
 
 
-
-    // Update search status icon
-    function updateSearchStatus(status) {
-        const statusIcon = $('#search-status i');
-        statusIcon.removeClass('ti-search ti-loader-2 ti-check ti-alert-circle text-muted text-primary text-success text-danger');
-        
-        switch(status) {
-            case 'loading':
-                statusIcon.addClass('ti-loader-2 text-primary').css('animation', 'spin 1s linear infinite');
-                break;
-            case 'success':
-                statusIcon.addClass('ti-check text-success').css('animation', 'none');
-                break;
-            case 'error':
-                statusIcon.addClass('ti-alert-circle text-danger').css('animation', 'none');
-                break;
-            default:
-                statusIcon.addClass('ti-search text-muted').css('animation', 'none');
-        }
-    }
-
-    // Display search results
-    function displaySearchResults(items, query) {
-        const resultsContainer = $('#item-search-results');
-        resultsContainer.empty();
-
-        if (items.length === 0) {
-            resultsContainer.html(`
-                <div class="dropdown-item-text text-center py-4">
-                    <i class="tf-icons ti ti-search-off ti-lg text-muted mb-2 d-block"></i>
-                    <div class="text-muted">No items found for "${query}"</div>
-                    <small class="text-muted">Try different keywords or check spelling</small>
-                </div>
-            `);
-        } else {
-            // Add header
-            resultsContainer.append(`
-                <div class="dropdown-header d-flex justify-content-between align-items-center">
-                    <span><i class="tf-icons ti ti-package me-1"></i>Found ${items.length} item${items.length > 1 ? 's' : ''}</span>
-                    <small class="text-muted">Click to add</small>
-                </div>
-            `);
-
-            items.forEach((item, index) => {
-                const resultItem = $(`
-                    <a href="#" class="dropdown-item search-result-item p-3 border-bottom" data-item='${JSON.stringify(item)}' style="transition: all 0.2s ease;">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1 me-3">
-                                <div class="d-flex align-items-center mb-1">
-                                    <strong class="text-dark">${item.xitem}</strong>
-                                    <span class="badge bg-light text-dark ms-2 small">Stock: ${item.qty}</span>
-                                </div>
-                                <div class="text-muted small mb-1">${item.xdesc}</div>
-                                <div class="d-flex align-items-center">
-                                    <i class="tf-icons ti ti-currency-taka text-success me-1"></i>
-                                    <span class="text-success fw-semibold">৳${parseFloat(item.avg_rate).toFixed(2)}</span>
-                                    <small class="text-muted ms-2">avg. rate</small>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <i class="tf-icons ti ti-plus text-primary"></i>
-                            </div>
-                        </div>
-                    </a>
-                `);
-                
-                // Add hover effects
-                resultItem.hover(
-                    function() {
-                        $(this).addClass('bg-light').css('transform', 'translateX(5px)');
-                    },
-                    function() {
-                        $(this).removeClass('bg-light').css('transform', 'translateX(0)');
-                    }
-                );
-                
-                resultsContainer.append(resultItem);
-            });
-
-            // Add footer with keyboard hint
-            resultsContainer.append(`
-                <div class="dropdown-item-text text-center py-2 bg-light">
-                    <small class="text-muted">
-                        <i class="tf-icons ti ti-keyboard me-1"></i>
-                        Use ↑↓ arrow keys to navigate, Enter to select
-                    </small>
-                </div>
-            `);
-        }
-
-        showSearchResults();
-    }
-
-    // Show search loading state
-    function showSearchLoading() {
-        const resultsContainer = $('#item-search-results');
-        resultsContainer.html(`
-            <div class="dropdown-item-text text-center py-4">
-                <div class="d-flex align-items-center justify-content-center mb-2">
-                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <span class="text-muted">Searching items...</span>
-                </div>
-                <div class="progress" style="height: 2px;">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                         role="progressbar" style="width: 100%"></div>
-                </div>
-            </div>
-        `);
-        showSearchResults();
-    }
-
-    // Show search error
-    function showSearchError(message) {
-        const resultsContainer = $('#item-search-results');
-        resultsContainer.html(`
-            <div class="dropdown-item-text text-center py-4">
-                <i class="tf-icons ti ti-alert-triangle ti-lg text-warning mb-2 d-block"></i>
-                <div class="text-danger fw-semibold mb-1">Search Error</div>
-                <div class="text-muted small">${message}</div>
-                <button class="btn btn-sm btn-outline-primary mt-2" onclick="$('#item-selector').focus()">
-                    <i class="tf-icons ti ti-refresh me-1"></i>Try Again
-                </button>
-            </div>
-        `);
-        showSearchResults();
-    }
-
-    // Show search results dropdown
-    function showSearchResults() {
-        $('#item-search-results').show().addClass('show');
-    }
-
-    // Hide search results dropdown
-    function hideSearchResults() {
-        $('#item-search-results').hide().removeClass('show');
-    }
 
     // Add item to line items table
     function addItemToTable(item) {
@@ -336,9 +198,9 @@ $(function () {
                 sl: serialCounter++,
                 xitem: item.xitem,
                 xdesc: item.xdesc,
-                rate: parseFloat(item.avg_rate),
+                rate: parseFloat(item.xstdprice || item.price || 0),
                 qty: 1,
-                value: parseFloat(item.avg_rate) * 1
+                value: parseFloat(item.xstdprice || item.price || 0) * 1
             };
             lineItems.push(newItem);
             addLineItemRow(newItem, lineItems.length - 1);
@@ -351,7 +213,6 @@ $(function () {
         }
 
         updateTotalValue();
-        clearItemSelector();
     }
 
     // Show item feedback
@@ -416,11 +277,7 @@ $(function () {
 
 
 
-    // Clear item selector
-    function clearItemSelector() {
-        $('#item-selector').val('');
-        hideSearchResults();
-    }
+
 
     // Clear all line items
     function clearLineItems() {
@@ -440,81 +297,7 @@ $(function () {
         localStorage.removeItem(STORAGE_KEY);
     }
 
-    // Event handlers
-    const debouncedSearch = debounceSearch(searchItems, 300);
-    let selectedIndex = -1;
 
-    // Item selector input handler
-    $('#item-selector').on('input', function() {
-        const query = $(this).val().trim();
-        selectedIndex = -1; // Reset selection
-        debouncedSearch([query]);
-    });
-
-    // Keyboard navigation
-    $('#item-selector').on('keydown', function(e) {
-        const results = $('.search-result-item');
-        
-        if (results.length === 0) return;
-        
-        switch(e.key) {
-            case 'ArrowDown':
-                e.preventDefault();
-                selectedIndex = Math.min(selectedIndex + 1, results.length - 1);
-                updateSelection(results);
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                selectedIndex = Math.max(selectedIndex - 1, -1);
-                updateSelection(results);
-                break;
-            case 'Enter':
-                e.preventDefault();
-                if (selectedIndex >= 0 && selectedIndex < results.length) {
-                    $(results[selectedIndex]).click();
-                }
-                break;
-            case 'Escape':
-                hideSearchResults();
-                selectedIndex = -1;
-                break;
-        }
-    });
-
-    // Update visual selection
-    function updateSelection(results) {
-        results.removeClass('bg-primary text-white');
-        if (selectedIndex >= 0) {
-            $(results[selectedIndex]).addClass('bg-primary text-white');
-            // Scroll into view if needed
-            const container = $('#item-search-results');
-            const selected = $(results[selectedIndex]);
-            const containerTop = container.scrollTop();
-            const containerBottom = containerTop + container.height();
-            const selectedTop = selected.position().top + containerTop;
-            const selectedBottom = selectedTop + selected.outerHeight();
-            
-            if (selectedTop < containerTop) {
-                container.scrollTop(selectedTop);
-            } else if (selectedBottom > containerBottom) {
-                container.scrollTop(selectedBottom - container.height());
-            }
-        }
-    }
-
-    // Hide results when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#item-selector, #item-search-results').length) {
-            hideSearchResults();
-        }
-    });
-
-    // Handle search result selection
-    $(document).on('click', '.search-result-item', function(e) {
-        e.preventDefault();
-        const item = JSON.parse($(this).attr('data-item'));
-        addItemToTable(item);
-    });
 
     // Handle quantity changes
     $(document).on('input', '.qty-input', function() {

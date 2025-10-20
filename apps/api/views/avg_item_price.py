@@ -1,15 +1,23 @@
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import connection
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
-def pos_products_api(request):
+def avg_item_price(request):
     """
-    AJAX endpoint for POS product search with stock calculation
+    AJAX endpoint for average item price search with stock and value calculation
     Returns data in Select2 format for autocomplete
+
+    Formulas:
+    - Stock: sum(xqty * xsign)
+    - Average Price: sum(xval * xsign) / sum(xqty * xsign) (handles divide by 0)
     """
     if request.method != 'GET':
+        logger.error(f"Invalid method {request.method} for avg_item_price endpoint")
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
     search_term = request.GET.get('search', '').strip()
@@ -26,7 +34,9 @@ def pos_products_api(request):
         # Get current ZID from session
         current_zid = request.session.get('current_zid')
         if not current_zid:
+            logger.error("No business context found in session for avg_item_price endpoint")
             return JsonResponse({'error': 'No business context found'}, status=400)
+
 
         # Require minimum 2 characters for search
         if len(search_term) < 2:
@@ -35,16 +45,21 @@ def pos_products_api(request):
                 'pagination': {'more': False}
             })
 
-        # Build SQL query to get items with stock calculation
+        # Build SQL query to get items with stock and average price calculation
         sql_query = """
         SELECT
             c.xitem,
             c.xdesc,
-            c.xstdprice,
             c.xbarcode,
             c.xstdcost,
+            c.xstdprice,
             c.xunitstk,
-            COALESCE(SUM(i.xqty * i.xsign), 0) AS stock
+            COALESCE(SUM(i.xqty * i.xsign), 0) AS stock,
+            COALESCE(SUM(i.xval * i.xsign), 0) AS total_value,
+            CASE
+                WHEN COALESCE(SUM(i.xqty * i.xsign), 0) = 0 THEN 0
+                ELSE COALESCE(SUM(i.xval * i.xsign), 0) / COALESCE(SUM(i.xqty * i.xsign), 1)
+            END AS avg_price
         FROM
             caitem c
         LEFT JOIN
@@ -57,7 +72,7 @@ def pos_products_api(request):
                 OR LOWER(c.xbarcode) LIKE LOWER(%s)
             )
         GROUP BY
-            c.xitem, c.xdesc, c.xstdprice, c.xbarcode, c.xstdcost, c.xunitstk
+            c.xitem, c.xdesc, c.xbarcode, c.xstdcost, c.xstdprice, c.xunitstk
         ORDER BY
             c.xitem
         LIMIT %s OFFSET %s
@@ -83,11 +98,13 @@ def pos_products_api(request):
                     'text': f"{row_dict['xitem']} - {row_dict['xdesc'] or 'No Description'}",
                     'xitem': row_dict['xitem'],
                     'xdesc': row_dict['xdesc'],
-                    'xstdprice': float(row_dict['xstdprice'] or 0),
                     'xbarcode': row_dict['xbarcode'],
-                    'item_cost': float(row_dict['xstdcost'] or 0),
+                    'xstdcost': float(row_dict['xstdcost'] or 0),
+                    'xstdprice': float(row_dict['xstdprice'] or 0),
                     'xunitstk': row_dict['xunitstk'],
-                    'stock': float(row_dict['stock'] or 0)
+                    'stock': float(row_dict['stock'] or 0),
+                    'total_value': float(row_dict['total_value'] or 0),
+                    'avg_price': float(row_dict['avg_price'] or 0)
                 })
 
         return JsonResponse({
@@ -96,8 +113,10 @@ def pos_products_api(request):
                 'more': len(results) == page_size
             }
         })
+        logger.info(f"Successfully processed avg_item_price search for term '{search_term}' with page {page}")
 
     except Exception as e:
+        logger.error(f"Error in avg_item_price endpoint: {str(e)}")
         return JsonResponse({
             'error': f'Search failed: {str(e)}'
         }, status=500)

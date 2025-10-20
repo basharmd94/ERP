@@ -89,17 +89,6 @@ function setupPaymentHandlers() {
     // Pay amount change handler
     $('#pay-amount').on('input', function() {
         updateReturnAmount();
-        validatePayAmount();
-    });
-    
-    // Bank name validation
-    $('#bank-name').on('change', function() {
-        validateBankName();
-    });
-    
-    // Card number validation
-    $('#card-number').on('input', function() {
-        validateCardNumber();
     });
     
     // Initialize payment method
@@ -108,7 +97,7 @@ function setupPaymentHandlers() {
 }
 
 /**
- * Setup form validation
+ * Setup form validation using POS validation system
  */
 function setupValidation() {
     // Real-time validation for required fields
@@ -116,13 +105,52 @@ function setupValidation() {
         validateRequiredField($(this));
     });
     
-    // Card number validation
+    // Payment field validation using POS system
     $('#card-number').on('input', function() {
-        validateCardNumber($(this));
+        const cardNumber = $(this).val();
+        const result = Validators.validateCardNumber(cardNumber);
+        if (!result.valid) {
+            ValidationState.setError('card-number', result.message);
+        } else {
+            ValidationState.clearError('card-number');
+        }
     });
     
-    // Numeric field validation
-    $('.item-input[type="number"], #card-amount').on('input', function() {
+    $('#card-amount').on('input', function() {
+        const cardAmount = parseFloat($(this).val()) || 0;
+        const total = getCurrentTotal();
+        const result = Validators.validateCardAmount(cardAmount, total);
+        if (!result.valid) {
+            ValidationState.setError('card-amount', result.message);
+        } else {
+            ValidationState.clearError('card-amount');
+        }
+    });
+    
+    $('#pay-amount').on('input', function() {
+        const payAmount = parseFloat($(this).val()) || 0;
+        const total = getCurrentTotal();
+        const cardAmount = parseFloat($('#card-amount').val()) || 0;
+        const result = Validators.validatePayAmount(payAmount, total, cardAmount);
+        if (!result.valid) {
+            ValidationState.setError('pay-amount', result.message);
+        } else {
+            ValidationState.clearError('pay-amount');
+        }
+    });
+    
+    $('#bank-name').on('change', function() {
+        const bankName = $(this).val();
+        const result = Validators.validateBankName(bankName);
+        if (!result.valid) {
+            ValidationState.setError('bank-name', result.message);
+        } else {
+            ValidationState.clearError('bank-name');
+        }
+    });
+    
+    // Numeric field validation for other fields
+    $('.item-input[type="number"]').on('input', function() {
         validateNumericField($(this));
     });
 }
@@ -337,146 +365,58 @@ function updateReturnAmount() {
  }
 
 /**
- * POS-style validation functions
+ * Payment validation using POS validation system
  */
 
 /**
- * Validate card amount
- */
-function validateCardAmount() {
-    const cardAmount = parseFloat($('#card-amount').val()) || 0;
-    const total = getCurrentTotal();
-    const $field = $('#card-amount');
-    
-    // Clear previous validation
-    clearFieldValidation($field);
-    
-    if (window.selectedPaymentMethod === 'card') {
-        if (cardAmount < 0) {
-            showFieldError($field, 'Card amount cannot be negative');
-            return false;
-        }
-        
-        if (cardAmount > total) {
-            showFieldError($field, 'Card amount cannot exceed total amount');
-            return false;
-        }
-        
-        if (cardAmount === 0) {
-            showFieldError($field, 'Card amount is required for card payment');
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-/**
- * Validate pay amount
- */
-function validatePayAmount() {
-    const payAmount = parseFloat($('#pay-amount').val()) || 0;
-    const total = getCurrentTotal();
-    const $field = $('#pay-amount');
-    
-    // Clear previous validation
-    clearFieldValidation($field);
-    
-    if (payAmount < 0) {
-        showFieldError($field, 'Pay amount cannot be negative');
-        return false;
-    }
-    
-    if (window.selectedPaymentMethod === 'cash' && payAmount < total) {
-        showFieldError($field, `Cash payment must be at least ৳${total.toFixed(2)}`);
-        return false;
-    }
-    
-    return true;
-}
-
-/**
- * Validate bank name for card payments
- */
-function validateBankName() {
-    const bankName = $('#bank-name').val();
-    const $field = $('#bank-name');
-    
-    // Clear previous validation
-    clearFieldValidation($field);
-    
-    if (window.selectedPaymentMethod === 'card') {
-        if (!bankName || bankName.trim() === '' || bankName === '-- Select a bank --') {
-            showFieldError($field, 'Please select a bank for card payment');
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-/**
- * Validate card number
- */
-function validateCardNumber() {
-    const cardNumber = $('#card-number').val();
-    const $field = $('#card-number');
-    
-    // Clear previous validation
-    clearFieldValidation($field);
-    
-    if (window.selectedPaymentMethod === 'card') {
-        if (!cardNumber || cardNumber.trim().length === 0) {
-            showFieldError($field, 'Card number is required for card payment');
-            return false;
-        }
-        
-        // Clean card number (remove spaces, dashes)
-        const cleanCard = cardNumber.replace(/[\s\-]/g, '');
-        
-        if (!/^\d{4}$/.test(cleanCard)) {
-            showFieldError($field, 'Card number must be 4 digits');
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-/**
- * Show field validation error
- */
-function showFieldError($field, message) {
-    $field.addClass('is-invalid');
-    
-    // Remove existing error message
-    $field.siblings('.validation-error').remove();
-    
-    // Add new error message
-    $field.after(`<div class="validation-error text-danger small mt-1">${message}</div>`);
-}
-
-/**
- * Clear field validation
- */
-function clearFieldValidation($field) {
-    $field.removeClass('is-invalid');
-    $field.siblings('.validation-error').remove();
-}
-
-/**
- * Validate all payment fields
+ * Validate all payment fields using POS validation system
  */
 function validatePaymentFields() {
     let isValid = true;
+    const total = getCurrentTotal();
     
     if (window.selectedPaymentMethod === 'card') {
-        isValid = validateCardAmount() && isValid;
-        isValid = validateCardNumber() && isValid;
-        isValid = validateBankName() && isValid;
+        // Validate card amount
+        const cardAmount = parseFloat($('#card-amount').val()) || 0;
+        const cardAmountResult = Validators.validateCardAmount(cardAmount, total);
+        if (!cardAmountResult.valid) {
+            ValidationState.setError('card-amount', cardAmountResult.message);
+            isValid = false;
+        } else {
+            ValidationState.clearError('card-amount');
+        }
+        
+        // Validate card number
+        const cardNumber = $('#card-number').val();
+        const cardNumberResult = Validators.validateCardNumber(cardNumber);
+        if (!cardNumberResult.valid) {
+            ValidationState.setError('card-number', cardNumberResult.message);
+            isValid = false;
+        } else {
+            ValidationState.clearError('card-number');
+        }
+        
+        // Validate bank name
+        const bankName = $('#bank-name').val();
+        const bankNameResult = Validators.validateBankName(bankName);
+        if (!bankNameResult.valid) {
+            ValidationState.setError('bank-name', bankNameResult.message);
+            isValid = false;
+        } else {
+            ValidationState.clearError('bank-name');
+        }
     }
     
-    isValid = validatePayAmount() && isValid;
+    // Validate pay amount
+    const payAmount = parseFloat($('#pay-amount').val()) || 0;
+    const cardAmount = parseFloat($('#card-amount').val()) || 0;
+    const payAmountResult = Validators.validatePayAmount(payAmount, total, cardAmount);
+    if (!payAmountResult.valid) {
+        ValidationState.setError('pay-amount', payAmountResult.message);
+        isValid = false;
+    } else {
+        ValidationState.clearError('pay-amount');
+    }
     
     return isValid;
 }
@@ -599,73 +539,35 @@ function updateSummaryDisplay(subtotal, totalTax) {
 }
 
 /**
- * Validate required field
+ * Validate required field using POS validation system
  */
 function validateRequiredField(field) {
     const value = field.val().trim();
+    const fieldId = field.attr('id');
     
     if (!value) {
-        field.addClass('is-invalid');
-        showFieldError(field, 'This field is required');
+        ValidationState.setError(fieldId, 'This field is required');
         return false;
     } else {
-        field.removeClass('is-invalid');
-        hideFieldError(field);
+        ValidationState.clearError(fieldId);
         return true;
     }
 }
 
 /**
- * Validate card number
- */
-function validateCardNumber(field) {
-    const value = field.val().trim();
-    
-    if ($('#payment-type').val() === 'Card Sale' && !value) {
-        field.addClass('is-invalid');
-        showFieldError(field, 'Card number is required for card sales');
-        return false;
-    } else {
-        field.removeClass('is-invalid');
-        hideFieldError(field);
-        return true;
-    }
-}
-
-/**
- * Validate numeric field
+ * Validate numeric field using POS validation system
  */
 function validateNumericField(field) {
     const value = parseFloat(field.val());
+    const fieldId = field.attr('id');
     
     if (isNaN(value) || value < 0) {
-        field.addClass('is-invalid');
-        showFieldError(field, 'Please enter a valid positive number');
+        ValidationState.setError(fieldId, 'Please enter a valid positive number');
         return false;
     } else {
-        field.removeClass('is-invalid');
-        hideFieldError(field);
+        ValidationState.clearError(fieldId);
         return true;
     }
-}
-
-/**
- * Show field error
- */
-function showFieldError(field, message) {
-    let errorDiv = field.next('.invalid-feedback');
-    if (errorDiv.length === 0) {
-        errorDiv = $('<div class="invalid-feedback"></div>');
-        field.after(errorDiv);
-    }
-    errorDiv.text(message);
-}
-
-/**
- * Hide field error
- */
-function hideFieldError(field) {
-    field.next('.invalid-feedback').remove();
 }
 
 /**
@@ -693,19 +595,38 @@ function validateForm() {
         isValid = false;
     }
     
-    // Validate item quantities and rates
-    $('#items-tbody tr').each(function() {
-        const qty = parseFloat($(this).find('.quantity-input').val());
-        const rate = parseFloat($(this).find('.rate-input').val());
+    // Validate item quantities and rates using POS validation system
+    $('#items-tbody tr').each(function(index) {
+        const $row = $(this);
+        const $qtyInput = $row.find('.quantity-input');
+        const $rateInput = $row.find('.rate-input');
+        const qty = parseFloat($qtyInput.val());
+        const rate = parseFloat($rateInput.val());
+        
+        // Create unique field IDs for each row
+        const qtyFieldId = `quantity-${index}`;
+        const rateFieldId = `rate-${index}`;
         
         if (isNaN(qty) || qty <= 0) {
-            $(this).find('.quantity-input').addClass('is-invalid');
+            ValidationState.setError(qtyFieldId, 'Quantity must be greater than 0');
+            $qtyInput.addClass('is-invalid');
+            $qtyInput.after(`<div class="validation-error text-danger small mt-1">Quantity must be greater than 0</div>`);
             isValid = false;
+        } else {
+            ValidationState.clearError(qtyFieldId);
+            $qtyInput.removeClass('is-invalid');
+            $qtyInput.siblings('.validation-error').remove();
         }
         
         if (isNaN(rate) || rate < 0) {
-            $(this).find('.rate-input').addClass('is-invalid');
+            ValidationState.setError(rateFieldId, 'Rate must be 0 or greater');
+            $rateInput.addClass('is-invalid');
+            $rateInput.after(`<div class="validation-error text-danger small mt-1">Rate must be 0 or greater</div>`);
             isValid = false;
+        } else {
+            ValidationState.clearError(rateFieldId);
+            $rateInput.removeClass('is-invalid');
+            $rateInput.siblings('.validation-error').remove();
         }
     });
     
@@ -758,7 +679,6 @@ function collectFormData() {
  */
 function saveChanges() {
     if (!validateForm()) {
-        toastr.error('Please fix the validation errors before saving');
         return;
     }
     

@@ -88,8 +88,6 @@
 
 <!--Datatables-->
 <script src="{% static 'custom/select_item.js' %}"></script>
-<!-- Reusable AJAX function for getting average prices -->
-<script src="{% static 'custom/get_avg_price.js' %}"></script>
 <script src="{% static 'custom/receive_entry.js' %}"></script>
 <!-- Receive Entry List DataTable -->
 <script src="{% static 'custom/receive_entry_list.js' %}"></script>
@@ -136,6 +134,7 @@
         </div>
         <div class="card-body">
           <form id="receive-entry-form">
+            {% csrf_token %}
             <div class="row">
               <!-- Transaction Prefix -->
               <div class="col-md-3 mb-3">
@@ -209,29 +208,22 @@
               </div>
             </div>
 
-            <!-- Smart Item Selector -->
-            <div class="row">
-              <div class="col-12 mb-4">
-                <label for="item-selector" class="form-label">
-                  <i class="tf-icons ti ti-search me-1"></i>Smart Item Selector
-                  <small class="text-muted ms-2">Type to search items with average rates</small>
-                </label>
-                <div class="position-relative">
-                  <div class="input-group">
-                    <span class="input-group-text">
-                      <i class="tf-icons ti ti-barcode"></i>
-                    </span>
-                    <input type="text" class="form-control" id="item-selector"
-                           placeholder="Search by item code or description (min 2 characters)..."
-                           autocomplete="off" />
-                    <span class="input-group-text" id="search-status">
-                      <i class="tf-icons ti ti-search text-muted"></i>
-                    </span>
+            <!-- Product Search Section -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="mb-0">
+                      <i class="ti ti-search me-2"></i> Add Products
+                    </h5>
                   </div>
-                  <!-- Search Results Dropdown -->
-                  <div id="item-search-results" class="dropdown-menu w-100 shadow-lg border-0"
-                       style="display: none; max-height: 350px; overflow-y: auto; z-index: 1050; margin-top: 2px;">
-                    <!-- Dynamic search results will be populated here -->
+                  <div class="card-body">
+                    <div class="row g-3">
+                      <div class="col-md-12">
+                        <label class="form-label fw-bold">Product Search</label>
+                        <p class="text-muted">Product search functionality will be implemented here</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

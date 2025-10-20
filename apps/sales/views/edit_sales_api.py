@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db import connection, transaction
+from apps.utils.voucher_generator import generate_voucher_number
 import json
 import logging
 from datetime import datetime
@@ -47,10 +48,10 @@ def update_transaction_api(request):
         # Validate transaction exists and belongs to current zid
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT COUNT(*) FROM opord 
+                SELECT COUNT(*) FROM opord
                 WHERE zid = %s AND xordernum = %s
             """, [current_zid, transaction_id])
-            
+
             if cursor.fetchone()[0] == 0:
                 return JsonResponse({
                     'success': False,
@@ -61,7 +62,7 @@ def update_transaction_api(request):
         update_header_result = update_transaction_header(
             current_zid, transaction_id, header_data
         )
-        
+
         if not update_header_result['success']:
             return JsonResponse(update_header_result, status=400)
 
@@ -69,12 +70,12 @@ def update_transaction_api(request):
         update_items_result = update_transaction_items(
             current_zid, transaction_id, items_data
         )
-        
+
         if not update_items_result['success']:
             return JsonResponse(update_items_result, status=400)
 
         logger.info(f"Transaction {transaction_id} updated successfully by user {request.user.username}")
-        
+
         return JsonResponse({
             'success': True,
             'message': 'Transaction updated successfully',
@@ -111,7 +112,7 @@ def delete_transaction_api(request):
             }, status=400)
 
         transaction_id = request.POST.get('transaction_id')
-        
+
         if not transaction_id:
             return JsonResponse({
                 'success': False,
@@ -121,10 +122,10 @@ def delete_transaction_api(request):
         # Validate transaction exists and belongs to current zid
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT xstatusord FROM opord 
+                SELECT xstatusord FROM opord
                 WHERE zid = %s AND xordernum = %s
             """, [current_zid, transaction_id])
-            
+
             result = cursor.fetchone()
             if not result:
                 return JsonResponse({
@@ -143,20 +144,20 @@ def delete_transaction_api(request):
         # Delete transaction items first (opodt table)
         with connection.cursor() as cursor:
             cursor.execute("""
-                DELETE FROM opodt 
+                DELETE FROM opodt
                 WHERE zid = %s AND xordernum = %s
             """, [current_zid, transaction_id])
-            
+
             items_deleted = cursor.rowcount
             logger.info(f"Deleted {items_deleted} items for transaction {transaction_id}")
 
         # Delete transaction header (opord table)
         with connection.cursor() as cursor:
             cursor.execute("""
-                DELETE FROM opord 
+                DELETE FROM opord
                 WHERE zid = %s AND xordernum = %s
             """, [current_zid, transaction_id])
-            
+
             if cursor.rowcount == 0:
                 return JsonResponse({
                     'success': False,
@@ -164,7 +165,7 @@ def delete_transaction_api(request):
                 }, status=500)
 
         logger.info(f"Transaction {transaction_id} deleted successfully by user {request.user.username}")
-        
+
         return JsonResponse({
             'success': True,
             'message': 'Transaction deleted successfully'
@@ -187,12 +188,11 @@ def update_transaction_header(zid, transaction_id, header_data):
             # Build dynamic update query based on provided data
             update_fields = []
             params = []
-            
+
             # Map form fields to database columns
             field_mapping = {
                 'xdate': 'xdate',
                 'xcus': 'xcus',
-                'customer_name': 'xorg',  # Assuming customer name goes to xorg
                 'xwh': 'xwh',
                 'xsp': 'xsp',
                 'xmobile': 'xmobile',
@@ -202,34 +202,34 @@ def update_transaction_header(zid, transaction_id, header_data):
                 'xdocnum': 'xdocnum',     # Card number
                 'xdtcomm': 'xdtcomm'      # Card amount
             }
-            
+
             for form_field, db_field in field_mapping.items():
                 if form_field in header_data:
                     update_fields.append(f"{db_field} = %s")
                     params.append(header_data[form_field])
-            
+
             if not update_fields:
                 return {'success': True, 'message': 'No header fields to update'}
-            
+
             # Add WHERE clause parameters
             params.extend([zid, transaction_id])
-            
+
             query = f"""
-                UPDATE opord 
+                UPDATE opord
                 SET {', '.join(update_fields)}
                 WHERE zid = %s AND xordernum = %s
             """
-            
+
             cursor.execute(query, params)
-            
+
             if cursor.rowcount == 0:
                 return {
                     'success': False,
                     'message': 'Transaction header not found or no changes made'
                 }
-            
+
             return {'success': True, 'message': 'Header updated successfully'}
-            
+
     except Exception as e:
         logger.error(f"Error updating transaction header: {str(e)}")
         return {
@@ -240,32 +240,61 @@ def update_transaction_header(zid, transaction_id, header_data):
 
 def update_transaction_items(zid, transaction_id, items_data):
     """
-    Update transaction items in opodt table
+    Update transaction items in opodt and imtrn tables
+    Delete existing records first, then insert new ones to prevent duplicates
     """
     try:
         with connection.cursor() as cursor:
-            # First, delete existing items for this transaction
+            # First, delete existing items for this transaction from both tables
+            # Delete from opodt table
             cursor.execute("""
-                DELETE FROM opodt 
+                DELETE FROM opodt
                 WHERE zid = %s AND xordernum = %s
             """, [zid, transaction_id])
             
-            # Insert updated items
-            for item in items_data:
+            # Delete from imtrn table (using xdocnum which stores the order number)
+            cursor.execute("""
+                DELETE FROM imtrn
+                WHERE zid = %s AND xdocnum = %s AND xdoctype = 'IS--'
+            """, [zid, transaction_id])
+
+            # Get header information for imtrn records
+            cursor.execute("""
+                SELECT xdate, xwh, xcus, xsltype, xyear, xper, zemail
+                FROM opord
+                WHERE zid = %s AND xordernum = %s
+            """, [zid, transaction_id])
+            
+            header_row = cursor.fetchone()
+            if not header_row:
+                return {
+                    'success': False,
+                    'message': 'Transaction header not found'
+                }
+            
+            xdate, xwh, xcus, xsltype, xyear, xper, zemail = header_row
+            
+            # Get current timestamp
+            current_time = datetime.now()
+            timestamp = current_time.strftime('%Y-%m-%d %H:%M:%S')
+
+            # Insert updated items into both opodt and imtrn
+            for idx, item in enumerate(items_data, 1):
                 # Calculate line amount if not provided
                 qty = float(item.get('xqtyord', 0))
                 rate = float(item.get('xrate', 0))
                 line_amount = qty * rate
-                
+
+                # Insert into opodt table
                 cursor.execute("""
                     INSERT INTO opodt (
-                        zid, xordernum, xrow, xitem, xdesc, xunitsel, 
+                        zid, xordernum, xrow, xitem, xdesc, xunitsel,
                         xqtyord, xrate, xlineamt, xdttax
                     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, [
                     zid,
                     transaction_id,
-                    item.get('xrow', 1),
+                    item.get('xrow', idx),
                     item.get('xitem', ''),
                     item.get('xdesc', ''),
                     item.get('xunitsel', 'PCS'),
@@ -274,20 +303,75 @@ def update_transaction_items(zid, transaction_id, items_data):
                     line_amount,
                     float(item.get('xdttax', 0))
                 ])
-            
+
+                # Generate IS number for imtrn record
+                is_number = generate_voucher_number(zid, 'IS--', 'imtrn', 'ximtrnnum')
+                
+                # Get average price for xval calculation (default to rate if not available)
+                cursor.execute("""
+                    SELECT AVG(xrate) as avg_price
+                    FROM opodt
+                    WHERE zid = %s AND xitem = %s
+                """, [zid, item.get('xitem', '')])
+                
+                avg_result = cursor.fetchone()
+                avg_price = avg_result[0] if avg_result and avg_result[0] else rate
+                xval = float(avg_price) * qty
+
+                # Insert into imtrn table
+                cursor.execute("""
+                    INSERT INTO imtrn (
+                        ztime, zid, ximtrnnum, xitem, xitemrow, xwh, xdate, xyear,
+                        xper, xqty, xval, xvalpost, xdoctype, xdocnum, xdocrow,
+                        xdateexp, xdaterec, xlicense, xcus, xaction, xsign, xtime,
+                        zemail, xtrnim, xstdprice
+                    ) VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s
+                    )
+                """, [
+                    timestamp,  # ztime
+                    zid,  # zid
+                    is_number,  # ximtrnnum
+                    item.get('xitem', ''),  # xitem
+                    xsltype or 'Cash',  # xitemrow (payment method)
+                    xwh or 'Fixit Gulshan',  # xwh
+                    xdate,  # xdate
+                    str(xyear) if xyear else str(current_time.year),  # xyear
+                    str(xper) if xper else str(current_time.month),  # xper
+                    f"{qty:.3f}",  # xqty
+                    f"{xval:.6f}",  # xval
+                    "0.000000",  # xvalpost
+                    'IS--',  # xdoctype
+                    transaction_id,  # xdocnum
+                    idx,  # xdocrow
+                    xdate,  # xdateexp
+                    xdate,  # xdaterec
+                    '',  # xlicense
+                    xcus or 'CUS-000001',  # xcus
+                    'Issue',  # xaction
+                    '-1',  # xsign
+                    timestamp,  # xtime
+                    zemail or 'system',  # zemail
+                    'IS--',  # xtrnim
+                    f"{rate:.4f}"  # xstdprice
+                ])
+
             # Update total amount in header
             cursor.execute("""
-                UPDATE opord 
+                UPDATE opord
                 SET xtotamt = (
-                    SELECT COALESCE(SUM(xlineamt), 0) 
-                    FROM opodt 
+                    SELECT COALESCE(SUM(xlineamt), 0)
+                    FROM opodt
                     WHERE zid = %s AND xordernum = %s
                 )
                 WHERE zid = %s AND xordernum = %s
             """, [zid, transaction_id, zid, transaction_id])
-            
+
             return {'success': True, 'message': 'Items updated successfully'}
-            
+
     except Exception as e:
         logger.error(f"Error updating transaction items: {str(e)}")
         return {
