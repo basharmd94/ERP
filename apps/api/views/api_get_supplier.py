@@ -40,7 +40,7 @@ def api_get_supplier(request):
             suppliers = cursor.fetchall()
 
         results = [
-            {'id': xsup, 'text': f'{xsup} -- {xshort}'}
+            {'id': xsup, 'text': xsup, 'xshort': xshort}
             for xsup, xshort in suppliers
         ]
 

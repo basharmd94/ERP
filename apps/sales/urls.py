@@ -10,6 +10,7 @@ from .views.edit_sales_api import update_transaction_api, delete_transaction_api
 from .views.day_end_process import DayEndProcess, delete_day_end_process
 from .views.sales_return import SalesReturnView
 
+
 urlpatterns = [
     # Sales Management URLs
     path("pos-sales/", SalesView.as_view(), name="pos-sales"),
@@ -32,6 +33,7 @@ urlpatterns = [
     # Edit sales API endpoints
     path("api/update-transaction/", update_transaction_api, name="update-transaction-api"),
     path("api/delete-transaction/", delete_transaction_api, name="delete-transaction-api"),
+
     # invoice print
     path("print-invoice/<str:transaction_id>/", print_invoice, name="print-invoice"),
     # slip print

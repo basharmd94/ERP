@@ -10,19 +10,19 @@
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
-
 <link rel="stylesheet" href="{% static 'vendor/libs/pickr/pickr-themes.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
-
 {% endblock vendor_css %}
 
 {% block vendor_js %}
 {{ block.super }}
 <script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
 <script src="{% static 'vendor/libs/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
 <script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
 <script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
 <script src="{% static 'vendor/libs/pickr/pickr.js' %}"></script>
@@ -70,7 +70,7 @@
       <form id="sales-return-entry-form">
 
         <!-- Two Column Layout -->
-        <div class="row">
+        <div class="row sales-return-container">
 
           <!-- Left Column: Header & Item Selector (6 columns) -->
           <div class="col-md-5">
@@ -92,13 +92,13 @@
                   </div>
 
                   <div class="col-md-6 mb-2">
-                    <label for="transaction-date" class="form-label">Date</label>
-                    <input type="text" class="form-control" id="transaction-date" placeholder="Select date" readonly />
+                    <label for="transaction-date" class="form-label">Date <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="transaction-date" placeholder="Select date" readonly required />
                   </div>
 
                   <div class="col-md-6 mb-2">
-                    <label for="invoice-date" class="form-label">Invoice Date</label>
-                    <input type="text" class="form-control" id="invoice-date" placeholder="Select date" readonly />
+                    <label for="invoice-date" class="form-label">Invoice Date <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="invoice-date" placeholder="Select date" readonly required />
                   </div>
 
                   <div class="col-md-6 mb-2">
@@ -112,8 +112,8 @@
                   </div>
 
                   <div class="col-md-6 mb-2">
-                    <label for="supplierSelect" class="form-label">Supplier Number</label>
-                    <select id="supplierSelect" class="form-select select2" data-allow-clear="true">
+                    <label for="supplierSelect" class="form-label">Supplier Number <span class="text-danger">*</span></label>
+                    <select id="supplierSelect" class="form-select select2" data-allow-clear="true" required>
                       <option></option>
                     </select>
                   </div>
@@ -128,11 +128,6 @@
                   <div class="col-12 mb-2">
                     <label for="notes" class="form-label">Notes</label>
                     <textarea class="form-control" id="notes" rows="2" placeholder="Enter notes"></textarea>
-                  </div>
-
-                  <div class="col-12 mb-3">
-                    <label for="entered-by" class="form-label">Entered by</label>
-                    <input type="text" class="form-control" id="entered-by" value="{{ user.username }}" readonly />
                   </div>
                 </div>
 
@@ -150,92 +145,100 @@
                   </div>
                 </div>
 
+                <div class="col-12 mb-3">
+                  <label for="entered-by" class="form-label">Entered by</label>
+                  <input type="text" class="form-control" id="entered-by" value="{{ user.username }}" readonly />
+                </div>
+
               </div>
             </div>
           </div>
 
           <!-- Right Column: Cart (6 columns) -->
-          <div class="col-md-7">
 
-            <!-- Empty Cart Message -->
-            <div id="empty-cart-message" class="text-center py-5">
-              <div class="card border-light">
-                <div class="card-body">
-                  <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                  <h5 class="text-muted">Your cart is empty</h5>
-                  <p class="text-muted">Search and select items to add them to your cart</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Cart Section -->
-            <div id="cart-section" style="display: none;">
-              <div class="card border-success">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                  <h6 class="card-title mb-0">
-                    <i class="fas fa-shopping-cart me-2"></i>
-                    Sales Return Cart (<span id="cart-items-count">0</span> items)
-                  </h6>
-                  <button type="button" class="btn btn-sm btn-outline-light" onclick="clearCart()" title="Clear Cart">
-                    <i class="fas fa-trash me-1"></i>Clear All
-                  </button>
-                </div>
-                <div class="card-body p-0">
-                  <div class="card-datatable table-responsive">
-                    <table id="cart-datatable" class="datatables-cart table table-hover">
-                      <thead>
-                        <tr>
-                          <th>Item Name</th>
-                          <th>Stock</th>
-                          <th>Price</th>
-                          <th>Qty</th>
-                          <th>Subtotal</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody id="cart-items-tbody">
-                        <!-- Cart items will be dynamically added here -->
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <!-- Cart Summary -->
-                  <div class="card-footer bg-light">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="d-flex justify-content-between">
-                          <span class="fw-bold">Total Items:</span>
-                          <span id="cart-total-items" class="text-primary fw-bold">0.00</span>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="d-flex justify-content-between">
-                          <span class="fw-bold">Total Amount:</span>
-                          <span id="cart-total-amount" class="text-success fw-bold fs-5">৳0.00</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="row mt-3">
-                      <div class="col-md-12 text-end">
-                        <button type="button" class="btn btn-outline-secondary me-2" onclick="clearCart()">
-                          <i class="fas fa-trash me-1"></i>Clear Cart
-                        </button>
-                        <button type="button" class="btn btn-primary me-2">
-                          <i class="fas fa-save me-1"></i>Save Draft
-                        </button>
-                        <button type="button" class="btn btn-success">
-                          <i class="fas fa-check me-1"></i>Process Return
-                        </button>
-                      </div>
-                    </div>
+          <div class="col-md-7 cart-column">
+            <div class="cart-section-wrapper">
+              <!-- Empty Cart Message -->
+              <div id="empty-cart-message" class="text-center py-5">
+                <div class="card border-light">
+                  <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Your cart is empty</h5>
+                    <p class="text-muted">Search and select items to add them to your cart</p>
                   </div>
                 </div>
               </div>
-            </div>
+              <!-- Cart Section -->
+              <!-- give full height to cart section -->
+              <div id="cart-section" style="display: none;">
+                <div class="card border-success">
+                  <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                      <i class="fas fa-shopping-cart me-2"></i>
+                      Sales Return Cart (<span id="cart-items-count">0</span> items)
+                    </h6>
+                    <button type="button" class="btn btn-sm btn-outline-light" onclick="clearCart()" title="Clear Cart">
+                      <i class="fas fa-trash me-1"></i>Clear All
+                    </button>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="card-datatable table-responsive">
+                      <table id="cart-datatable" class="datatables-cart table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Item Name</th>
+                            <th>Stock</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Subtotal</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody id="cart-items-tbody">
+                          <!-- Cart items will be dynamically added here -->
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!-- Cart Summary -->
+                    <div class="card-footer bg-light">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="d-flex justify-content-between">
+                            <span class="fw-bold">Total Items:</span>
+                            <span id="cart-total-items" class="text-primary fw-bold">0.00</span>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="d-flex justify-content-between">
+                            <span class="fw-bold">Total Amount:</span>
+                            <span id="cart-total-amount" class="text-success fw-bold fs-5">৳0.00</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Action Buttons -->
+                      <div class="row mt-3">
+                        <div class="col-md-12 text-end">
+                          <button type="button" class="btn btn-outline-secondary me-2" onclick="clearCart()">
+                            <i class="fas fa-trash me-1"></i>Clear Cart
+                          </button>
+                          <button type="button" class="btn btn-primary me-2">
+                            <i class="fas fa-save me-1"></i>Save Draft
+                          </button>
+                          <button type="button" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i>Process Return
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- End cart-section-wrapper -->
 
           </div>
+
 
         </div>
 

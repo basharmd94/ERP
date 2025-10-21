@@ -23,6 +23,8 @@ $(document).ready(function(){
         allowClear: true,
         dropdownParent: $warehouse.parent() // Fix for scrollbar issue
       });
+
+
     }
   });
 });
