@@ -140,6 +140,8 @@ $(document).ready(function() {
             info: false,
             // searching false
             searching: false,
+            // fixed header
+            fixedHeader: true,
             columns: [
                 {
                     title: 'Item Name',
@@ -197,11 +199,30 @@ $(document).ready(function() {
                     }
                 },
                 {
+                    title: 'Mkt Price',
+                    data: null,
+                    width: '15%',
+                    render: function(data, type, row) {
+                        const mktPrice = row.mkt_price || row.avg_price;
+                        return `
+                            <input type="number"
+                                   class="form-control form-control-sm mkt-price-input"
+                                   value="${mktPrice}"
+                                   min="0.01"
+                                   step="0.01"
+                                   data-cart-id="${row.cartId}"
+                                   style="width: 80px; font-size: 0.875rem;"
+                                   placeholder="Price">
+                        `;
+                    }
+                },
+                {
                     title: 'Subtotal',
                     data: null,
                     width: '15%',
                     render: function(data, type, row) {
-                        const subtotal = row.avg_price * row.quantity;
+                        const mktPrice = row.mkt_price || row.avg_price;
+                        const subtotal = mktPrice * row.quantity;
                         return `<div class="fw-bold text-success text-center" style="font-size: 0.875rem;">৳${formatNumber(subtotal)}</div>`;
                     }
                 },
@@ -253,6 +274,13 @@ $(document).ready(function() {
             updateQuantity(cartId, newQuantity);
         });
 
+        // Handle market price change
+        $('#cart-datatable').on('change', '.mkt-price-input', function() {
+            const cartId = parseInt($(this).data('cart-id'));
+            const newMktPrice = parseFloat($(this).val());
+            updateMktPrice(cartId, newMktPrice);
+        });
+
         // Handle remove item
         $('#cart-datatable').on('click', '.remove-item', function() {
             const cartId = parseInt($(this).data('cart-id'));
@@ -275,6 +303,7 @@ $(document).ready(function() {
             const cartItem = {
                 ...item,
                 quantity: 1,
+                mkt_price: item.avg_price, // Initialize mkt_price with avg_price
                 cartId: ++cartCounter
             };
             cartItems.push(cartItem);
@@ -317,7 +346,7 @@ $(document).ready(function() {
         }
 
         // Show success message
-        showToast('Item added to cart successfully!', 'success');
+        toastr.success('Item added to cart successfully!');
 
         // Clear the search selection
         $('#avg-item-search').val(null).trigger('change');
@@ -337,7 +366,7 @@ $(document).ready(function() {
                 window.salesReturnStorage.autoSave();
             }
 
-            showToast(`${removedItem.xitem} removed from cart`, 'info');
+            toastr.info(`${removedItem.xitem} removed from cart`);
         }
     };
 
@@ -351,6 +380,25 @@ $(document).ready(function() {
         const itemIndex = cartItems.findIndex(item => item.cartId === cartId);
         if (itemIndex !== -1) {
             cartItems[itemIndex].quantity = newQuantity;
+            refreshCartDataTable();
+            updateCartTotals();
+
+            // Auto-save to localStorage
+            if (window.salesReturnStorage) {
+                window.salesReturnStorage.autoSave();
+            }
+        }
+    }
+
+    // Update market price
+    window.updateMktPrice = function(cartId, newMktPrice) {
+        if (newMktPrice <= 0) {
+            return; // Don't allow zero or negative prices
+        }
+
+        const itemIndex = cartItems.findIndex(item => item.cartId === cartId);
+        if (itemIndex !== -1) {
+            cartItems[itemIndex].mkt_price = newMktPrice;
             refreshCartDataTable();
             updateCartTotals();
 
@@ -377,7 +425,8 @@ $(document).ready(function() {
 
         cartItems.forEach(item => {
             totalItems += item.quantity;
-            totalAmount += item.avg_price * item.quantity;
+            const mktPrice = item.mkt_price || item.avg_price;
+            totalAmount += mktPrice * item.quantity;
         });
 
         $('#cart-total-items').text(formatNumber(totalItems));
@@ -410,7 +459,7 @@ $(document).ready(function() {
     // Clear entire cart
     window.clearCart = function() {
         if (cartItems.length === 0) {
-            showToast('Cart is already empty', 'info');
+            toastr.info('Cart is already empty');
             return;
         }
 
@@ -425,7 +474,7 @@ $(document).ready(function() {
                 window.salesReturnStorage.clearCartData();
             }
 
-            showToast('Cart cleared successfully', 'success');
+            toastr.success('Cart cleared successfully');
         }
     };
 
@@ -506,7 +555,7 @@ $(document).ready(function() {
                     toggleCartSection();
 
                     if (window.cartItems.length > 0) {
-                        showToast(`Restored ${window.cartItems.length} items from previous session`, 'success');
+                        toastr.success(`Restored ${window.cartItems.length} items from previous session`);
                     }
                 } else {
                     console.log('No saved data found for ZID:', zid);
@@ -517,7 +566,7 @@ $(document).ready(function() {
             })
             .catch(function(error) {
                 console.error('Error initializing localStorage:', error);
-                showToast('Session data unavailable: ' + error, 'warning');
+                toastr.warning('Session data unavailable: ' + error);
                 // Still setup auto-save triggers even if ZID loading fails
                 setupAutoSaveTriggers();
             });
@@ -602,7 +651,7 @@ $(document).ready(function() {
 
         // Show validation errors
         if (!isValid) {
-            showToast('Please fix the following errors:<br>• ' + errorMessages.join('<br>• '), 'error');
+            toastr.error('Please fix the following errors:<br>• ' + errorMessages.join('<br>• '));
         }
 
         return isValid;
@@ -610,38 +659,25 @@ $(document).ready(function() {
 
     // Make validateForm globally accessible
     window.validateSalesReturnForm = validateForm;
-
-    // Toast notification helper
-    function showToast(message, type = 'info') {
-        // Create toast element
-        const toastId = 'toast-' + Date.now();
-        const bgClass = type === 'success' ? 'bg-success' :
-                       type === 'error' ? 'bg-danger' :
-                       type === 'warning' ? 'bg-warning' : 'bg-info';
-
-        const toast = `
-            <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert">
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            </div>
-        `;
-
-        // Add to toast container or create one
-        if ($('#toast-container').length === 0) {
-            $('body').append('<div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>');
-        }
-
-        $('#toast-container').append(toast);
-
-        // Initialize and show toast
-        const toastElement = new bootstrap.Toast(document.getElementById(toastId));
-        toastElement.show();
-
-        // Remove toast element after it's hidden
-        $(`#${toastId}`).on('hidden.bs.toast', function() {
-            $(this).remove();
-        });
-    }
 });
+
+/**
+ * Configure toastr notifications
+ */
+toastr.options = {
+    closeButton: true,
+    debug: false,
+    newestOnTop: true,
+    progressBar: true,
+    positionClass: 'toast-top-right',
+    preventDuplicates: false,
+    onclick: null,
+    showDuration: '300',
+    hideDuration: '1000',
+    timeOut: '5000',
+    extendedTimeOut: '1000',
+    showEasing: 'swing',
+    hideEasing: 'linear',
+    showMethod: 'fadeIn',
+    hideMethod: 'fadeOut'
+};

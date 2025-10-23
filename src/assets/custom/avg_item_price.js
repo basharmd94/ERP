@@ -27,18 +27,18 @@ $(document).ready(function(){
         <div>
           <div class="fw-bold">${item.text}</div>
           <div class="small text-muted">
-            Avg Price: ৳${parseFloat(avgPrice).toFixed(2)} | Stock: ${parseFloat(stock).toFixed(2)} | Barcode: ${item.xbarcode || 'N/A'}
+            Avg Price: ৳${parseFloat(avgPrice).toFixed(2)} | StdCost: ৳${parseFloat(item.xstdcost).toFixed(2)}  | StdPrice: ৳${parseFloat(item.xstdprice).toFixed(2)} | Stock: ${parseFloat(stock).toFixed(2)}
           </div>
         </div>
       `);
     }
   });
 
-  // Handle item selection - directly add to cart
+  // Handle item selection - add to cart
   $itemSearch.on('select2:select', function (e) {
     const item = e.params.data;
 
-    // Directly add item to cart
+    // Add item to cart (you can customize this function)
     if (typeof addToCart === 'function') {
       addToCart(item);
     }

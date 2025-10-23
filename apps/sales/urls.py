@@ -9,21 +9,22 @@ from .views.edit_sales import SalesEditView
 from .views.edit_sales_api import update_transaction_api, delete_transaction_api
 from .views.day_end_process import DayEndProcess, delete_day_end_process
 from .views.sales_return import SalesReturnView
-
+from .views.sales_return_confirm import sales_return_confirm
 
 urlpatterns = [
-    # Sales Management URLs
+     # +--------------------------+
+    # |   Sales Main Page URLS   |
+    # +--------------------------+
     path("pos-sales/", SalesView.as_view(), name="pos-sales"),
     # Sales List
     path("sales-list/", SalesListView.as_view(), name="sales-list"),
     # Edit sales
     path("edit-sales/<str:transaction_id>/", SalesEditView.as_view(), name="edit-sales"),
-    # Day End Process
+    # +--------------------------+
+    # |   Day End Process URLS   |
+    # +--------------------------+
     path("day-end-process/", DayEndProcess.as_view(), name="day-end-process"),
-    # Sales Return URLs
-    path("sales-return/", SalesReturnView.as_view(), name="sales-return"),
-
-
+    # create a block comment Sales Return URLs
     path("api/delete-day-end-process/<str:date>/", delete_day_end_process, name="delete-day-end-process"),
     # AJAX API endpoints
     path("api/pos/complete-sale/", pos_complete_sale, name="pos-complete-sale"),
@@ -33,11 +34,32 @@ urlpatterns = [
     # Edit sales API endpoints
     path("api/update-transaction/", update_transaction_api, name="update-transaction-api"),
     path("api/delete-transaction/", delete_transaction_api, name="delete-transaction-api"),
-
     # invoice print
     path("print-invoice/<str:transaction_id>/", print_invoice, name="print-invoice"),
     # slip print
     path("pos/print-slip/<str:transaction_id>/", pos_print_slip, name="pos-print-slip"),
+
+    # +--------------------------+
+    # |   Sales Return URLS      |
+    # +--------------------------+
+    # Sales return Main Page URL
+    path("sales-return/", SalesReturnView.as_view(), name="sales-return"),
+    # sales Return Confirm
+    path("api/sales-return-confirm/", sales_return_confirm, name="sales-return-confirm"),
+    # sales Return List
+    path("sales-return-list/", SalesReturnView.as_view(), name="sales-return-list"),
+    # Sales Return Detail
+    path("sales-return-detail/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-detail"),
+    # sales return edit
+    path("sales-return-edit/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-edit"),
+    # print/export sales return
+    path("sales-return-print/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-print"),
+    # sales return delete
+    path("sales-return-delete/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-delete"),
+    # sales return export excel
+    path("sales-return-export-excel/", SalesReturnView.as_view(), name="sales-return-export-excel"),
+
+
 
 
 ]

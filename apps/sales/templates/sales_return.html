@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/libs/pickr/pickr-themes.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
 {% endblock vendor_css %}
 
 {% block vendor_js %}
@@ -27,7 +28,119 @@
 <script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
 <script src="{% static 'vendor/libs/pickr/pickr.js' %}"></script>
 <script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
 {% endblock vendor_js %}
+
+{% block page_css %}
+<style>
+/* Cart section layout */
+.cart-section-wrapper {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cart card styling */
+#cart-section .card {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fixed header */
+#cart-section .card-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* Scrollable body */
+#cart-section .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Scrollable table container */
+.card-datatable {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 60vh;
+  max-height: calc(60vh - 50px);
+  /* Subtract header and footer height */
+}
+
+.card-datatable table {
+  margin-bottom: 0;
+}
+
+/* Fixed footer */
+#cart-section .card-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  flex-shrink: 0;
+  margin-top: 0;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Custom scrollbar for better appearance */
+.card-datatable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card-datatable::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.card-datatable::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 4px;
+}
+
+.card-datatable::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}
+
+/* Empty cart message styling */
+#empty-cart-message {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#empty-cart-message .card {
+  height: auto;
+  min-height: auto;
+}
+
+/* Ensure table rows are properly styled */
+#cart-datatable tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#cart-datatable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Action buttons in footer */
+.card-footer .row {
+  margin: 0;
+}
+
+.card-footer .btn {
+  margin-bottom: 0;
+}
+
+</style>
+{% endblock page_css %}
 
 {% block page_js %}
 {{ block.super }}
@@ -41,214 +154,203 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="javascript:void(0);">Inventory</a>
-    </li>
-    <li class="breadcrumb-item">
-      <a href="javascript:void(0);">Transaction</a>
+      <a href="javascript:void(0);">Sales</a>
     </li>
     <li class="breadcrumb-item active">Sales Return</li>
   </ol>
 </nav>
 
-<!-- Tabs Section -->
-<div class="nav-align-top nav-tabs-shadow mb-4">
-  <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item">
-      <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#receive-entry-tab" aria-controls="receive-entry-tab" aria-selected="true">
-        <i class="tf-icons ti ti-package-import ti-xs me-1"></i> Sales Return Entry
-      </button>
-    </li>
-    <li class="nav-item">
-      <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#sales-return-list-tab" aria-controls="sales-return-list-tab" aria-selected="false">
-        <i class="tf-icons ti ti-list ti-xs me-1"></i> Sales Return List
-      </button>
-    </li>
-  </ul>
-  <div class="tab-content">
 
-    <div class="card-body">
-      <form id="sales-return-entry-form">
+<div class="card-body">
+  <form id="sales-return-entry-form">
 
-        <!-- Two Column Layout -->
-        <div class="row sales-return-container">
+    <!-- Two Column Layout -->
+    <div class="row sales-return-container">
 
-          <!-- Left Column: Header & Item Selector (6 columns) -->
-          <div class="col-md-5">
-            <div class="card border-primary mb-3">
-              <div class="card-header bg-primary text-white">
-                <h6 class="card-title mb-0">
-                  <i class="fas fa-edit me-2"></i>Sales Return Details
-                </h6>
+      <!-- Left Column: Header & Item Selector (6 columns) -->
+      <div class="col-md-5">
+        <div class="card border-primary mb-3">
+          <div class="card-header bg-primary text-white">
+            <h6 class="card-title mb-0">
+              <i class="fas fa-edit me-2"></i>Sales Return Details
+            </h6>
+          </div>
+          <div class="card-body">
+
+            <!-- Transaction Details in 2 columns -->
+            <div class="row mt-2">
+              <div class="col-md-3 mb-2">
+                <label for="transaction-prefix" class="form-label">Transaction Prefix</label>
+                <select id="transaction-prefix" class="select2 form-select" data-allow-clear="true">
+                  <option value="SRE-">SRE-</option>
+                </select>
               </div>
-              <div class="card-body">
+              <div class="col-md-3 mb-2">
+                <label for="customer" class="form-label">Customer <span class="text-danger">*</span></label>
+                <select id="customer" class="select2 form-select" data-allow-clear="true" required>
+                  <option value="Customer-1-">CUS-000001</option>
+                </select>
+              </div>
 
-                <!-- Transaction Details in 2 columns -->
-                <div class="row">
-                  <div class="col-md-6 mb-2">
-                    <label for="transaction-prefix" class="form-label">Transaction Prefix</label>
-                    <select id="transaction-prefix" class="select2 form-select" data-allow-clear="true">
-                      <option value="SRE-">SRE-</option>
-                    </select>
-                  </div>
+              <div class="col-md-6 mb-2">
+                <label for="transaction-date" class="form-label">Date <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="transaction-date" placeholder="Select date" readonly required />
+              </div>
 
-                  <div class="col-md-6 mb-2">
-                    <label for="transaction-date" class="form-label">Date <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="transaction-date" placeholder="Select date" readonly required />
-                  </div>
+              <div class="col-md-6 mb-2">
+                <label for="invoice-date" class="form-label">Invoice Date <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="invoice-date" placeholder="Select date" readonly required />
+              </div>
 
-                  <div class="col-md-6 mb-2">
-                    <label for="invoice-date" class="form-label">Invoice Date <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="invoice-date" placeholder="Select date" readonly required />
-                  </div>
+              <div class="col-md-6 mb-2">
+                <label for="receive-type" class="form-label">Receive Type <span class="text-danger">*</span></label>
+                <select id="receive-type" class="select2 form-select" data-allow-clear="true" required>
+                  <option value="0" selected>0-Opening Balance</option>
+                  <option value="1">1-Cash Purchase</option>
+                  <option value="2">2-Credit Purchase</option>
+                  <option value="3">3-MRR</option>
+                </select>
+              </div>
 
-                  <div class="col-md-6 mb-2">
-                    <label for="receive-type" class="form-label">Receive Type <span class="text-danger">*</span></label>
-                    <select id="receive-type" class="select2 form-select" data-allow-clear="true" required>
-                      <option value="0" selected>0-Opening Balance</option>
-                      <option value="1">1-Cash Purchase</option>
-                      <option value="2">2-Credit Purchase</option>
-                      <option value="3">3-MRR</option>
-                    </select>
-                  </div>
+              <div class="col-md-6 mb-2">
+                <label for="supplierSelect" class="form-label">Supplier Number <span class="text-danger">*</span></label>
+                <select id="supplierSelect" class="form-select select2" data-allow-clear="true" required>
+                  <option></option>
+                </select>
+              </div>
 
-                  <div class="col-md-6 mb-2">
-                    <label for="supplierSelect" class="form-label">Supplier Number <span class="text-danger">*</span></label>
-                    <select id="supplierSelect" class="form-select select2" data-allow-clear="true" required>
-                      <option></option>
-                    </select>
-                  </div>
+              <div class="col-md-6 mb-2">
+                <label for="warehouse" class="form-label">Warehouse <span class="text-danger">*</span></label>
+                <select id="warehouse" class="select2 form-select" data-allow-clear="true" required>
+                  <option></option>
+                </select>
+              </div>
 
-                  <div class="col-md-6 mb-2">
-                    <label for="warehouse" class="form-label">Warehouse <span class="text-danger">*</span></label>
-                    <select id="warehouse" class="select2 form-select" data-allow-clear="true" required>
-                      <option></option>
-                    </select>
-                  </div>
+              <div class="col-12 mb-2">
+                <label for="notes" class="form-label">Notes</label>
+                <textarea class="form-control" id="notes" rows="2" placeholder="Enter notes"></textarea>
+              </div>
+            </div>
 
-                  <div class="col-12 mb-2">
-                    <label for="notes" class="form-label">Notes</label>
-                    <textarea class="form-control" id="notes" rows="2" placeholder="Enter notes"></textarea>
-                  </div>
-                </div>
-
-                <!-- Item Selector -->
-                <div class="border-top pt-3">
-                  <h6 class="text-primary mb-3">
-                    <i class="fas fa-search me-2"></i>Add Items
-                  </h6>
-                  <div class="mb-2">
-                    <label for="avg-item-search" class="form-label">Search Items</label>
-                    <select id="avg-item-search" class="form-select">
-                      <option></option>
-                    </select>
-                    <small class="text-muted">Search by item code, description, or barcode</small>
-                  </div>
-                </div>
-
-                <div class="col-12 mb-3">
-                  <label for="entered-by" class="form-label">Entered by</label>
-                  <input type="text" class="form-control" id="entered-by" value="{{ user.username }}" readonly />
-                </div>
+            <!-- Item Selector -->
+            <div class="border-top pt-3">
+              <h6 class="text-primary mb-3">
+                <i class="fas fa-search me-2"></i>Add Items
+              </h6>
+              <div class="mb-2">
+                <label for="avg-item-search" class="form-label">Search Items</label>
+                <small class="text-muted">Search by item code, description, or barcode</small>
+                <select id="avg-item-search" class="form-select">
+                  <option></option>
+                </select>
 
               </div>
             </div>
-          </div>
 
-          <!-- Right Column: Cart (6 columns) -->
-
-          <div class="col-md-7 cart-column">
-            <div class="cart-section-wrapper">
-              <!-- Empty Cart Message -->
-              <div id="empty-cart-message" class="text-center py-5">
-                <div class="card border-light">
-                  <div class="card-body">
-                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">Your cart is empty</h5>
-                    <p class="text-muted">Search and select items to add them to your cart</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Cart Section -->
-              <!-- give full height to cart section -->
-              <div id="cart-section" style="display: none;">
-                <div class="card border-success">
-                  <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h6 class="card-title mb-0">
-                      <i class="fas fa-shopping-cart me-2"></i>
-                      Sales Return Cart (<span id="cart-items-count">0</span> items)
-                    </h6>
-                    <button type="button" class="btn btn-sm btn-outline-light" onclick="clearCart()" title="Clear Cart">
-                      <i class="fas fa-trash me-1"></i>Clear All
-                    </button>
-                  </div>
-                  <div class="card-body p-0">
-                    <div class="card-datatable table-responsive">
-                      <table id="cart-datatable" class="datatables-cart table table-hover">
-                        <thead>
-                          <tr>
-                            <th>Item Name</th>
-                            <th>Stock</th>
-                            <th>Price</th>
-                            <th>Qty</th>
-                            <th>Subtotal</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody id="cart-items-tbody">
-                          <!-- Cart items will be dynamically added here -->
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <!-- Cart Summary -->
-                    <div class="card-footer bg-light">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="d-flex justify-content-between">
-                            <span class="fw-bold">Total Items:</span>
-                            <span id="cart-total-items" class="text-primary fw-bold">0.00</span>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="d-flex justify-content-between">
-                            <span class="fw-bold">Total Amount:</span>
-                            <span id="cart-total-amount" class="text-success fw-bold fs-5">৳0.00</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Action Buttons -->
-                      <div class="row mt-3">
-                        <div class="col-md-12 text-end">
-                          <button type="button" class="btn btn-outline-secondary me-2" onclick="clearCart()">
-                            <i class="fas fa-trash me-1"></i>Clear Cart
-                          </button>
-                          <button type="button" class="btn btn-primary me-2">
-                            <i class="fas fa-save me-1"></i>Save Draft
-                          </button>
-                          <button type="button" class="btn btn-success">
-                            <i class="fas fa-check me-1"></i>Process Return
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> <!-- End cart-section-wrapper -->
+            <div class="col-12 mb-3">
+              <label for="entered-by" class="form-label">Entered by</label>
+              <input type="text" class="form-control border-none" id="entered-by" value="{{ user.username }}" readonly />
+            </div>
 
           </div>
-
-
         </div>
+      </div>
 
-      </form>
+      <!-- Right Column: Cart (6 columns) -->
 
-      <!--end of card-->
+      <div class="col-md-7 cart-column">
+        <div class="cart-section-wrapper">
+          <!-- Empty Cart Message -->
+          <div id="empty-cart-message" class="text-center py-5">
+            <div class="card border-light">
+              <div class="card-body">
+                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Your cart is empty</h5>
+                <p class="text-muted">Search and select items to add them to your cart</p>
+              </div>
+            </div>
+          </div>
+          <!-- Cart Section -->
+          <!-- give full height to cart section -->
+          <div id="cart-section" style="display: none;">
+            <div class="card border-success">
+              <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                  <i class="fas fa-shopping-cart me-2"></i>
+                  Sales Return Cart (<span id="cart-items-count">0</span> items)
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="clearCart()" title="Clear Cart">
+                  <i class="fas fa-trash me-1"></i>Clear All
+                </button>
+              </div>
+              <div class="card-body p-0">
+                <div class="card-datatable table-responsive">
+                  <table id="cart-datatable" class="datatables-cart table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Item Name</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Mkt Price</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="cart-items-tbody">
+                      <!-- Cart items will be dynamically added here -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="card-footer bg-light">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Total Items:</span>
+                        <span id="cart-total-items" class="text-primary fw-bold">0.00</span>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Total Amount:</span>
+                        <span id="cart-total-amount" class="text-success fw-bold fs-5">৳0.00</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="row mt-3">
+                    <div class="col-md-12 text-end">
+                      <button type="button" class="btn btn-outline-secondary me-2" onclick="clearCart()">
+                        <i class="fas fa-trash me-1"></i>Clear Cart
+                      </button>
+                      <button type="button" class="btn btn-primary me-2">
+                        <i class="fas fa-save me-1"></i>Save Draft
+                      </button>
+                      <button type="button" class="btn btn-success">
+                        <i class="fas fa-check me-1"></i>Process Return
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> <!-- End cart-section-wrapper -->
+
+      </div>
+
+
     </div>
 
-  </div>
+  </form>
+
+  <!--end of card-->
 </div>
+
+
 {% endblock %}
 
 {% block custom_api_js %}
@@ -256,5 +358,6 @@
 <script src="{% static 'custom/api_get_warehouse.js' %}"></script>
 <script src="{% static 'custom/avg_item_price.js' %}"></script>
 <script src="{% static 'custom/sales_return.js' %}"></script>
-
+<script src="{% static 'custom/sales_return_confirm.js' %}"></script>
 {% endblock custom_api_js %}
+

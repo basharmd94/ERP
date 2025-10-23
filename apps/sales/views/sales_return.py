@@ -24,3 +24,4 @@ class SalesReturnView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
         return context
+

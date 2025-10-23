@@ -1,14 +1,21 @@
-from django.http import JsonResponse
-from django.views.generic import TemplateView
-from web_project import TemplateLayout
-from apps.authentication.mixins import ZidRequiredMixin
-from apps.utils.items_check_inventory import items_check_inventory
-from apps.authentication.mixins import ModulePermissionMixin
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from django.db import transaction, connection
+# Standard library imports
 import json
 import logging
+from datetime import datetime
+
+# Django imports
+from django.db import transaction, connection
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+
+# Local application imports
+from web_project import TemplateLayout
+from apps.authentication.mixins import ModulePermissionMixin, ZidRequiredMixin
+from apps.utils.average_price_calculation import get_average_prices_bulk
+from apps.utils.items_check_inventory import items_check_inventory
+from apps.utils.voucher_generator import generate_voucher_number
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -96,11 +103,6 @@ def pos_complete_sale(request):
 
         # Process the sale with database insertions
         try:
-            from django.db import transaction
-            from apps.utils.voucher_generator import generate_voucher_number
-            from apps.utils.average_price_calculation import get_average_prices_bulk
-            from datetime import datetime
-
             with transaction.atomic():
                 # Generate order number
                 order_number = generate_voucher_number(current_zid, 'CO--', 'opord', 'xordernum')
