@@ -24,36 +24,29 @@ $(document).ready(function() {
     window.salesReturnStorage = {
         // Get current ZID from server
         getCurrentZid: function() {
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    url: '/api/get-current-zid/',
-                    type: 'GET',
-                    cache: false,
-                    data: { '_': new Date().getTime() }, // Cache busting
-                    success: function(response) {
-                        console.log('ZID API Response:', response);
-                        if (response.success) {
-                            window.currentZid = response.zid;
-                            console.log('Current ZID loaded:', response.zid);
-                            resolve(response.zid);
-                        } else {
-                            console.error('ZID API failed:', response.message);
-                            if (response.debug_info) {
-                                console.error('Debug info:', response.debug_info);
-                            }
-                            reject(response.message || 'Failed to get ZID');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('ZID API Error:', {
-                            status: xhr.status,
-                            statusText: xhr.statusText,
-                            responseText: xhr.responseText,
-                            error: error
-                        });
-                        reject('Error getting ZID: ' + error);
-                    }
+            return $.ajax({
+                url: '/api/get-current-zid/',
+                type: 'GET',
+                cache: false,
+                data: { '_': Date.now() }
+            }).then(response => {
+                console.log('ZID API Response:', response);
+                if (response.success) {
+                    window.currentZid = response.zid;
+                    console.log('Current ZID loaded:', response.zid);
+                    return response.zid;
+                } else {
+                    console.error('ZID API failed:', response.message);
+                    if (response.debug_info) console.error('Debug info:', response.debug_info);
+                    return Promise.reject(response.message || 'Failed to get ZID');
+                }
+            }).catch(xhr => {
+                console.error('ZID API Error:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText
                 });
+                return Promise.reject('Error getting ZID');
             });
         },
 
@@ -142,11 +135,12 @@ $(document).ready(function() {
             searching: false,
             // fixed header
             fixedHeader: true,
+            //
             columns: [
                 {
                     title: 'Item Name',
                     data: null,
-                    width: '25%',
+                    width: '15%',
                     render: function(data, type, row) {
                         const description = row.xdesc || 'No Description';
                         const truncatedDesc = description.length > 30 ? description.substring(0, 30) + '...' : description;
@@ -175,9 +169,9 @@ $(document).ready(function() {
                     width: '15%',
                     render: function(data, type, row) {
                         return `
-                            <div class="text-end">
-                                <div style="font-size: 0.875rem;">৳${formatNumber(row.avg_price)}</div>
-                                <small class="text-muted" style="font-size: 0.7rem;">Std: ৳${formatNumber(row.xstdprice)}</small>
+                            <div class="flex-column text-end ">
+                                <div class="text-muted" style="font-size: 0.7rem;">avg: ৳${formatNumber(row.avg_price)}</div>
+                                <div  class="text-muted" style="font-size: 0.7rem;">sale: ৳${formatNumber(row.xstdprice)}</div>
                             </div>
                         `;
                     }
@@ -199,33 +193,27 @@ $(document).ready(function() {
                     }
                 },
                 {
-                    title: 'Mkt Price',
+                    title: 'Inv Value',
                     data: null,
                     width: '15%',
                     render: function(data, type, row) {
-                        const mktPrice = row.mkt_price || row.avg_price;
-                        return `
-                            <input type="number"
-                                   class="form-control form-control-sm mkt-price-input"
-                                   value="${mktPrice}"
-                                   min="0.01"
-                                   step="0.01"
-                                   data-cart-id="${row.cartId}"
-                                   style="width: 80px; font-size: 0.875rem;"
-                                   placeholder="Price">
-                        `;
-                    }
-                },
-                {
-                    title: 'Subtotal',
-                    data: null,
-                    width: '15%',
-                    render: function(data, type, row) {
-                        const mktPrice = row.mkt_price || row.avg_price;
+                        const mktPrice = row.mkt_price;
                         const subtotal = mktPrice * row.quantity;
                         return `<div class="fw-bold text-success text-center" style="font-size: 0.875rem;">৳${formatNumber(subtotal)}</div>`;
                     }
                 },
+                {
+                    title: 'Mkt Value',
+                    data: null,
+                    width: '10%',
+                    render: function(data, type, row) {
+                        const mktPrice = row.xstdprice;
+                        const subtotal = mktPrice * row.quantity;
+                        return `<div class="fw-bold text-success text-center" style="font-size: 0.875rem;">৳${formatNumber(subtotal)}</div>`;
+                    }
+                },
+
+
                 {
                     title: 'Action',
                     data: null,

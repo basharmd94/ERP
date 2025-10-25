@@ -1,0 +1,135 @@
+At first
+from opordnview take following variable
+total_amt = sum (xtotamt)
+cash_amt = sum (xlineamt)
+for bank_amt:
+	select xsalescat, sum(xdtcomm) from opordnview where zid = 100001 and xdate = '2025-10-18' and xsltype = 'Card Sale' group by xsalescat
+	this return like
+	"CBL"	92.10
+	"DBBL"	2741.25
+
+for disc_amt:
+	sum(xdtdisc) + sum (xdiscf)
+	
+now insert data 
+ take the next SALE voucher using voucher_generator for SALE prefix
+ 
+ insert into glheader
+ 
+"ztime"	"2020-02-07T09:15:52" -- current date time stamp
+
+"zid"	"100001" -- session zid
+"xvoucher"	"SALExxxxxx" -- next voucher number
+"xref"	"***System generated Sales voucher on {posted date not current date}"
+"xdate"	"{posted date}"
+"xlong"	"** Created By System On {posted date} **"
+"xpostflag"	
+"xyear"	"{extract year from posted date like 2020}"
+"xper"	"{extract month from posted date like 02}"
+"xstatusjv"	"Balanced"
+"xdatedue"	"{posted date}"
+"xnumofper"	0
+"xtrngl"	"SALE"
+"xmember"	"logged user"
+"xapproved"	1
+"xaction"	"Journal"
+
+then insert int gldetail
+
+first row for total amount 
+	"ztime"	"2020-02-07T09:15:52" timestamp todyay
+	"zutime"	
+	"zid"	{session zid}
+	"xvoucher"	"SALExxxxxx" {voucher}
+	"xrow"	"20" (count from 20 next row will 30 then 40 and so on
+	"xacc"	"08010001" (select xacc from glmst where xdesc = 'Sales' and zid = session zid)
+	"xaccusage"	"Ledger" 
+	"xaccsource"	"None" 
+	"xproj"	"HMBR FIXIT GULSHAN" (select xcode from xcodes where zid = session zid and xtype = 'Project')
+	"xcur"	"BDT"
+	"xexch"	1 --default
+	"xprime"	"-199686.88" {total_amt} will add - at first
+	"xbase"	"-199686.88" {total_amt}
+	"xacctype"	"Income"
+	"xinvnum"	"SALExxxxxx" {voucher }
+	"xdateapp"	"2020-02-06" {posted date}
+	"xexchval"	1 --default
+	"xdateclr"	"2020-02-06" {posted date}
+	"xdatedue"	"2020-02-06" {posted date}
+	
+next row is for Cash Amount
+only change following column
+   xrow = 30
+   "xaccusage"	"Cash" 
+   "xaccsource"	"None" 
+   "xprime"	"146231.79" {cash_amt}
+   "xbase"	"146231.79" {cash_amt}
+   xacctype: Asset
+    -- keeep the rest column value as per total amount column value
+
+   
+then insert on bank_amt (there will be multiple bank_amt which is already declared on bank_amt variable.
+look at bank account maping
+        bank_mapping = {
+            'PBL': '0102000101',
+            'DBBL': '0102000102', 
+            'CBL': '0102000103',
+            'MTBL': '0102000104',
+            'UCB': '0102000105'
+        }
+example CBL
+	xrow = 40
+   "xaccusage"	"Bank" 
+   "xaccsource"	"Subaccount" 
+   "xsub" : specific bank account number e.g CBL
+   "xprime"	{sum of CBL}
+   "xbase"	{sum of CBL}
+   xacctype: Asset
+    -- keeep the rest column value as per total amount column value
+
+   
+ example DBBL
+	xrow = 50
+   "xaccusage"	"Bank" 
+   "xaccsource"	"Subaccount" 
+   "xsub" : specific bank account number e.g CBL
+   "xprime"	{sum of CBL}
+   "xbase"	{sum of CBL}
+   xacctype: Asset
+    -- keeep the rest column value as per total amount column value
+
+   
+Note.. There must be multiple bank. so handle/insert the data as per bank count
+
+next Discount
+	xrow = 60 
+   "xaccusage"	"Ledger" 
+   "xaccsource"	"Customer" 
+   "xprime"	{sum of disc_amt}
+   "xbase"	{sum of disc_amt}
+   xacctype: Expenditure
+   
+   -- keeep the rest column value as per total amount column value
+
+
+now i want to update sales order 
+here at first check if the co date's day end process done or not
+
+take the co date using (select xdate from opord where xordernum = given co number and zid = session zid)
+
+then check to glheader 
+
+select xvoucher from glheader where xdate = order date and zid = session zid and xvoucher like '%SALE%')
+
+if it returns sales voucher like SALExxxxxx then return in swal prompt
+
+Day end process of this CO number Already Done. Please delete the Voucher of specific date  SALExxxxxx at first. 
+
+--note if you delete day end process of specific date and update you need to process the specific date's day end process again
+
+are you sure?
+
+
+button will cancel and delete day end & update
+
+then update the all field of data of opord, opodt and imtrn table like as 

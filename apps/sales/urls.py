@@ -45,7 +45,7 @@ urlpatterns = [
     # Sales return Main Page URL
     path("sales-return/", SalesReturnView.as_view(), name="sales-return"),
     # sales Return Confirm
-    path("api/sales-return-confirm/", sales_return_confirm, name="sales-return-confirm"),
+    path("sales-return-confirm/", sales_return_confirm, name="sales-return-confirm"),
     # sales Return List
     path("sales-return-list/", SalesReturnView.as_view(), name="sales-return-list"),
     # Sales Return Detail

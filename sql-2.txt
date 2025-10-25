@@ -1,0 +1,27 @@
+select * from opord where zid = 100001 and xdate = '2025-10-18'
+
+select sum (xval * xsign)  from imtrn where zid = 100001 and xitem = '01-1238'
+
+select xstdcost,xstdprice from caitem where zid = 100001 and xitem = '01-1238'
+
+
+select * from xcodes where zid = 100001 and xtype = 'Warehouse' order by xtype
+
+select xsup, xshort from casup where zid = 100002
+
+select * from glheader where xvoucher = 'SALE002930'
+select * from gldetail where xvoucher = 'SALE002930'
+
+select * from imtemptrn where ximtmptrn = 'SRE-002198' and zid = 100001 
+select * from imtemptdt where ximtmptrn = 'SRE-002198' and zid = 100001 
+
+select * from imtrn where xdocnum = 'SRE-002198' and zid = 100001 
+
+
+select * from imtrnviewn where zid = 100001 and ximtrnnum = 'SRE-002200'
+
+select * from gldetail where xvoucher = 'SRET002155'
+
+
+select * from glmst where zid = 100001
+select * from glsub where zid = 100001
