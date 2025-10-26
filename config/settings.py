@@ -123,11 +123,13 @@ TEMPLATES = [
             "libraries": {
                 "theme": "web_project.template_tags.theme",
                 "menu_permissions": "apps.authentication.templatetags.menu_permissions",
+                "bdt_filters": "web_project.template_tags.bdt_filters",
             },
             "builtins": [
                 "django.templatetags.static",
                 "web_project.template_tags.theme",
                 "apps.authentication.templatetags.menu_permissions",
+                "web_project.template_tags.bdt_filters",
             ],
         },
     },

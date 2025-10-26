@@ -1,0 +1,217 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Sales Return - Sales Return Detail {% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'sales-return' %}">Sales Return</a>
+    </li>
+    <li class="breadcrumb-item active">Sales Return Detail</li>
+  </ol>
+</nav>
+
+{% if error %}
+<div class="alert alert-danger" role="alert">
+  <i class="ti ti-alert-circle me-2"></i>{{ error }}
+</div>
+{% else %}
+
+<!-- Sales Return Header -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">
+      <i class="ti ti-receipt-refund me-2"></i>
+      Sales Return Detail - {{ header.ximtmptrn|default:transaction_id }}
+    </h5>
+    <div class="btn-group">
+      <button type="button" class="btn btn-outline-primary btn-sm" onclick="window.location.reload()">
+        <i class="ti ti-refresh me-1"></i>Refresh
+      </button>
+      <a href="{% url 'sales-return-print' transaction_id %}" class="btn btn-outline-secondary btn-sm">
+        <i class="ti ti-printer me-1"></i>Print
+      </a>
+      <a href="{% url 'sales-return-export-excel' transaction_id %}" class="btn btn-outline-success btn-sm">
+        <i class="ti ti-file-spreadsheet me-1"></i>Export to Excel
+      </a>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <table class="table table-borderless">
+          <tr>
+            <td class="fw-medium text-muted">Transaction ID:</td>
+            <td>{{ header.ximtmptrn|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Date:</td>
+            <td>{{ header.xdate|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Project:</td>
+            <td>{{ header.xproj|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Warehouse:</td>
+            <td>{{ header.xwh|default:"-" }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <table class="table table-borderless">
+          <tr>
+            <td class="fw-medium text-muted">Status:</td>
+            <td>
+              {% if header.xstatustrn == "Open" %}
+              <span class="badge bg-label-success">{{ header.xstatustrn }}</span>
+              {% elif header.xstatustrn == "Confirmed" %}
+              <span class="badge bg-label-primary">{{ header.xstatustrn }}</span>
+              {% elif header.xstatustrn == "Pending" %}
+              <span class="badge bg-label-warning">{{ header.xstatustrn }}</span>
+              {% else %}
+              <span class="badge bg-label-info">{{ header.xstatustrn|default:"-" }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">GL Reference:</td>
+            <td>{{ header.xglref|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Email:</td>
+            <td>{{ header.zemail|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Remarks:</td>
+            <td>{{ header.xrem|default:"-" }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Line Items Table -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="card-title mb-0">
+      <i class="ti ti-list-details me-2"></i>
+      Line Items
+    </h5>
+  </div>
+  <div class="card-body">
+    {% if line_items %}
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th class="text-center">Line No.</th>
+            <th>Item Code</th>
+            <th class="text-end">Quantity</th>
+            <th class="text-center">Unit</th>
+            <th class="text-end">Rate</th>
+            <th class="text-end">Value</th>
+            <th class="text-end">Line Amount</th>
+            <th>Transaction No.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in line_items %}
+          <tr>
+            <td class="text-center">{{ item.xtorlno|default:"-" }}</td>
+            <td><strong>{{ item.xitem|default:"-" }}</strong></td>
+            <td class="text-end">{{ item.xqtyord|floatformat:2 }}</td>
+            <td class="text-center">{{ item.xunit|default:"-" }}</td>
+            <td class="text-end">{{ item.xrate|floatformat:2 }}</td>
+            <td class="text-end">{{ item.xval|floatformat:2 }}</td>
+            <td class="text-end"><strong>{{ item.xlineamt|floatformat:2 }}</strong></td>
+            <td>{{ item.ximtrnnum|default:"-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-4">
+      <i class="ti ti-inbox me-2"></i>No line items found
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Totals Summary -->
+{% if totals %}
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title mb-0">
+      <i class="ti ti-calculator me-2"></i>
+      Summary Totals
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="d-flex align-items-center">
+          <div class="avatar avatar-sm me-3">
+            <span class="avatar-initial rounded bg-label-primary">
+              <i class="ti ti-package"></i>
+            </span>
+          </div>
+          <div>
+            <small class="text-muted d-block">Total Items</small>
+            <h6 class="mb-0">{{ totals.item_count|default:0 }}</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="d-flex align-items-center">
+          <div class="avatar avatar-sm me-3">
+            <span class="avatar-initial rounded bg-label-info">
+              <i class="ti ti-sum"></i>
+            </span>
+          </div>
+          <div>
+            <small class="text-muted d-block">Total Quantity</small>
+            <h6 class="mb-0">{{ totals.total_quantity|floatformat:2|default:"0.00" }}</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="d-flex align-items-center">
+          <div class="avatar avatar-sm me-3">
+            <span class="avatar-initial rounded bg-label-warning">
+              <i class="ti ti-coins"></i>
+            </span>
+          </div>
+          <div>
+            <small class="text-muted d-block">Total Value</small>
+            <h6 class="mb-0">{{ totals.total_value|floatformat:2|default:"0.00" }}</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="d-flex align-items-center">
+          <div class="avatar avatar-sm me-3">
+            <span class="avatar-initial rounded bg-label-success">
+              <i class="ti ti-currency-dollar"></i>
+            </span>
+          </div>
+          <div>
+            <small class="text-muted d-block">Total Amount</small>
+            <h6 class="mb-0">{{ totals.total_line_amount|floatformat:2|default:"0.00" }}</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

@@ -417,13 +417,13 @@ $(document).ready(function() {
         cartItems.forEach(item => {
             totalItems += item.quantity;
             
-            // Calculate Total Inv Value (using avg_price or xstdcost fallback)
+            // Calculate Total Inv Value (matches individual row: mkt_price || fallbackPrice)
             const fallbackPrice = item.avg_price <= 0 ? item.xstdcost : item.avg_price;
             const invPrice = item.mkt_price || fallbackPrice;
             totalInvValue += invPrice * item.quantity;
             
-            // Calculate Total Mkt Value (using mkt_price directly)
-            const mktPrice = item.mkt_price || 0;
+            // Calculate Total Mkt Value (matches individual row: xstdprice * quantity)
+            const mktPrice = item.xstdprice || 0;
             totalMktValue += mktPrice * item.quantity;
         });
 

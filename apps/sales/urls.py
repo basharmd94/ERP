@@ -10,6 +10,9 @@ from .views.edit_sales_api import update_transaction_api, delete_transaction_api
 from .views.day_end_process import DayEndProcess, delete_day_end_process
 from .views.sales_return import SalesReturnView
 from .views.sales_return_confirm import sales_return_confirm
+from .views.sales_return_detail import SalesReturnDetailView
+from .views.sales_return_print import sales_return_print
+from .views.sales_return_export_excel import SalesReturnExcelExportView
 
 urlpatterns = [
      # +--------------------------+
@@ -47,19 +50,16 @@ urlpatterns = [
     # sales Return Confirm
     path("sales-return-confirm/", sales_return_confirm, name="sales-return-confirm"),
     # sales Return List
-    path("sales-return-list/", SalesReturnView.as_view(), name="sales-return-list"),
+
+    # path("sales-return-list/", SalesReturnView.as_view(), name="sales-return-list"),
     # Sales Return Detail
-    path("sales-return-detail/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-detail"),
+    path("sales-return-detail/<str:transaction_id>/", SalesReturnDetailView.as_view(), name="sales-return-detail"),
     # sales return edit
     path("sales-return-edit/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-edit"),
     # print/export sales return
-    path("sales-return-print/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-print"),
+    path("sales-return-print/<str:transaction_id>/", sales_return_print, name="sales-return-print"),
     # sales return delete
     path("sales-return-delete/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-delete"),
     # sales return export excel
-    path("sales-return-export-excel/", SalesReturnView.as_view(), name="sales-return-export-excel"),
-
-
-
-
+    path("sales-return-export-excel/<str:transaction_id>/", SalesReturnExcelExportView.as_view(), name="sales-return-export-excel"),
 ]

@@ -5,8 +5,16 @@ from django.contrib.auth.models import User
 
 class Business(models.Model):
     """Business model to represent different business units with unique ZIDs"""
-    zid = models.CharField(max_length=10, unique=True)
+    zid = models.IntegerField(unique=True, primary_key=True, verbose_name="Business ID",)
     name = models.CharField(max_length=100)
+    address = models.TextField(blank=True, null=True)
+    mobile = models.CharField(max_length=150, blank=True, null=True)
+    email = models.EmailField(max_length=100, blank=True, null=True)
+    website = models.URLField(max_length=200, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    zip_code = models.CharField(max_length=20, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
