@@ -168,9 +168,10 @@ $(document).ready(function() {
                     data: null,
                     width: '15%',
                     render: function(data, type, row) {
+                        const displayPrice = row.avg_price <= 0 ? row.xstdcost : row.avg_price;
                         return `
                             <div class="flex-column text-end ">
-                                <div class="text-muted" style="font-size: 0.7rem;">avg: ৳${formatNumber(row.avg_price)}</div>
+                                <div class="text-muted" style="font-size: 0.7rem;">avg: ৳${formatNumber(displayPrice)}</div>
                                 <div  class="text-muted" style="font-size: 0.7rem;">sale: ৳${formatNumber(row.xstdprice)}</div>
                             </div>
                         `;
@@ -197,9 +198,10 @@ $(document).ready(function() {
                     data: null,
                     width: '15%',
                     render: function(data, type, row) {
-                        const mktPrice = row.mkt_price;
-                        const subtotal = mktPrice * row.quantity;
-                        return `<div class="fw-bold text-success text-center" style="font-size: 0.875rem;">৳${formatNumber(subtotal)}</div>`;
+                        const fallbackPrice = row.avg_price <= 0 ? row.xstdcost : row.avg_price;
+                        const invPrice = row.mkt_price || fallbackPrice;
+                        const invValue = invPrice * row.quantity;
+                        return `<div class="fw-bold text-success text-center" style="font-size: 0.875rem;">৳${formatNumber(invValue)}</div>`;
                     }
                 },
                 {
@@ -208,11 +210,10 @@ $(document).ready(function() {
                     width: '10%',
                     render: function(data, type, row) {
                         const mktPrice = row.xstdprice;
-                        const subtotal = mktPrice * row.quantity;
-                        return `<div class="fw-bold text-success text-center" style="font-size: 0.875rem;">৳${formatNumber(subtotal)}</div>`;
+                        const mktValue = mktPrice * row.quantity;
+                        return `<div class="fw-bold text-success text-center" style="font-size: 0.875rem;">৳${formatNumber(mktValue)}</div>`;
                     }
                 },
-
 
                 {
                     title: 'Action',
@@ -288,10 +289,11 @@ $(document).ready(function() {
             targetCartId = cartItems[existingItemIndex].cartId;
         } else {
             // New item, add to cart
+            const initialPrice = item.avg_price <= 0 ? item.xstdcost : item.avg_price;
             const cartItem = {
                 ...item,
                 quantity: 1,
-                mkt_price: item.avg_price, // Initialize mkt_price with avg_price
+                mkt_price: initialPrice, // Initialize mkt_price with avg_price or xstdcost if avg_price <= 0
                 cartId: ++cartCounter
             };
             cartItems.push(cartItem);
@@ -409,16 +411,25 @@ $(document).ready(function() {
     // Update cart totals
     function updateCartTotals() {
         let totalItems = 0;
-        let totalAmount = 0;
+        let totalInvValue = 0;
+        let totalMktValue = 0;
 
         cartItems.forEach(item => {
             totalItems += item.quantity;
-            const mktPrice = item.mkt_price || item.avg_price;
-            totalAmount += mktPrice * item.quantity;
+            
+            // Calculate Total Inv Value (using avg_price or xstdcost fallback)
+            const fallbackPrice = item.avg_price <= 0 ? item.xstdcost : item.avg_price;
+            const invPrice = item.mkt_price || fallbackPrice;
+            totalInvValue += invPrice * item.quantity;
+            
+            // Calculate Total Mkt Value (using mkt_price directly)
+            const mktPrice = item.mkt_price || 0;
+            totalMktValue += mktPrice * item.quantity;
         });
 
         $('#cart-total-items').text(formatNumber(totalItems));
-        $('#cart-total-amount').text(`৳${formatNumber(totalAmount)}`);
+        $('#cart-total-inv-value').text(`৳${formatNumber(totalInvValue)}`);
+        $('#cart-total-mkt-value').text(`৳${formatNumber(totalMktValue)}`);
         $('#cart-items-count').text(cartItems.length);
     }
 
@@ -652,20 +663,3 @@ $(document).ready(function() {
 /**
  * Configure toastr notifications
  */
-toastr.options = {
-    closeButton: true,
-    debug: false,
-    newestOnTop: true,
-    progressBar: true,
-    positionClass: 'toast-top-right',
-    preventDuplicates: false,
-    onclick: null,
-    showDuration: '300',
-    hideDuration: '1000',
-    timeOut: '5000',
-    extendedTimeOut: '1000',
-    showEasing: 'swing',
-    hideEasing: 'linear',
-    showMethod: 'fadeIn',
-    hideMethod: 'fadeOut'
-};
