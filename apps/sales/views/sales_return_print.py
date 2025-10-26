@@ -107,7 +107,7 @@ def sales_return_print(request, transaction_id):
                 'xqtyord': float(row[10]) if row[10] else 0.0,
                 'xunit': row[11] or '',
                 'ximtrnnum': row[12] or '',
-                'xrate': float(row[13]) if row[13] else 0.0,
+                'xrate': float(row[15]) if row[13] else 0.0,
                 'xval': float(row[14]) if row[14] else 0.0,
                 'xlineamt': float(row[15]) if row[15] else 0.0,
                 'xitemdesc': row[21] or ''

@@ -16,6 +16,7 @@ def sales_item_list_ajax(request):
     """
     try:
         current_zid = request.session.get('current_zid')
+        logger.info(f"Request received for ZID: {current_zid}")
         if not current_zid:
             return JsonResponse({'error': 'No business context found'}, status=400)
 

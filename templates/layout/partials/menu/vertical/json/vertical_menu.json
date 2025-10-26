@@ -156,6 +156,13 @@
           "slug": "sales-return",
           "permission": "sales_return.view"
         },
+        {
+            "url": "/sales/sales-return-list/",
+            "icon": "menu-icon tf-icons ti ti-return-right",
+            "name": "Sales Return List",
+            "slug": "sales-return-list",
+            "permission": "sales_return_list.view"
+          },
 
         {
           "name": "Reports",

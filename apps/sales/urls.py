@@ -13,6 +13,8 @@ from .views.sales_return_confirm import sales_return_confirm
 from .views.sales_return_detail import SalesReturnDetailView
 from .views.sales_return_print import sales_return_print
 from .views.sales_return_export_excel import SalesReturnExcelExportView
+from .views.sales_return_list import SalesReturnListView
+from .views.sales_return_item_list import sales_return_item_list
 
 urlpatterns = [
      # +--------------------------+
@@ -49,9 +51,10 @@ urlpatterns = [
     path("sales-return/", SalesReturnView.as_view(), name="sales-return"),
     # sales Return Confirm
     path("sales-return-confirm/", sales_return_confirm, name="sales-return-confirm"),
-    # sales Return List
-
-    # path("sales-return-list/", SalesReturnView.as_view(), name="sales-return-list"),
+    # sales Return List Class base view for showing menu
+    path("sales-return-list/", SalesReturnListView.as_view(), name="sales-return-list"),
+    # sales Return Item List API ajax endpoint
+    path("api/sales-return-item-list/", sales_return_item_list, name="sales-return-item-list"),
     # Sales Return Detail
     path("sales-return-detail/<str:transaction_id>/", SalesReturnDetailView.as_view(), name="sales-return-detail"),
     # sales return edit

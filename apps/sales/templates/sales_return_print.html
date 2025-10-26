@@ -155,8 +155,8 @@
     <table class="summary-table">
       <tr>
         <td colspan="3" style="border: none;"></td>
-        <td class="label">Total Return Amount</td>
-        <td class="amount">{{ totals.total_line_amount|bdt_currency|default:"Tk 0.00" }}</td>
+        <td class="label">Total Return Amount in Tk:</td>
+        <td class="amount">{{ totals.total_line_amount|bdt_with_decimals:2|default:"Tk 0.00" }}</td>
       </tr>
     </table>
 
@@ -199,8 +199,6 @@
       </tr>
     </table>
 
-
-    <!-- Footer -->
     <!-- Footer content linked by ID -->
     <div id="footer_content" style="text-align: center; font-size: 9px; margin-top: 15px;">
       System Generated Voucher/Invoice : {{ header.ximtmptrn }}<br>

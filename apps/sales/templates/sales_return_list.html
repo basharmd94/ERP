@@ -1,0 +1,80 @@
+{% extends layout_path %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Sales Return List{% endblock title %}
+
+{% block vendor_css %}
+{{ block.super }}
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<!-- toastr CSS -->
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<!-- DataTables JS -->
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<!-- toastr JS -->
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+<!-- Custom Sales Return Item List JS -->
+<script src="{% static 'custom/sales_return_item_list.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'sales-return' %}">Sales Return</a>
+    </li>
+    <li class="breadcrumb-item active">Sales Return List</li>
+  </ol>
+</nav>
+
+<!-- Sales Return List DataTable -->
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title mb-0">Sales Return List</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table id="sales-return-item-list-table" class="table table-striped table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>SRE Number</th>
+            <th>Warehouse</th>
+            <th>GL Ref No</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data will be loaded via AJAX -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="sales-return-item-list-loading" class="text-center py-4" style="display: none;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading sales returns...</p>
+    </div>
+
+    <!-- No data indicator -->
+    <div id="sales-return-item-list-no-data" class="text-center py-4" style="display: none;">
+      <i class="ti ti-arrow-back-up text-muted" style="font-size: 3rem;"></i>
+      <p class="mt-2 text-muted">No sales returns found</p>
+    </div>
+  </div>
+</div>
+{% endblock content %}
