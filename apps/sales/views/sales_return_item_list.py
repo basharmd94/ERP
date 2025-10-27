@@ -18,7 +18,7 @@ def sales_return_item_list(request):
         # Get current ZID from session
         current_zid = request.session.get('current_zid')
         logger.info(f"Sales return item list - current_zid from session: {current_zid}")
-        
+
         if not current_zid:
             return JsonResponse({'error': 'No business context found'}, status=400)
 
@@ -35,7 +35,7 @@ def sales_return_item_list(request):
         # Column mapping for ordering (excluding action column)
         columns = ['xdate', 'ximtmptrn', 'xwh', 'xglref', 'xstatustrn']
         order_column = columns[order_column_index] if 0 <= order_column_index < len(columns) else 'xdate'
-        
+
         # Validate order direction
         if order_direction not in ['asc', 'desc']:
             order_direction = 'desc'
@@ -46,18 +46,18 @@ def sales_return_item_list(request):
             FROM imtemptrn
             WHERE zid = %s AND ximtmptrn LIKE %s
         """
-        
+
         # Base parameters
         base_params = [current_zid, '%SRE-%']
-        
+
         # Add search conditions if search value provided
         search_conditions = []
         search_params = []
-        
+
         if search_value:
             search_conditions = [
                 "ximtmptrn LIKE %s",
-                "xwh LIKE %s", 
+                "xwh LIKE %s",
                 "xglref LIKE %s",
                 "xstatustrn LIKE %s",
                 "CAST(xdate AS CHAR) LIKE %s"
@@ -67,7 +67,7 @@ def sales_return_item_list(request):
         # Build complete WHERE clause
         where_clause = "WHERE zid = %s AND ximtmptrn LIKE %s"
         query_params = base_params.copy()
-        
+
         if search_conditions:
             where_clause += " AND (" + " OR ".join(search_conditions) + ")"
             query_params.extend(search_params)
@@ -76,7 +76,7 @@ def sales_return_item_list(request):
             # Get total count (without search filter)
             count_query = "SELECT COUNT(*) FROM imtemptrn WHERE zid = %s AND ximtmptrn LIKE %s"
             logger.info(f"Executing count query: {count_query} with params: {base_params}")
-            
+
             cursor.execute(count_query, base_params)
             count_result = cursor.fetchone()
             total_records = count_result[0] if count_result else 0
@@ -91,7 +91,7 @@ def sales_return_item_list(request):
                 filtered_records = filtered_result[0] if filtered_result else 0
             else:
                 filtered_records = total_records
-            
+
             logger.info(f"Filtered records found: {filtered_records}")
 
             # Get data with pagination and ordering
@@ -102,11 +102,11 @@ def sales_return_item_list(request):
                 ORDER BY {order_column} {order_direction}
                 LIMIT %s OFFSET %s
             """
-            
+
             final_params = query_params + [length, start]
             logger.info(f"Executing data query: {data_query}")
             logger.info(f"Data query params: {final_params}")
-            
+
             cursor.execute(data_query, final_params)
             rows = cursor.fetchall()
             logger.info(f"Data query returned {len(rows)} rows")
@@ -119,7 +119,7 @@ def sales_return_item_list(request):
                     if len(row) < 5:
                         logger.warning(f"Row {i} has insufficient columns: {len(row)} columns, expected 5")
                         continue
-                    
+
                     # Format date safely
                     formatted_date = ''
                     if row[0]:
@@ -138,25 +138,25 @@ def sales_return_item_list(request):
                     # Create Quick Act buttons with delete button
                     quick_actions = f"""
                         <div class="btn-group" role="group" aria-label="Quick Actions">
-                            <a href="/sales/sales-return-detail/{sre_number}/" 
+                            <a href="/sales/sales-return-detail/{sre_number}/"
                                target="_blank"
-                               class="btn btn-sm btn-outline-primary" 
+                               class="btn btn-sm btn-outline-primary"
                                title="View Details">
                                 <i class="tf-icons ti ti-eye"></i>
                             </a>
-                            <a href="/sales/sales-return-print/{sre_number}/" 
-                               target="_blank" 
-                               class="btn btn-sm btn-outline-info" 
+                            <a href="/sales/sales-return-print/{sre_number}/"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-info"
                                title="Print">
                                 <i class="tf-icons ti ti-printer"></i>
                             </a>
-                            <a href="/sales/sales-return-export-excel/{sre_number}/" 
-                               class="btn btn-sm btn-outline-success" 
+                            <a href="/sales/sales-return-export-excel/{sre_number}/"
+                               class="btn btn-sm btn-outline-success"
                                title="Export Excel">
                                 <i class="tf-icons ti ti-file-spreadsheet"></i>
                             </a>
-                            <button type="button" 
-                                    class="btn btn-sm btn-outline-danger" 
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
                                     onclick="deleteSalesReturn('{sre_number}')"
                                     title="Delete">
                                 <i class="tf-icons ti ti-trash"></i>
@@ -172,7 +172,7 @@ def sales_return_item_list(request):
                         status,
                         quick_actions
                     ])
-                    
+
                 except Exception as row_error:
                     logger.error(f"Error processing row {i}: {row_error}, row data: {row}")
                     continue
