@@ -1,7 +1,7 @@
 /**
  * Sales Return Item List DataTable (AJAX)
  */
-'use strict';
+
 
 $(function () {
     let salesReturnTable;
@@ -31,7 +31,7 @@ $(function () {
                     searchable: true,
                     render: function(data, type, row) {
                         if (type === 'display' && data) {
-                            return `<span class="badge bg-light text-dark">${data}</span>`;
+                            return `<span class="badge rounded-pill bg-label-dark">${data}</span>`;
                         }
                         return data || '';
                     }
@@ -55,7 +55,7 @@ $(function () {
                     searchable: true,
                     render: function(data, type, row) {
                         if (type === 'display' && data) {
-                            return `<span class="badge bg-info text-white">${data}</span>`;
+                            return `<span class="badge rounded-pill bg-label-primary">${data}</span>`;
                         }
                         return data || '';
                     }
@@ -80,12 +80,12 @@ $(function () {
                     render: function(data, type, row) {
                         if (type === 'display' && data) {
                             let badgeClass = 'bg-secondary';
-                            switch(data.toLowerCase()) {
-                                case 'open':
+                            switch(data) {
+                                case '1-Open':
                                     badgeClass = 'bg-warning';
                                     break;
-                                case 'closed':
-                                    badgeClass = 'bg-success';
+                                case '5-Confirmed':
+                                    badgeClass = 'badge rounded-pill bg-label-success';
                                     break;
                                 case 'cancelled':
                                     badgeClass = 'bg-danger';
@@ -107,15 +107,74 @@ $(function () {
                 },
                 {
                     data: 5,
-                    title: 'Action',
+                    title: 'Quick Act',
                     orderable: false,
                     searchable: false,
                     className: 'text-center',
-                    width: '150px'
+                    width: '120px',
+                    render: function(data, type, row) {
+                        if (type === 'display' && data) {
+                            const sreNumber = data;
+                            return `
+                                <div class="btn-group" role="group" aria-label="Quick Actions">
+                                    <a href="/sales/sales-return-detail/${sreNumber}/"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="View Details">
+                                        <i class="tf-icons ti ti-eye"></i>
+                                    </a>
+                                    <a href="/sales/sales-return-print/${sreNumber}/"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-info"
+                                       title="Print">
+                                        <i class="tf-icons ti ti-printer"></i>
+                                    </a>
+                                    <a href="/sales/sales-return-export-excel/${sreNumber}/"
+                                       class="btn btn-sm btn-outline-success"
+                                       title="Export Excel">
+                                        <i class="tf-icons ti ti-file-spreadsheet"></i>
+                                    </a>
+                                </div>
+                            `;
+                        }
+                        return '';
+                    }
+                },
+                {
+                    data: 6,
+                    title: 'Actions',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center',
+                    render: function(data, type, row) {
+                        if (type === 'display' && data) {
+                            const sreNumber = data;
+                            return `
+                                <div class="dropdown">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="tf-icons ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="/sales/sales-return-detail/${sreNumber}/">
+                                            <i class="tf-icons ti ti-eye me-1"></i>View</a></li>
+                                        <li><a class="dropdown-item" href="/sales/sales-return-print/${sreNumber}/" target="_blank">
+                                            <i class="tf-icons ti ti-printer me-1"></i>Print</a></li>
+                                        <li><a class="dropdown-item" href="/sales/sales-return-export-excel/${sreNumber}/">
+                                            <i class="tf-icons ti ti-file-spreadsheet me-1"></i>Export Excel</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteSalesReturn('${sreNumber}')">
+                                            <i class="tf-icons ti ti-trash me-1"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            `;
+                        }
+                        return '';
+                    }
                 }
             ],
             order: [[0, 'desc']], // Order by date descending
-            pageLength: 25,
+            pageLength: 10,
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>' +
                  '<"table-responsive"t>' +

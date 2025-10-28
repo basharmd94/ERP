@@ -32,7 +32,7 @@ def sales_return_item_list(request):
         order_column_index = int(request.GET.get('order[0][column]', 0))
         order_direction = request.GET.get('order[0][dir]', 'desc')
 
-        # Column mapping for ordering (excluding action column)
+        # Column mapping for ordering (excluding action columns)
         columns = ['xdate', 'ximtmptrn', 'xwh', 'xglref', 'xstatustrn']
         order_column = columns[order_column_index] if 0 <= order_column_index < len(columns) else 'xdate'
 
@@ -129,40 +129,11 @@ def sales_return_item_list(request):
                             logger.warning(f"Date formatting error for row {i}: {e}")
                             formatted_date = str(row[0]) if row[0] else ''
 
-                    # Get SRE number safely
+                    # Get data safely
                     sre_number = str(row[1]) if row[1] else ''
                     warehouse = str(row[2]) if row[2] else ''
                     gl_ref = str(row[3]) if row[3] else ''
                     status = str(row[4]) if row[4] else ''
-
-                    # Create Quick Act buttons with delete button
-                    quick_actions = f"""
-                        <div class="btn-group" role="group" aria-label="Quick Actions">
-                            <a href="/sales/sales-return-detail/{sre_number}/"
-                               target="_blank"
-                               class="btn btn-sm btn-outline-primary"
-                               title="View Details">
-                                <i class="tf-icons ti ti-eye"></i>
-                            </a>
-                            <a href="/sales/sales-return-print/{sre_number}/"
-                               target="_blank"
-                               class="btn btn-sm btn-outline-info"
-                               title="Print">
-                                <i class="tf-icons ti ti-printer"></i>
-                            </a>
-                            <a href="/sales/sales-return-export-excel/{sre_number}/"
-                               class="btn btn-sm btn-outline-success"
-                               title="Export Excel">
-                                <i class="tf-icons ti ti-file-spreadsheet"></i>
-                            </a>
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteSalesReturn('{sre_number}')"
-                                    title="Delete">
-                                <i class="tf-icons ti ti-trash"></i>
-                            </button>
-                        </div>
-                    """
 
                     data.append([
                         formatted_date,
@@ -170,7 +141,8 @@ def sales_return_item_list(request):
                         warehouse,
                         gl_ref,
                         status,
-                        quick_actions
+                        sre_number,  # For Quick Act column (will use SRE number to generate buttons in JS)
+                        sre_number   # For Actions column (will use SRE number to generate dropdown in JS)
                     ])
 
                 except Exception as row_error:

@@ -140,12 +140,12 @@ $(document).ready(function() {
                 {
                     title: 'Item Name',
                     data: null,
-                    width: '15%',
+                    width: '30%',
                     render: function(data, type, row) {
                         const description = row.xdesc || 'No Description';
                         const truncatedDesc = description.length > 30 ? description.substring(0, 30) + '...' : description;
                         return `
-                            <div class="fw-bold text-truncate" style="font-size: 0.875rem;">${row.xitem}</div>
+                            <div class="fw-bold text-truncate text-start" style="font-size: 0.875rem;">${row.xitem}</div>
                             <small class="text-muted text-truncate d-block" title="${description}" style="font-size: 0.75rem;">${truncatedDesc}</small>
                         `;
                     }
@@ -153,7 +153,7 @@ $(document).ready(function() {
                 {
                     title: 'Stock',
                     data: null,
-                    width: '15%',
+                    width: '10%',
                     render: function(data, type, row) {
                         return `
                             <div class="text-center">
@@ -166,13 +166,13 @@ $(document).ready(function() {
                 {
                     title: 'Price',
                     data: null,
-                    width: '15%',
+                    width: '20%',
                     render: function(data, type, row) {
                         const displayPrice = row.avg_price <= 0 ? row.xstdcost : row.avg_price;
                         return `
-                            <div class="flex-column text-end ">
-                                <div class="text-muted" style="font-size: 0.7rem;">avg: ৳${formatNumber(displayPrice)}</div>
-                                <div  class="text-muted" style="font-size: 0.7rem;">sale: ৳${formatNumber(row.xstdprice)}</div>
+                            <div class="flex-column text-center ">
+                                <div class="text-muted text-start" style="font-size: 0.7rem;">avg: ৳${formatNumber(displayPrice)}</div>
+                                <div  class="text-muted text-start" style="font-size: 0.7rem;">sale: ৳${formatNumber(row.xstdprice)}</div>
                             </div>
                         `;
                     }
@@ -180,7 +180,7 @@ $(document).ready(function() {
                 {
                     title: 'Qty',
                     data: 'quantity',
-                    width: '15%',
+                    width: '10%',
                     render: function(data, type, row) {
                         return `
                             <input type="number"
@@ -196,7 +196,7 @@ $(document).ready(function() {
                 {
                     title: 'Inv Value',
                     data: null,
-                    width: '15%',
+                    width: '10%',
                     render: function(data, type, row) {
                         const fallbackPrice = row.avg_price <= 0 ? row.xstdcost : row.avg_price;
                         const invPrice = row.mkt_price || fallbackPrice;
@@ -416,12 +416,12 @@ $(document).ready(function() {
 
         cartItems.forEach(item => {
             totalItems += item.quantity;
-            
+
             // Calculate Total Inv Value (matches individual row: mkt_price || fallbackPrice)
             const fallbackPrice = item.avg_price <= 0 ? item.xstdcost : item.avg_price;
             const invPrice = item.mkt_price || fallbackPrice;
             totalInvValue += invPrice * item.quantity;
-            
+
             // Calculate Total Mkt Value (matches individual row: xstdprice * quantity)
             const mktPrice = item.xstdprice || 0;
             totalMktValue += mktPrice * item.quantity;
