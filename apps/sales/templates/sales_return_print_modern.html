@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Sales Return</title>
+    <style>
+    @page {
+      size: A4;
+      margin: 0.8in 0.6in 0.8in 0.6in;
+
+      @frame header_frame {
+        -pdf-frame-content: headerContent;
+        top: 0in;
+        margin-left: 0.6in;
+        margin-right: 0.6in;
+        height: 1in;
+      }
+
+      @frame footer_frame {
+        -pdf-frame-content: footerContent;
+        bottom: 0in;
+        margin-left: 0.6in;
+        margin-right: 0.6in;
+        height: 0.7in;
+      }
+    }
+
+    body {
+      font-family: "Helvetica", Arial, sans-serif;
+      color: #222;
+      font-size: 10px;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header */
+    #headerContent {
+      text-align: center;
+      border-bottom: 1px solid #888;
+      padding-bottom: 5px;
+    }
+
+    #headerContent .biz-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    #headerContent .biz-info {
+      font-size: 9px;
+      color: #555;
+    }
+
+    #headerContent .title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #000;
+      margin-top: 5px;
+      text-decoration: underline;
+    }
+
+    /* Section layout */
+    .section {
+      margin-top: 90px;
+    }
+
+    /* Info Tables */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5px;
+      margin-bottom: 8px;
+    }
+
+    .info-table td {
+      padding: 3px 4px;
+      vertical-align: top;
+    }
+
+    .info-left {
+      width: 50%;
+    }
+
+    .info-right {
+      width: 50%;
+      text-align: right;
+    }
+
+    /* Line Items Table */
+    .return-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 5px;
+      font-size: 9px;
+    }
+
+    .return-table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+      text-align: center;
+      border: 1px solid #ccc;
+      padding: 4px;
+    }
+
+    .return-table td {
+      border: 1px solid #ddd;
+      padding: 3px;
+      text-align: center;
+    }
+
+    .return-table td.left {
+      text-align: left;
+    }
+
+    .return-table td.right {
+      text-align: right;
+    }
+
+    /* Summary Table */
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 9.5px;
+    }
+
+    .summary-table td {
+      padding: 3px 5px;
+      border: 1px solid #ccc;
+    }
+
+    .summary-table .label {
+      font-weight: bold;
+      background-color: #f9f9f9;
+    }
+
+    .summary-table .amount {
+      text-align: right;
+      font-weight: bold;
+    }
+
+    /* Notes */
+    .note {
+      font-size: 9px;
+      margin-top: 10px;
+      font-style: italic;
+      color: #333;
+    }
+
+    /* Signature Table */
+    .signature-table {
+      width: 100%;
+      text-align: center;
+      border-collapse: collapse;
+      font-size: 9px;
+      margin-top: 25px;
+    }
+
+    .signature-table td {
+      padding: 20px 5px 0 5px;
+    }
+
+    .signature-table .sig-line {
+      border-top: 1px solid #000;
+      padding-top: 3px;
+    }
+
+    /* Footer */
+    #footerContent {
+      text-align: center;
+      font-size: 8.5px;
+      color: #444;
+      border-top: 1px solid #888;
+      padding-top: 4px;
+    }
+
+    </style>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="headerContent">
+      <div class="biz-name">{{ business.business_name|default:"My Business" }}</div>
+      <div class="biz-info">
+        {{ business.business_address|default:"Business Address" }} |
+        Mobile: {{ business.business_mobile|default:"Mobile" }} |
+        Email: {{ business.business_email|default:"Email" }}
+      </div>
+      <div class="biz-info">
+        Website: {{ business.business_website|default:"Website" }}
+      </div>
+      <div class="title">SALES RETURN</div>
+    </div>
+
+    <!-- MAIN SECTION -->
+    <div class="section">
+
+      <table class="info-table">
+        <tr>
+          <td class="info-left">
+            <strong>Transaction No:</strong> {{ header.ximtmptrn }}<br>
+            <strong>Warehouse:</strong> {{ header.xwh }}<br>
+            <strong>Project:</strong> {{ header.xproj|default:"-" }}
+          </td>
+          <td class="info-right">
+            <strong>Date:</strong> {{ header.xdate }}<br>
+            <strong>GL Reference:</strong> {{ header.xglref|default:"-" }}<br>
+            <strong>Status:</strong> {{ header.xstatustrn|default:"Processed" }}
+          </td>
+        </tr>
+      </table>
+
+      {% if line_items %}
+      <table class="return-table">
+        <thead>
+          <tr>
+            <th style="width: 5%;">S.I.</th>
+            <th style="width: 12%;">Code</th>
+            <th style="width: 40%;">Description</th>
+            <th style="width: 8%;">Unit</th>
+            <th style="width: 10%;">Qty</th>
+            <th style="width: 12%;">Rate</th>
+            <th style="width: 13%;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in line_items %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ item.xitem }}</td>
+            <td class="left">{{ item.xitemdesc|default:item.xitem }}</td>
+            <td>{{ item.xunit }}</td>
+            <td class="right">{{ item.xqtyord|bdt_with_decimals:2 }}</td>
+            <td class="right">{{ item.xrate|bdt_with_decimals:2 }}</td>
+            <td class="right">{{ item.xlineamt|bdt_with_decimals:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <table class="summary-table">
+        <tr>
+          <td class="label" style="text-align: right;">Total Return Amount (Tk):</td>
+          <td class="amount">{{ totals.total_line_amount|bdt_with_decimals:2|default:"Tk 0.00" }}</td>
+        </tr>
+      </table>
+
+      <div style="font-size: 9.5px; margin-top: 4px;">
+        <strong>In Words:</strong> {{ totals.total_line_amount|inword_currency|default:"Zero Taka Only" }}
+      </div>
+
+      {% else %}
+      <div style="margin: 50px 0; color: #666; text-align:center;">
+        <h3 style="font-size: 14px;">NO RETURN DATA FOUND</h3>
+        <p>No return details for: {{ transaction_no }}</p>
+      </div>
+      {% endif %}
+
+      <div class="note">
+        <strong>Note:</strong> {{ header.xrem|default:"-" }}
+      </div>
+
+      <table class="signature-table">
+        <tr>
+          <td class="sig-line">Prepared By<br>{{ header.zemail|default:"-" }}</td>
+          <td class="sig-line">Authorized By</td>
+          <td class="sig-line">Return/Confirmed By</td>
+          <td class="sig-line">Received By</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footerContent">
+      System Generated Voucher/Invoice : {{ header.ximtmptrn }}<br>
+      Generated on: {{ print_date }} |
+      © 2025 <b>DreamErp BD</b> | Bashar@01675373799<br>
+      Page
+      <pdf:pagenumber /> of
+      <pdf:pagecount />
+    </div>
+
+  </body>
+
+</html>

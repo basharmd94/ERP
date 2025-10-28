@@ -179,6 +179,9 @@
       <a href="javascript:void(0);">Sales</a>
     </li>
     <li class="breadcrumb-item active">Sales Return</li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'sales-return-list' %}">Sales Return List</a>
+    </li>
   </ol>
 </nav>
 
@@ -210,7 +213,7 @@
               <div class="col-md-3 mb-2">
                 <label for="customer" class="form-label">Customer <span class="text-danger">*</span></label>
                 <select id="customer" class="select2 form-select" data-allow-clear="true" required>
-                  <option value="Customer-1-">CUS-000001</option>
+                  <option></option>
                 </select>
               </div>
 
@@ -234,16 +237,22 @@
                 </select>
               </div>
 
-              <div class="col-md-6 mb-2">
+              <div class="col-md-4 mb-2">
                 <label for="supplierSelect" class="form-label">Supplier Number <span class="text-danger">*</span></label>
                 <select id="supplierSelect" class="form-select select2" data-allow-clear="true" required>
                   <option></option>
                 </select>
               </div>
 
-              <div class="col-md-6 mb-2">
+              <div class="col-md-4 mb-2">
                 <label for="warehouse" class="form-label">Warehouse <span class="text-danger">*</span></label>
                 <select id="warehouse" class="select2 form-select" data-allow-clear="true" required>
+                  <option></option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-2">
+                <label for="project" class="form-label">Project <span class="text-danger">*</span></label>
+                <select id="project" class="select2 form-select" data-allow-clear="true" required>
                   <option></option>
                 </select>
               </div>
@@ -387,7 +396,9 @@
 
 {% block custom_api_js %}
 <script src="{% static 'custom/api_get_supplier.js' %}"></script>
+<script src="{% static 'custom/api_get_customer.js' %}"></script>
 <script src="{% static 'custom/api_get_warehouse.js' %}"></script>
+<script src="{% static 'custom/api_get_project.js' %}"></script>
 <script src="{% static 'custom/avg_item_price.js' %}"></script>
 <script src="{% static 'custom/sales_return.js' %}"></script>
 <!-- sales return confirm-->

@@ -67,8 +67,10 @@ $(document).ready(function() {
                 formData: {
                     invoice_date: $('#invoice-date').val() || '',
                     receive_type: $('#receive-type').val() || '0',
+                    customer: $('#customer').val() || '',
                     supplier_select: $('#supplierSelect').val() || '',
                     warehouse: $('#warehouse').val() || '',
+                    project: $('#project').val() || '',
                     notes: $('#notes').val() || ''
                 }
             };
@@ -462,23 +464,70 @@ $(document).ready(function() {
             return;
         }
 
-        if (confirm('Are you sure you want to clear the entire cart?')) {
-            cartItems = [];
-            refreshCartDataTable();
-            updateCartTotals();
-            toggleCartSection();
+        // Clear cart immediately without confirmation
+        cartItems = [];
+        refreshCartDataTable();
+        updateCartTotals();
+        toggleCartSection();
 
-            // Clear localStorage data
-            if (window.salesReturnStorage) {
-                window.salesReturnStorage.clearCartData();
-            }
-
-            toastr.success('Cart cleared successfully');
+        // Clear localStorage data
+        if (window.salesReturnStorage) {
+            window.salesReturnStorage.clearCartData();
         }
+
+        toastr.success('Cart cleared successfully');
     };
 
     // Initialize DataTable when document is ready
     initCartDataTable();
+
+    // Function to restore customer selection with proper AJAX loading
+    function restoreCustomerSelection(customerCode) {
+        console.log('Restoring customer selection:', customerCode);
+
+        // Ensure Select2 is initialized before restoring
+        function attemptRestore() {
+            if ($('#customer').hasClass('select2-hidden-accessible')) {
+                // Select2 is initialized, proceed with restoration
+                $.ajax({
+                    url: '/api/get-customer/',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { q: customerCode },
+                    success: function(response) {
+                        console.log('Customer search response:', response);
+
+                        if (response.results && response.results.length > 0) {
+                            const customer = response.results.find(c => c.text === customerCode);
+                            if (customer) {
+                                // Create option and add to select
+                                const option = new Option(customer.text, customer.id, true, true);
+                                $('#customer').append(option);
+
+                                // Trigger change to update Select2
+                                $('#customer').trigger('change');
+
+                                console.log('Customer restored successfully:', customer.text);
+                            } else {
+                                console.log('Customer not found in results:', customerCode);
+                            }
+                        } else {
+                            console.log('No customers found for code:', customerCode);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading customer:', error);
+                    }
+                });
+            } else {
+                // Select2 not ready yet, wait and try again
+                console.log('Select2 not ready for customer field, retrying...');
+                setTimeout(attemptRestore, 100);
+            }
+        }
+
+        attemptRestore();
+    }
 
     // Function to restore supplier selection with proper AJAX loading
     function restoreSupplierSelection(supplierCode) {
@@ -539,12 +588,18 @@ $(document).ready(function() {
                         $('#invoice-date').val(savedData.formData.invoice_date || '');
                         $('#receive-type').val(savedData.formData.receive_type || '0').trigger('change');
 
+                        // Restore customer with proper AJAX loading
+                        if (savedData.formData.customer) {
+                            restoreCustomerSelection(savedData.formData.customer);
+                        }
+
                         // Restore supplier with proper AJAX loading
                         if (savedData.formData.supplier_select) {
                             restoreSupplierSelection(savedData.formData.supplier_select);
                         }
 
                         $('#warehouse').val(savedData.formData.warehouse || '').trigger('change');
+                        $('#project').val(savedData.formData.project || '').trigger('change');
                         $('#notes').val(savedData.formData.notes || '');
                     }
 
@@ -577,7 +632,7 @@ $(document).ready(function() {
     // Add auto-save triggers for form inputs
     function setupAutoSaveTriggers() {
         // Auto-save on form field changes - simplified to avoid redundancy
-        $(document).on('change input', '#invoice-date, #receive-type, #supplierSelect, #warehouse, #notes', function() {
+        $(document).on('change input', '#invoice-date, #receive-type, #customer, #supplierSelect, #warehouse, #project, #notes', function() {
             console.log('Form field changed:', this.id);
             if (window.salesReturnStorage) {
                 window.salesReturnStorage.autoSave();
@@ -585,7 +640,7 @@ $(document).ready(function() {
         });
 
         // Auto-save on Select2 changes
-        $(document).on('select2:select select2:unselect select2:clear', '#receive-type, #supplierSelect, #warehouse', function() {
+        $(document).on('select2:select select2:unselect select2:clear', '#receive-type, #customer, #supplierSelect, #warehouse, #project', function() {
             console.log('Select2 changed:', this.id);
             if (window.salesReturnStorage) {
                 window.salesReturnStorage.autoSave();

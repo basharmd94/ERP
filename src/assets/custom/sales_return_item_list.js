@@ -261,8 +261,8 @@ $(function () {
 // Action functions for the dropdown buttons
 function viewSalesReturn(sreNumber) {
     console.log('View sales return:', sreNumber);
-    // Redirect to sales return detail page
-    window.location.href = `/sales/sales-return-detail/${sreNumber}/`;
+    // Open sales return detail page in new tab
+    window.open(`/sales/sales-return-detail/${sreNumber}/`, '_blank');
 }
 
 function printSalesReturn(sreNumber) {

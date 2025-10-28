@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 @login_required
-def api_get_supplier(request):
+def api_get_customer(request):
 
     logger = logging.getLogger(__name__)
 
@@ -21,27 +21,27 @@ def api_get_supplier(request):
 
         with connection.cursor() as cursor:
             sql = """
-                SELECT xsup, xshort
-                FROM casup
+                SELECT xcus, xshort
+                FROM cacus
                 WHERE zid = %s
             """
             params = [request.session.get('current_zid')]
 
             if search_term:
-                sql += " AND (LOWER(xsup) LIKE LOWER(%s) OR LOWER(xshort) LIKE LOWER(%s))"
+                sql += " AND (LOWER(xcus) LIKE LOWER(%s) OR LOWER(xshort) LIKE LOWER(%s))"
                 search_pattern = f"%{search_term}%"
                 params.extend([search_pattern, search_pattern])
 
-            sql += " ORDER BY xsup LIMIT %s OFFSET %s"
+            sql += " ORDER BY xcus LIMIT %s OFFSET %s"
             offset = (page - 1) * page_size
             params.extend([page_size, offset])
 
             cursor.execute(sql, params)
-            suppliers = cursor.fetchall()
+            customers = cursor.fetchall()
 
         results = [
-            {'id': xsup, 'text': xsup, 'xshort': xshort}
-            for xsup, xshort in suppliers
+            {'id': xcus, 'text': xcus, 'xshort': xshort}
+            for xcus, xshort in customers
         ]
 
         has_more = len(results) == page_size
@@ -49,9 +49,9 @@ def api_get_supplier(request):
         return JsonResponse({'results': results, 'pagination': {'more': has_more}})
 
     except Exception as e:
-        logger.error(f'Error in api_get_supplier: {e}')
+        logger.error(f'Error in api_get_customer: {e}')
         return JsonResponse({
             'results': [],
             'pagination': {'more': False},
-            'error': 'Failed to fetch suppliers'
+            'error': 'Failed to fetch customers'
         }, status=500)
