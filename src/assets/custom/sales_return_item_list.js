@@ -123,6 +123,11 @@ $(function () {
                                        title="View Details">
                                         <i class="tf-icons ti ti-eye"></i>
                                     </a>
+                                    <a href="/sales/sales-return-update/${sreNumber}/"
+                                       class="btn btn-sm btn-outline-warning"
+                                       title="Edit">
+                                        <i class="tf-icons ti ti-edit"></i>
+                                    </a>
                                     <a href="/sales/sales-return-print/${sreNumber}/"
                                        target="_blank"
                                        class="btn btn-sm btn-outline-info"
@@ -158,6 +163,8 @@ $(function () {
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item" href="/sales/sales-return-detail/${sreNumber}/">
                                             <i class="tf-icons ti ti-eye me-1"></i>View</a></li>
+                                        <li><a class="dropdown-item" href="/sales/sales-return-update/${sreNumber}/">
+                                            <i class="tf-icons ti ti-edit me-1"></i>Edit</a></li>
                                         <li><a class="dropdown-item" href="/sales/sales-return-print/${sreNumber}/" target="_blank">
                                             <i class="tf-icons ti ti-printer me-1"></i>Print</a></li>
                                         <li><a class="dropdown-item" href="/sales/sales-return-export-excel/${sreNumber}/">
@@ -263,6 +270,12 @@ function viewSalesReturn(sreNumber) {
     console.log('View sales return:', sreNumber);
     // Open sales return detail page in new tab
     window.open(`/sales/sales-return-detail/${sreNumber}/`, '_blank');
+}
+
+function editSalesReturn(sreNumber) {
+    console.log('Edit sales return:', sreNumber);
+    // Navigate to sales return update page
+    window.location.href = `/sales/sales-return-update/${sreNumber}/`;
 }
 
 function printSalesReturn(sreNumber) {

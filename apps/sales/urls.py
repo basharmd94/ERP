@@ -16,6 +16,7 @@ from .views.sales_return_export_excel import SalesReturnExcelExportView
 from .views.sales_return_list import SalesReturnListView
 from .views.sales_return_item_list import sales_return_item_list
 from .views.sales_return_delete import sales_return_delete
+from .views.sales_return_update import SalesReturnUpdateView
 
 
 urlpatterns = [
@@ -60,7 +61,7 @@ urlpatterns = [
     # Sales Return Detail
     path("sales-return-detail/<str:transaction_id>/", SalesReturnDetailView.as_view(), name="sales-return-detail"),
     # sales return edit
-    path("sales-return-edit/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-edit"),
+    path("sales-return-update/<str:transaction_id>/", SalesReturnUpdateView.as_view(), name="sales-return-update"),
     # print/export sales return
     path("sales-return-print/<str:transaction_id>/", sales_return_print, name="sales-return-print"),
     # sales return delete

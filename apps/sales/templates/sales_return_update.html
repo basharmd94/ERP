@@ -3,8 +3,7 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Sales - Sales Return {% endblock %}
-
+{% block title %}Sales - Update Sales Return {% endblock %}
 
 {% block vendor_css %}
 {{ block.super }}
@@ -37,38 +36,38 @@
 
 {% block page_js %}
 {{ block.super }}
-
-
 <script src="{% static 'js/forms-pickers.js' %}"></script>
 <script src="{% static 'js/forms-selects.js' %}"></script>
-
 {% endblock page_js %}
+
 {% block content %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="javascript:void(0);">Sales</a>
     </li>
-    <li class="breadcrumb-item active">Sales Return</li>
-    <li class="breadcrumb-item">
+        <li class="breadcrumb-item">
       <a href="{% url 'sales-return-list' %}">Sales Return List</a>
     </li>
+    <li class="breadcrumb-item active">Update Sales Return</li>
+
   </ol>
 </nav>
 
-
 <div class="card-body">
-  <form id="sales-return-entry-form">
+  <form id="sales-return-update-form">
+    {% csrf_token %}
+    <input type="hidden" id="transaction-id" value="{{ header.ximtmptrn }}" />
 
     <!-- Two Column Layout -->
     <div class="row sales-return-container">
 
-      <!-- Left Column: Header & Item Selector (6 columns) -->
+      <!-- Left Column: Header & Item Selector (5 columns) -->
       <div class="col-md-5">
         <div class="card border-primary mb-3">
           <div class="card-header bg-primary text-white">
             <h6 class="card-title text-white mb-0">
-              <i class="fas fa-edit me-2"></i>Sales Return Details
+              <i class="fas fa-edit me-2"></i>Update Sales Return Details
             </h6>
           </div>
           <div class="card-body">
@@ -78,61 +77,61 @@
               <div class="col-md-3 mb-2">
                 <label for="transaction-prefix" class="form-label">Transaction Prefix</label>
                 <select id="transaction-prefix" class="select2 form-select" data-allow-clear="true">
-                  <option value="SRE-">SRE-</option>
+                  <option value="{{ header.xprefix }}" selected>{{ header.xprefix }}</option>
                 </select>
               </div>
 
               <div class="col-md-3 mb-2">
                 <label for="receive-type" class="form-label">Receive Type <span class="text-danger">*</span></label>
                 <select id="receive-type" class="select2 form-select" data-allow-clear="true" required>
-                  <option value="0" selected>0-Opening Balance</option>
-                  <option value="1">1-Cash Purchase</option>
-                  <option value="2">2-Credit Purchase</option>
-                  <option value="3">3-MRR</option>
+                  <option value="0" {% if header.xtype == 0 %}selected{% endif %}>0-Opening Balance</option>
+                  <option value="1" {% if header.xtype == 1 %}selected{% endif %}>1-Cash Purchase</option>
+                  <option value="2" {% if header.xtype == 2 %}selected{% endif %}>2-Credit Purchase</option>
+                  <option value="3" {% if header.xtype == 3 %}selected{% endif %}>3-MRR</option>
                 </select>
               </div>
+
               <div class="col-md-6 mb-2">
                 <label for="transaction-date" class="form-label">Date <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="transaction-date" placeholder="Select date" readonly required />
+                <input type="text" class="form-control" id="transaction-date" value="{{ header.xdate|date:'Y-m-d' }}" placeholder="Select date" readonly required />
               </div>
 
               <div class="col-md-6 mb-2">
                 <label for="invoice-date" class="form-label">Invoice Date <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="invoice-date" placeholder="Select date" readonly required />
+                <input type="text" class="form-control" id="invoice-date" value="{{ header.xdate|date:'Y-m-d' }}" placeholder="Select date" readonly required />
               </div>
-
 
               <div class="col-md-6 mb-2">
                 <label for="customer" class="form-label">Customer <span class="text-danger">*</span></label>
                 <select id="customer" class="select2 form-select" data-allow-clear="true" required>
-                  <option></option>
+                  <option value="{{ header.xsup }}" selected>{{ header.xsup }}</option>
                 </select>
               </div>
-
 
               <div class="col-md-4 mb-2">
                 <label for="supplierSelect" class="form-label">Supplier Number <span class="text-danger">*</span></label>
                 <select id="supplierSelect" class="form-select select2" data-allow-clear="true" required>
-                  <option></option>
+                  <option value="{{ header.xsup }}" selected>{{ header.xsup }}</option>
                 </select>
               </div>
 
               <div class="col-md-4 mb-2">
                 <label for="warehouse" class="form-label">Warehouse <span class="text-danger">*</span></label>
                 <select id="warehouse" class="select2 form-select" data-allow-clear="true" required>
-                  <option></option>
+                  <option value="{{ header.xwh }}" selected>{{ header.xwh }}</option>
                 </select>
               </div>
+
               <div class="col-md-4 mb-2">
                 <label for="project" class="form-label">Project <span class="text-danger">*</span></label>
                 <select id="project" class="select2 form-select" data-allow-clear="true" required>
-                  <option></option>
+                  <option value="{{ header.xproj }}" selected>{{ header.xproj }}</option>
                 </select>
               </div>
 
               <div class="col-12 mb-2">
                 <label for="notes" class="form-label">Notes</label>
-                <textarea class="form-control" id="notes" rows="2" placeholder="Enter notes"></textarea>
+                <textarea class="form-control" id="notes" rows="2" placeholder="Enter notes">{{ header.xrem }}</textarea>
               </div>
             </div>
 
@@ -147,7 +146,6 @@
                 <select id="avg-item-search" class="form-select">
                   <option></option>
                 </select>
-
               </div>
             </div>
 
@@ -160,28 +158,16 @@
         </div>
       </div>
 
-      <!-- Right Column: Cart (6 columns) -->
-
+      <!-- Right Column: Cart (7 columns) -->
       <div class="col-md-7 cart-column">
         <div class="cart-section-wrapper">
-          <!-- Empty Cart Message -->
-          <div id="empty-cart-message" class="text-center py-5">
-            <div class="card border-light">
-              <div class="card-body">
-                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">Your cart is empty</h5>
-                <p class="text-muted">Search and select items to add them to your cart</p>
-              </div>
-            </div>
-          </div>
           <!-- Cart Section -->
-          <!-- give full height to cart section -->
-          <div id="cart-section" style="display: none;">
+          <div id="cart-section">
             <div class="card border-success">
               <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h6 class="card-title text-white mb-0">
                   <i class="fas fa-shopping-cart me-2"></i>
-                  Sales Return Cart (<span id="cart-items-count">0</span> items)
+                  Sales Return Items (<span id="cart-items-count">{{ items|length }}</span> items)
                 </h6>
                 <button type="button" class="btn btn-sm btn-outline-light" onclick="clearCart()" title="Clear Cart">
                   <i class="fas fa-trash me-1"></i>Clear All
@@ -208,13 +194,24 @@
                   </table>
                 </div>
 
+                <!-- Empty Cart Message -->
+                <div id="empty-cart-message" class="text-center py-5" style="display: none;">
+                  <div class="card border-light">
+                    <div class="card-body">
+                      <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                      <h5 class="text-muted">Your cart is empty</h5>
+                      <p class="text-muted">Search and select items to add them to your cart</p>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Cart Summary -->
                 <div class="card-footer bg-light">
                   <div class="row">
                     <div class="col-md-6">
                       <div class="d-flex justify-content-between">
                         <span class="fw-bold">Total Items:</span>
-                        <span id="cart-total-items" class="text-primary fw-bold">0.00</span>
+                        <span id="cart-total-items" class="text-primary fw-bold">{{ items|length }}</span>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -244,8 +241,8 @@
                       <button type="button" class="btn btn-primary me-2">
                         <i class="fas fa-save me-1"></i>Save Draft
                       </button>
-                      <button type="button" class="btn btn-success" id="process-return" onclick="processReturn()">
-                        <i class="fas fa-check me-1"></i>Process Return
+                      <button type="button" class="btn btn-success" id="update-return" onclick="updateReturn()">
+                        <i class="fas fa-check me-1"></i>Update Return
                       </button>
                     </div>
                   </div>
@@ -254,17 +251,12 @@
             </div>
           </div>
         </div> <!-- End cart-section-wrapper -->
-
       </div>
-
 
     </div>
 
   </form>
-
-  <!--end of card-->
 </div>
-
 
 {% endblock %}
 
@@ -274,7 +266,44 @@
 <script src="{% static 'custom/api_get_warehouse.js' %}"></script>
 <script src="{% static 'custom/api_get_project.js' %}"></script>
 <script src="{% static 'custom/avg_item_price.js' %}"></script>
-<script src="{% static 'custom/sales_return.js' %}"></script>
-<!-- sales return confirm-->
-<script src="{% static 'custom/sales_return_confirm.js' %}"></script>
+<script src="{% static 'custom/sales_return_update.js' %}"></script>
+
+<script>
+// Pass existing cart items to JavaScript
+window.existingCartItems = [
+    {% for item in items %}
+    {
+        item_code: "{{ item.item_code }}",
+        quantity: {{ item.quantity|default:'0' }},
+        rate: {{ item.rate|default:'0' }},
+        amount: {{ item.amount|default:'0' }},
+        mkt_value: {{ item.mkt_value|default:'0' }},
+        inv_value: {{ item.inv_value|default:'0' }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Update return function
+function updateReturn() {
+    // This will be handled by the updated sales_return_update.js
+    if (typeof window.SalesReturnUpdate !== 'undefined' && window.SalesReturnUpdate.handleFormSubmission) {
+        window.SalesReturnUpdate.handleFormSubmission();
+    } else {
+        console.error('SalesReturnUpdate module not loaded');
+        toastr.error('Error: Sales return update module not loaded');
+    }
+}
+
+// Clear cart function
+function clearCart() {
+    if (typeof window.clearCart === 'function') {
+        window.clearCart();
+    }
+}
+
+// Process return function (for compatibility)
+function processReturn() {
+    updateReturn();
+}
+</script>
 {% endblock custom_api_js %}

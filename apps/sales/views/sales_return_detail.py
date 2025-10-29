@@ -40,7 +40,7 @@ class SalesReturnDetailView(ZidRequiredMixin, ModulePermissionMixin, TemplateVie
             if not current_zid:
                 return {'error': 'No business context found'}
 
-            # Use the same SQL query as the AJAX endpoint
+            # Use the same SQL query as the AJAX endpoint with caitem join for item descriptions
             query = """
                 SELECT
                     t.ximtmptrn,
@@ -53,18 +53,25 @@ class SalesReturnDetailView(ZidRequiredMixin, ModulePermissionMixin, TemplateVie
                     t.xstatustrn,
                     d.xtorlno,
                     d.xitem,
+                    c.xdesc,
                     d.xqtyord,
                     d.xunit,
                     d.ximtrnnum,
                     d.xrate,
                     d.xval,
-                    d.xlineamt
+                    d.xlineamt,
+                    c.xgitem,
+                    c.xcitem
                 FROM imtemptrn t
                 INNER JOIN imtemptdt d
                     ON t.ximtmptrn = d.ximtmptrn
                     AND t.zid = d.zid
+                LEFT JOIN caitem c
+                    ON d.xitem = c.xitem
+                    AND d.zid = c.zid
                 WHERE t.zid = %s
                   AND t.ximtmptrn = %s
+                ORDER BY d.xtorlno
             """
 
             with connection.cursor() as cursor:
@@ -101,12 +108,15 @@ class SalesReturnDetailView(ZidRequiredMixin, ModulePermissionMixin, TemplateVie
                     line_item = {
                         'xtorlno': row[8] or '',
                         'xitem': row[9] or '',
-                        'xqtyord': float(row[10]) if row[10] else 0.0,
-                        'xunit': row[11] or '',
-                        'ximtrnnum': row[12] or '',
-                        'xrate': float(row[13]) if row[13] else 0.0,
-                        'xval': float(row[14]) if row[14] else 0.0,
-                        'xlineamt': float(row[15]) if row[15] else 0.0
+                        'xdesc': row[10] or '',  # Item description from caitem
+                        'xqtyord': float(row[11]) if row[11] else 0.0,
+                        'xunit': row[12] or '',
+                        'ximtrnnum': row[13] or '',
+                        'xrate': float(row[14]) if row[14] else 0.0,
+                        'xval': float(row[15]) if row[15] else 0.0,
+                        'xlineamt': float(row[16]) if row[16] else 0.0,
+                        'xgitem': row[17] or '',  # Item group from caitem
+                        'xcitem': row[18] or ''  # Item category from caitem
                     }
                     line_items.append(line_item)
 

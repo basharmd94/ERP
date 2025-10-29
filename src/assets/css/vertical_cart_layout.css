@@ -1,0 +1,133 @@
+/**
+ * Vertical Cart Layout Styles
+ * Used in Sales Return and Sales Return Update pages
+ * Provides responsive cart layout with fixed header/footer and scrollable content
+ */
+
+/* Cart section layout */
+.cart-section-wrapper {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cart card styling */
+#cart-section .card {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fixed header */
+#cart-section .card-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* Scrollable body */
+#cart-section .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Scrollable table container */
+.card-datatable {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 60vh;
+  max-height: calc(60vh - 50px);
+  /* Subtract header and footer height */
+}
+
+.card-datatable table {
+  margin-bottom: 0;
+}
+
+/* Fixed footer */
+#cart-section .card-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  flex-shrink: 0;
+  margin-top: 0;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Custom scrollbar for better appearance */
+.card-datatable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card-datatable::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.card-datatable::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 4px;
+}
+
+.card-datatable::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}
+
+/* Empty cart message styling */
+#empty-cart-message {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#empty-cart-message .card {
+  height: auto;
+  min-height: auto;
+}
+
+/* Ensure table rows are properly styled */
+#cart-datatable tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#cart-datatable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Action buttons in footer */
+.card-footer .row {
+  margin: 0;
+}
+
+.card-footer .btn {
+  margin-bottom: 0;
+}
+
+/* Reduce header row height */
+#cart-datatable thead th {
+  padding: 0.6rem 0.6rem !important;
+  font-size: 0.7rem !important;
+  line-height: 1.1 !important;
+}
+
+/* Reduce body row height */
+#cart-datatable tbody td {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 1rem !important;
+  /* ~13px */
+  line-height: 1.2 !important;
+  vertical-align: middle !important;
+}
+
+/* Optional: Reduce overall row height */
+#cart-datatable tbody tr {
+  height: auto !important;
+  /* Let content dictate height */
+}
