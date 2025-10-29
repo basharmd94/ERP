@@ -39,10 +39,48 @@ class UserGroupMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(BusinessModuleGroupAccess)
 class BusinessModuleGroupAccessAdmin(admin.ModelAdmin):
-    list_display = ('business', 'module', 'group', 'can_view', 'can_create', 'can_edit', 'can_delete')
-    list_filter = ('business', 'module', 'group', 'can_view', 'can_create', 'can_edit', 'can_delete')
-    search_fields = ('business__name', 'module__name', 'group__name')
-    autocomplete_fields = ('business', 'module', 'group')
+    list_display = ('business', 'module', 'groups_display', 'can_view', 'can_create', 'can_edit', 'can_delete')
+    list_filter = ('business', 'module', 'can_view', 'can_create', 'can_edit', 'can_delete')
+    search_fields = ('business__name', 'module__name', 'groups')
+    autocomplete_fields = ('business', 'module')
+    
+    def groups_display(self, obj):
+        """Display groups in a more readable format"""
+        groups = obj.get_group_list()
+        if len(groups) > 3:
+            return f"{', '.join(groups[:3])}... (+{len(groups)-3} more)"
+        return ', '.join(groups)
+    groups_display.short_description = 'Groups'
+    
+    fieldsets = (
+        (None, {
+            'fields': ('business', 'module')
+        }),
+        ('Groups', {
+            'fields': ('groups',),
+            'description': 'Enter group names separated by commas (e.g., Sales,Purchase,SOP). Available groups can be found in Permission Groups section.'
+        }),
+        ('Permissions', {
+            'fields': ('can_view', 'can_create', 'can_edit', 'can_delete'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        
+        # Add help text with available groups
+        available_groups = PermissionGroup.objects.filter(is_active=True).values_list('name', flat=True)
+        groups_list = ', '.join(available_groups)
+        
+        if 'groups' in form.base_fields:
+            form.base_fields['groups'].help_text = f"Available groups: {groups_list}"
+            form.base_fields['groups'].widget.attrs.update({
+                'placeholder': 'Sales,Purchase,SOP',
+                'style': 'width: 100%;'
+            })
+        
+        return form
 
 
 @admin.register(UserBusinessAccess)

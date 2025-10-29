@@ -77,17 +77,33 @@ def has_module_access(user, module_code, zid=None, business=None, permission_typ
         return False
 
     # Get all permission groups the user belongs to
-    user_groups = UserGroupMembership.objects.filter(user=user).values_list('group', flat=True)
-    print(f"DEBUG: User {user.username} belongs to groups: {list(user_groups)}")
+    user_group_objects = UserGroupMembership.objects.filter(user=user).select_related('group')
+    user_group_names = [membership.group.name for membership in user_group_objects]
+    print(f"DEBUG: User {user.username} belongs to groups: {user_group_names}")
     
     # Check if any of the user's groups have the required permission for this module in this business
     permission_field = f'can_{permission_type}'
-    has_permission = BusinessModuleGroupAccess.objects.filter(
+    
+    # Get all BusinessModuleGroupAccess records for this business and module
+    access_records = BusinessModuleGroupAccess.objects.filter(
         business=business,
-        module=module,  # Use the module object instead of code
-        group__in=user_groups,
+        module=module,
         **{permission_field: True}
-        ).exists()
+    )
+    
+    print(f"DEBUG: Found {access_records.count()} access records for {module.name} in {business.name}")
+    
+    # Check if any of the access records contain groups that the user belongs to
+    has_permission = False
+    for record in access_records:
+        record_groups = record.get_group_list()
+        print(f"DEBUG: Access record groups: {record_groups}")
+        
+        # Check if any of the user's groups are in this record's group list
+        if any(group_name in record_groups for group_name in user_group_names):
+            has_permission = True
+            print(f"DEBUG: Found matching group in record: {record.groups}")
+            break
     
     print(f"DEBUG: Permission check result for {permission_type}: {has_permission}")
     return has_permission
