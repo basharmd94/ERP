@@ -210,13 +210,16 @@
                   <option value="SRE-">SRE-</option>
                 </select>
               </div>
+
               <div class="col-md-3 mb-2">
-                <label for="customer" class="form-label">Customer <span class="text-danger">*</span></label>
-                <select id="customer" class="select2 form-select" data-allow-clear="true" required>
-                  <option></option>
+                <label for="receive-type" class="form-label">Receive Type <span class="text-danger">*</span></label>
+                <select id="receive-type" class="select2 form-select" data-allow-clear="true" required>
+                  <option value="0" selected>0-Opening Balance</option>
+                  <option value="1">1-Cash Purchase</option>
+                  <option value="2">2-Credit Purchase</option>
+                  <option value="3">3-MRR</option>
                 </select>
               </div>
-
               <div class="col-md-6 mb-2">
                 <label for="transaction-date" class="form-label">Date <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="transaction-date" placeholder="Select date" readonly required />
@@ -227,15 +230,14 @@
                 <input type="text" class="form-control" id="invoice-date" placeholder="Select date" readonly required />
               </div>
 
+
               <div class="col-md-6 mb-2">
-                <label for="receive-type" class="form-label">Receive Type <span class="text-danger">*</span></label>
-                <select id="receive-type" class="select2 form-select" data-allow-clear="true" required>
-                  <option value="0" selected>0-Opening Balance</option>
-                  <option value="1">1-Cash Purchase</option>
-                  <option value="2">2-Credit Purchase</option>
-                  <option value="3">3-MRR</option>
+                <label for="customer" class="form-label">Customer <span class="text-danger">*</span></label>
+                <select id="customer" class="select2 form-select" data-allow-clear="true" required>
+                  <option></option>
                 </select>
               </div>
+
 
               <div class="col-md-4 mb-2">
                 <label for="supplierSelect" class="form-label">Supplier Number <span class="text-danger">*</span></label>
@@ -319,9 +321,10 @@
                   <table id="cart-datatable" class="datatables-cart table table-hover">
                     <thead>
                       <tr>
+                        <th class="w-5 text-center">Sl</th>
                         <th class="w-25 text-start">Item Name</th>
                         <th class="w-10 text-center">Stock</th>
-                        <th class="w-20 text-start">Price</th>
+                        <th class="w-15 text-start">Price</th>
                         <th class="w-10 text-start">Qty</th>
                         <th class="w-10 text-center">Inv Value</th>
                         <th class="w-10 text-center">Mkt Value</th>

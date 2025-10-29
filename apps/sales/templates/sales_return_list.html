@@ -26,6 +26,7 @@
 {% block page_js %}
 <!-- Custom Sales Return Item List JS -->
 <script src="{% static 'custom/sales_return_item_list.js' %}"></script>
+
 {% endblock page_js %}
 
 {% block content %}
@@ -79,3 +80,10 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block custom_api_js %}
+
+<!-- Sales Return Delete Module -->
+<script src="{% static 'custom/sales_return_delete.js' %}"></script>
+
+{% endblock %}

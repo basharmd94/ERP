@@ -193,16 +193,16 @@ def sales_return_confirm(request):
             cursor.execute("""
                 INSERT INTO glheader (
                     ztime, zid, xvoucher, xref, xdate, xlong, xpostflag,
-                    xyear, xper, xstatusjv, xdatedue, xnumofper, xtrngl,
+                    xyear, xper, xstatusjv, xdatedue, zemail, xnumofper,  xnote,
                     xmember, xapproved, xaction
                 ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                 )
             """, [
                 current_timestamp,  # ztime
                 current_zid,  # zid
                 sret_voucher,  # xvoucher
-                f"***System generated Sales Return voucher on {invoice_date}",  # xref
+                sret_voucher,  # xref
                 invoice_date,  # xdate
                 f"** Sales Return Created By System On {invoice_date} **",  # xlong
                 True,  # xpostflag
@@ -210,8 +210,9 @@ def sales_return_confirm(request):
                 month,  # xper
                 "Balanced",  # xstatusjv
                 invoice_date,  # xdatedue
+                session_user,  # zemail
                 0,  # xnumofper
-                "SALE",  # xtrngl
+                f"***System Generated Sales Return voucher From IM- {invoice_date}",  # xnote
                 session_user,  # xmember
                 1,  # xapproved
                 "Journal"  # xaction

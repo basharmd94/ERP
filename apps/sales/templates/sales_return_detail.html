@@ -5,6 +5,23 @@
 
 {% block title %}Sales Return - Sales Return Detail {% endblock %}
 
+{% block vendor_css %}
+{{ block.super }}
+
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<!-- toastr CSS -->
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<!-- SweetAlert2 JS -->
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<!-- toastr JS -->
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+{% endblock vendor_js %}
+
+
 {% block content %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
@@ -38,6 +55,9 @@
       <a href="{% url 'sales-return-export-excel' transaction_id %}" class="btn btn-outline-success btn-sm">
         <i class="ti ti-file-spreadsheet me-1"></i>Export to Excel
       </a>
+      <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteSalesReturn('{{ transaction_id }}', '{{ header.ximtmptrn|default:transaction_id }}')">
+        <i class="ti ti-trash me-1"></i>Delete
+      </button>
     </div>
   </div>
   <div class="card-body">
@@ -215,3 +235,8 @@
 {% endif %}
 
 {% endblock %}
+
+{% block page_js %}
+<!-- Sales Return Delete Module -->
+<script src="{% static 'custom/sales_return_delete.js' %}"></script>
+{% endblock page_js %}

@@ -15,6 +15,8 @@ from .views.sales_return_print import sales_return_print
 from .views.sales_return_export_excel import SalesReturnExcelExportView
 from .views.sales_return_list import SalesReturnListView
 from .views.sales_return_item_list import sales_return_item_list
+from .views.sales_return_delete import sales_return_delete
+
 
 urlpatterns = [
      # +--------------------------+
@@ -62,7 +64,7 @@ urlpatterns = [
     # print/export sales return
     path("sales-return-print/<str:transaction_id>/", sales_return_print, name="sales-return-print"),
     # sales return delete
-    path("sales-return-delete/<str:transaction_id>/", SalesReturnView.as_view(), name="sales-return-delete"),
+    path("api/sales-return-delete/<str:transaction_id>/", sales_return_delete, name="sales-return-delete"),
     # sales return export excel
     path("sales-return-export-excel/<str:transaction_id>/", SalesReturnExcelExportView.as_view(), name="sales-return-export-excel"),
 ]

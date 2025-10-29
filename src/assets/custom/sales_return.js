@@ -140,9 +140,18 @@ $(document).ready(function() {
             //
             columns: [
                 {
+                    title: 'Sl',
+                    data: null,
+                    width: '5%',
+                    orderable: false,
+                    render: function(data, type, row, meta) {
+                        return `<div class="text-center fw-bold" style="font-size: 0.875rem;">${meta.row + 1}</div>`;
+                    }
+                },
+                {
                     title: 'Item Name',
                     data: null,
-                    width: '30%',
+                    width: '25%',
                     render: function(data, type, row) {
                         const description = row.xdesc || 'No Description';
                         const truncatedDesc = description.length > 30 ? description.substring(0, 30) + '...' : description;
@@ -168,7 +177,7 @@ $(document).ready(function() {
                 {
                     title: 'Price',
                     data: null,
-                    width: '20%',
+                    width: '15%',
                     render: function(data, type, row) {
                         const displayPrice = row.avg_price <= 0 ? row.xstdcost : row.avg_price;
                         return `
@@ -225,7 +234,7 @@ $(document).ready(function() {
                     render: function(data, type, row) {
                         return `
                             <button type="button"
-                                    class="btn btn-sm btn-outline-danger remove-item"
+                                    class="btn btn-sm btn-outline-danger remove-item "
                                     data-cart-id="${row.cartId}"
                                     title="Remove item"
                                     style="padding: 0.25rem 0.5rem;">
@@ -713,6 +722,8 @@ $(document).ready(function() {
 
     // Make validateForm globally accessible
     window.validateSalesReturnForm = validateForm;
+
+
 });
 
 /**
