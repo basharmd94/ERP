@@ -1,0 +1,163 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Access Denied - Permission Required{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/page-misc.css' %}" />
+<style>
+.misc-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    text-align: center;
+}
+
+.permission-details {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    max-width: 500px;
+}
+
+.permission-icon {
+    font-size: 4rem;
+    color: #ff6b6b;
+    margin-bottom: 1rem;
+}
+
+.btn-group-custom {
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-group-custom .btn {
+    min-width: 120px;
+}
+</style>
+{% endblock page_css %}
+
+{% block content %}
+<!-- Access Denied -->
+<div class="container-xxl container-p-y">
+  <div class="misc-wrapper">
+    <!-- Permission Denied Icon -->
+    <div class="permission-icon">
+      <i class="ti ti-shield-x"></i>
+    </div>
+    
+    <!-- Main Message -->
+    <h2 class="mb-3 text-danger">Access Denied</h2>
+    <h4 class="mb-3 text-muted">You don't have permission to access this page</h4>
+    
+    <!-- Permission Details -->
+    <div class="permission-details">
+      <div class="d-flex align-items-center justify-content-center mb-2">
+        <i class="ti ti-info-circle text-warning me-2"></i>
+        <strong>Permission Required</strong>
+      </div>
+      <p class="mb-2 text-muted">
+        This page requires specific module permissions that haven't been granted to your account.
+      </p>
+      {% if request.user.is_authenticated %}
+        <p class="mb-0 small">
+          <strong>User:</strong> {{ request.user.username }}<br>
+          {% if request.zid %}
+            <strong>Business:</strong> {{ request.zid }}
+          {% endif %}
+        </p>
+      {% endif %}
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="btn-group-custom d-flex flex-wrap justify-content-center">
+      <a href="{% url 'index' %}" class="btn btn-primary">
+        <i class="ti ti-home me-1"></i>
+        Back to Dashboard
+      </a>
+      
+      {% if request.META.HTTP_REFERER %}
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+          <i class="ti ti-arrow-left me-1"></i>
+          Go Back
+        </a>
+      {% endif %}
+      
+      <button type="button" class="btn btn-outline-info" onclick="contactAdmin()">
+        <i class="ti ti-mail me-1"></i>
+        Contact Admin
+      </button>
+    </div>
+    
+    <!-- Illustration -->
+    <div class="mt-4">
+      <img src="{% static 'img/illustrations/page-misc-you-are-not-authorized.png' %}" 
+           alt="Access Denied" 
+           width="200" 
+           class="img-fluid"
+           onerror="this.style.display='none'">
+    </div>
+  </div>
+</div>
+
+<!-- Background Shape -->
+<div class="container-fluid misc-bg-wrapper">
+  <img src="{% static 'img/illustrations/bg-shape-image-' %}{{ COOKIES.style|default:style }}.png" 
+       alt="background-shape" 
+       data-app-light-img="illustrations/bg-shape-image-light.png" 
+       data-app-dark-img="illustrations/bg-shape-image-dark.png"
+       onerror="this.style.display='none'">
+</div>
+<!-- /Access Denied -->
+{% endblock %}
+
+{% block page_js %}
+{{ block.super }}
+<script>
+function contactAdmin() {
+    // You can customize this function to show a contact form or redirect to support
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Contact Administrator',
+            html: `
+                <p>Please contact your system administrator to request access to this module.</p>
+                <div class="mt-3">
+                    <strong>Current User:</strong> {{ request.user.username }}<br>
+                    {% if request.zid %}<strong>Business:</strong> {{ request.zid }}<br>{% endif %}
+                    <strong>Requested Page:</strong> ${window.location.pathname}
+                </div>
+            `,
+            icon: 'info',
+            confirmButtonText: 'OK',
+            customClass: {
+                confirmButton: 'btn btn-primary'
+            }
+        });
+    } else {
+        alert('Please contact your system administrator to request access to this module.\n\nUser: {{ request.user.username }}\nPage: ' + window.location.pathname);
+    }
+}
+
+// Auto-hide alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            if (alert.classList.contains('alert-dismissible')) {
+                const closeBtn = alert.querySelector('.btn-close');
+                if (closeBtn) {
+                    closeBtn.click();
+                }
+            }
+        });
+    }, 5000);
+});
+</script>
+{% endblock page_js %}

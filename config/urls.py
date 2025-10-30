@@ -18,6 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from web_project.views import SystemView
+from apps.authentication.error_views import permission_denied_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -125,5 +126,6 @@ urlpatterns = [
     path("inventory/", include("apps.inventory.urls")),
 ]
 
+handler403 = permission_denied_view
 handler404 = SystemView.as_view(template_name="layout/system.html", status=404)
 handler500 = SystemView.as_view(template_name="layout/system.html", status=500)

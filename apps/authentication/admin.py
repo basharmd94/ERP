@@ -43,7 +43,7 @@ class BusinessModuleGroupAccessAdmin(admin.ModelAdmin):
     list_filter = ('business', 'module', 'can_view', 'can_create', 'can_edit', 'can_delete')
     search_fields = ('business__name', 'module__name', 'groups')
     autocomplete_fields = ('business', 'module')
-    
+
     def groups_display(self, obj):
         """Display groups in a more readable format"""
         groups = obj.get_group_list()
@@ -51,7 +51,7 @@ class BusinessModuleGroupAccessAdmin(admin.ModelAdmin):
             return f"{', '.join(groups[:3])}... (+{len(groups)-3} more)"
         return ', '.join(groups)
     groups_display.short_description = 'Groups'
-    
+
     fieldsets = (
         (None, {
             'fields': ('business', 'module')
@@ -65,21 +65,21 @@ class BusinessModuleGroupAccessAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        
+
         # Add help text with available groups
         available_groups = PermissionGroup.objects.filter(is_active=True).values_list('name', flat=True)
         groups_list = ', '.join(available_groups)
-        
+
         if 'groups' in form.base_fields:
             form.base_fields['groups'].help_text = f"Available groups: {groups_list}"
             form.base_fields['groups'].widget.attrs.update({
                 'placeholder': 'Sales,Purchase,SOP',
                 'style': 'width: 100%;'
             })
-        
+
         return form
 
 

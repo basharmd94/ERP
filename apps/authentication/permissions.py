@@ -47,7 +47,7 @@ def has_module_access(user, module_code, zid=None, business=None, permission_typ
         bool: True if the user has access, False otherwise
     """
     print(f"DEBUG: Checking module access for {user.username} - module: {module_code}, zid: {zid}, type: {permission_type}")
-    
+
     if user.is_superuser:
         print("DEBUG: User is superuser")
         return True
@@ -63,7 +63,7 @@ def has_module_access(user, module_code, zid=None, business=None, permission_typ
         except Business.DoesNotExist:
             print(f"DEBUG: No business found for ZID {zid}")
             return False
-            
+
     # First check if user has direct access to the business
     if not UserBusinessAccess.objects.filter(user=user, business=business).exists():
         print(f"DEBUG: User {user.username} does not have business access to {business}")
@@ -80,31 +80,31 @@ def has_module_access(user, module_code, zid=None, business=None, permission_typ
     user_group_objects = UserGroupMembership.objects.filter(user=user).select_related('group')
     user_group_names = [membership.group.name for membership in user_group_objects]
     print(f"DEBUG: User {user.username} belongs to groups: {user_group_names}")
-    
+
     # Check if any of the user's groups have the required permission for this module in this business
     permission_field = f'can_{permission_type}'
-    
+
     # Get all BusinessModuleGroupAccess records for this business and module
     access_records = BusinessModuleGroupAccess.objects.filter(
         business=business,
         module=module,
         **{permission_field: True}
     )
-    
+
     print(f"DEBUG: Found {access_records.count()} access records for {module.name} in {business.name}")
-    
+
     # Check if any of the access records contain groups that the user belongs to
     has_permission = False
     for record in access_records:
         record_groups = record.get_group_list()
         print(f"DEBUG: Access record groups: {record_groups}")
-        
+
         # Check if any of the user's groups are in this record's group list
         if any(group_name in record_groups for group_name in user_group_names):
             has_permission = True
             print(f"DEBUG: Found matching group in record: {record.groups}")
             break
-    
+
     print(f"DEBUG: Permission check result for {permission_type}: {has_permission}")
     return has_permission
 
@@ -122,7 +122,7 @@ def has_module_permission(user, zid, permission_code):
         bool: True if the user has permission, False otherwise
     """
     print(f"DEBUG: Checking module permission for user {user.username} (superuser: {user.is_superuser})")
-    
+
     if user.is_superuser:
         print(f"DEBUG: User {user.username} is superuser, granting permission")
         return True
