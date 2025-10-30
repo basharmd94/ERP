@@ -1,0 +1,106 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Sales - Reports {% endblock %}
+
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+{% endblock vendor_js %}
+
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"> <a href="javascript:void(0);">Sales</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'sales-reports' %}">Sales Reports</a></li>
+    <li class="breadcrumb-item active"><a href="javascript:void(0);">Daily Sales Reports</a></li>
+  </ol>
+</nav>
+
+
+<div class="row justify-content-center">
+  <!-- Daily Sales Report Card -->
+  <div class="col-5">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="mb-0">Daily Sales Report</h5>
+          <small class="text-muted">Generate daily sales reports with customizable filters</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <form id="dailySalesReportForm" method="get" action="{% url 'daily-sales-report-export' %}">
+          {% csrf_token %}
+          <div class="d-flex flex-column gap-3">
+            <!-- From Date -->
+            <div>
+              <label for="from_date" class="form-label fw-medium">
+                <i class="ti ti-calendar me-1"></i>From Date
+              </label>
+              <input type="text" id="from_date" name="from_date" placeholder="YYYY-mm-dd" class="form-control" required />
+            </div>
+
+            <!-- To Date -->
+            <div>
+              <label for="to_date" class="form-label fw-medium">
+                <i class="ti ti-calendar me-1"></i>To Date
+              </label>
+              <input type="text" id="to_date" name="to_date" placeholder="YYYY-mm-dd" class="form-control" required />
+            </div>
+
+            <!-- Report Format -->
+            <div>
+              <label for="report_type" class="form-label fw-medium">
+                <i class="ti ti-file-type-pdf me-1"></i>Report Format (Export As)
+              </label>
+              <select id="report_type" name="report_type" class="form-select select2" required>
+                <option value="pdf" selected>PDF</option>
+                <option value="excel">Excel</option>
+              </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-2">
+              <div class="d-flex justify-content-center gap-2">
+                <button type="submit" class="btn btn-primary px-3">
+                  <i class="ti ti-download me-1"></i>
+                  Generate Report
+                </button>
+                <button type="reset" class="btn btn-outline-secondary px-3">
+                  <i class="ti ti-refresh me-1"></i>
+                  Reset Form
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block custom_api_js %}
+<script src="{% static 'custom/reports_utils.js' %}"></script>
+
+{% endblock custom_api_js %}

@@ -1,0 +1,131 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Sales - Reports {% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="javascript:void(0);">Sales</a>
+    </li>
+    <li class="breadcrumb-item active">Sales Reports</li>
+  </ol>
+</nav>
+
+
+<div class="row justify-content-center">
+  <!-- Sales Reports Card -->
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="mb-0">Sales Reports</h5>
+          <small class="text-muted">Access comprehensive sales analytics</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <!-- Daily Sales Report -->
+          <li class="mb-3 pb-1">
+            <div class="d-flex align-items-start">
+              <div class="badge bg-label-primary p-2 me-3 rounded"><i class="ti ti-calendar-stats ti-sm"></i></div>
+              <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
+                <div class="me-2">
+                  <h6 class="mb-0">Daily Sales</h6>
+                  <small class="text-muted">View daily sales performance and trends</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <a href="{% url 'daily-sales-report' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="ti ti-eye ti-xs me-1"></i>View
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <!-- Item Wise Sales Report -->
+          <li class="mb-3 pb-1">
+            <div class="d-flex align-items-start">
+              <div class="badge bg-label-success p-2 me-3 rounded"><i class="ti ti-package ti-sm"></i></div>
+              <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
+                <div class="me-2">
+                  <h6 class="mb-0">Item Wise Sales</h6>
+                  <small class="text-muted">Analyze sales performance by individual items</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <a href="#" class="btn btn-sm btn-outline-success">
+                    <i class="ti ti-eye ti-xs me-1"></i>View
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <!-- Salesperson Wise Daily Sales Report -->
+          <li class="mb-3 pb-1">
+            <div class="d-flex align-items-start">
+              <div class="badge bg-label-info p-2 me-3 rounded"><i class="ti ti-users ti-sm"></i></div>
+              <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
+                <div class="me-2">
+                  <h6 class="mb-0">Salesperson Wise Daily Sales</h6>
+                  <small class="text-muted">Track daily sales by individual salesperson</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <a href="#" class="btn btn-sm btn-outline-info">
+                    <i class="ti ti-eye ti-xs me-1"></i>View
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <!-- Salesperson Daily Sales Summary Report -->
+          <li class="mb-3 pb-1">
+            <div class="d-flex align-items-start">
+              <div class="badge bg-label-warning p-2 me-3 rounded"><i class="ti ti-chart-pie ti-sm"></i></div>
+              <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
+                <div class="me-2">
+                  <h6 class="mb-0">Salesperson Daily Sales Summary</h6>
+                  <small class="text-muted">Summary view of daily sales by salesperson</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <a href="#" class="btn btn-sm btn-outline-warning">
+                    <i class="ti ti-eye ti-xs me-1"></i>View
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <!-- Additional Reports Placeholder -->
+          <li class="mb-0 pb-1">
+            <div class="d-flex align-items-start">
+              <div class="badge bg-label-secondary p-2 me-3 rounded"><i class="ti ti-plus ti-sm"></i></div>
+              <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
+                <div class="me-2">
+                  <h6 class="mb-0">More Reports</h6>
+                  <small class="text-muted">Additional reporting features coming soon</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <button class="btn btn-sm btn-outline-secondary" disabled>
+                    <i class="ti ti-clock ti-xs me-1"></i>Soon
+                  </button>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block custom_api_js %}
+
+{% endblock custom_api_js %}

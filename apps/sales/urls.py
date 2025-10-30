@@ -17,6 +17,10 @@ from .views.sales_return_list import SalesReturnListView
 from .views.sales_return_item_list import sales_return_item_list
 from .views.sales_return_delete import sales_return_delete
 from .views.sales_return_update import SalesReturnUpdateView
+from .views.reports.sales_reports import SalesReportsView
+from .views.reports.daily_sales_report import DailySalesReportsView
+from .views.reports.daily_sales_report_export import daily_sales_report_export
+
 
 
 urlpatterns = [
@@ -68,4 +72,18 @@ urlpatterns = [
     path("api/sales-return-delete/<str:transaction_id>/", sales_return_delete, name="sales-return-delete"),
     # sales return export excel
     path("sales-return-export-excel/<str:transaction_id>/", SalesReturnExcelExportView.as_view(), name="sales-return-export-excel"),
+
+    # +--------------------------+
+    # |  Sales Reports URLS      |
+    # +--------------------------+
+    # Sales Reports Main Page
+    path("reports/", SalesReportsView.as_view(), name="sales-reports"),
+    # Daily Sales Reports
+    path("reports/daily-sales-report/", DailySalesReportsView.as_view(), name="daily-sales-report"),
+
+    # Individual Report URLs
+    # Daily Sales Report Export (PDF/Excel)
+    path("reports/daily-sales-report-export/", daily_sales_report_export, name="daily-sales-report-export"),
+
+
 ]

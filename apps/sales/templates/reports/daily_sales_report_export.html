@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Daily Sales Report</title>
+    <style>
+    /* Define page and footer frames */
+    @page {
+      size: letter;
+      margin: 0.5in 0.5in 0.8in 0.5in;
+
+      /* Footer frame at bottom */
+      @frame footer_frame {
+        -pdf-frame-content: footerContent;
+        bottom: 0in;
+        margin-left: 0.5in;
+        margin-right: 0.5in;
+        height: 0.8in;
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      line-height: 1.2;
+      margin: 0;
+      padding: 0;
+      color: #000;
+    }
+
+    /* Table styles */
+    .sales-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin: 8px 0;
+      font-size: 9px;
+    }
+
+    .sales-table th,
+    .sales-table td {
+      border: 1px solid #000;
+      padding: 2px;
+      text-align: center;
+      word-wrap: break-word;
+    }
+
+    .sales-table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      font-size: 10px;
+    }
+
+    .sales-table .left {
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    .sales-table .right {
+      text-align: right;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8px;
+      margin: 5px 0;
+    }
+
+    .summary-table td {
+      border: 1px solid #000;
+      padding: 2px 4px;
+    }
+
+    .summary-table .label {
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .summary-table .amount {
+      text-align: right;
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .date-range {
+      font-size: 12px;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    </style>
+  </head>
+
+  <body>
+
+    <!-- Company Header -->
+    <div class="report-header">
+      <div style="font-size: 20px; font-weight: bold;">
+        {{ business.business_name|default:"My Business" }}
+      </div>
+      <div>{{ business.business_address|default:"My Business Address" }}</div>
+      <div>Mobile: {{ business.business_mobile|default:"My Business Mobile" }}</div>
+      <div>Email: {{ business.business_email|default:"My Business Email" }}</div>
+      <div>Website: {{ business.business_website|default:"My Business Website" }}</div>
+      <div style="font-size: 14px; font-weight: bold; text-decoration: underline; margin-top: 10px;">
+        DAILY SALES REPORT
+      </div>
+      <div class="date-range">
+        From: {{ from_date }} To: {{ to_date }}
+      </div>
+    </div>
+
+    <!-- Report Information -->
+    <div style="margin-bottom: 8px;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+        <tr>
+          <td style="width: 50%;">
+            <strong>Report Generated:</strong> {{ print_date }}<br>
+            <strong>Total Records:</strong> {{ total_records }}
+          </td>
+          <td style="width: 50%; text-align: right;">
+            <strong>Date Range:</strong> {{ from_date }} to {{ to_date }}<br>
+            <strong>Report Type:</strong> Daily Sales Summary
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    {% if sales_data %}
+    <table class="sales-table">
+      <thead>
+        <tr>
+          <th style="width: 8%;">S.I.</th>
+          <th style="width: 12%;">Date</th>
+          <th style="width: 15%;">Order Number</th>
+          <th style="width: 12%;">Bank</th>
+          <th style="width: 13%;">Card Amount</th>
+          <th style="width: 13%;">Cash Amount</th>
+          <th style="width: 12%;">Discount</th>
+          <th style="width: 15%;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in sales_data %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ item.xdate }}</td>
+          <td class="left">{{ item.xordernum|default:"-" }}</td>
+          <td class="left">{{ item.xsalescat|default:"-" }}</td>
+          <td class="right">{{ item.xdtcomm|floatformat:2 }}</td>
+          <td class="right">{{ item.cash_amount|floatformat:2 }}</td>
+          <td class="right">{{ item.discount|floatformat:2 }}</td>
+          <td class="right">{{ item.xtotamt|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr style="background-color: #f0f0f0; font-weight: bold; border-top: 2px solid #000;">
+          <td colspan="4" style="text-align: right; padding: 8px;">Grand Total:</td>
+          <td class="right" style="padding: 8px;">{{ grand_totals.total_card_amount|floatformat:2 }}</td>
+          <td class="right" style="padding: 8px;">{{ grand_totals.total_cash_amount|floatformat:2 }}</td>
+          <td class="right" style="padding: 8px;">{{ grand_totals.total_discount|floatformat:2 }}</td>
+          <td class="right" style="padding: 8px;">{{ grand_totals.grand_total|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Summary Section -->
+    <div style="margin-top: 20px;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+        <tr>
+          <td style="width: 70%; border: none;"></td>
+          <td style="width: 30%; border: 1px solid #000; padding: 5px;">
+            <strong>Report Summary</strong><br>
+            Total Records: {{ total_records }}<br>
+            Date Range: {{ from_date }} to {{ to_date }}
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    {% else %}
+    <div style="margin: 50px 0; color: #666; text-align: center;">
+      <h3 style="font-size: 14px;">NO SALES DATA FOUND</h3>
+      <p>No sales records found for the period: {{ from_date }} to {{ to_date }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Notes -->
+    <div style="font-size: 8px; font-weight: bold; margin-top: 15px;">
+      <strong>Note:</strong> This report shows daily sales data including order numbers, payment methods, amounts, and discounts for the specified date range.
+    </div>
+
+    <!-- Signature -->
+    <table style="width: 100%; margin-top: 30px; font-size: 10px; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="border-top: 1px solid #000; padding: 3px 0; width: 25%;">
+          Prepared By
+        </td>
+        <td style="width: 25%;"></td>
+        <td style="border-top: 1px solid #000; width: 25%;">
+          Reviewed By
+        </td>
+        <td style="width: 25%;"></td>
+      </tr>
+    </table>
+
+    <!-- Proper Footer (Fixed Bottom via @frame) -->
+    <div id="footerContent">
+      <div style="text-align: center; font-size: 9px; color: #000;">
+        System Generated Daily Sales Report<br>
+        Generated on: {{ print_date }} |
+        Copyright © 2025
+        <b>DreamErp BD</b> | Bashar@01675373799 | All Rights Reserved<br>
+        Page
+        <pdf:pagenumber /> of
+        <pdf:pagecount />
+      </div>
+    </div>
+
+  </body>
+
+</html>
