@@ -5,7 +5,9 @@ $(document).ready(function() {
     autoclose: true,
     todayHighlight: true,
     orientation: 'bottom auto',
-    clearBtn: true
+    clearBtn: true,
+    fullscreen: true,
+
   });
   // Set default dates (last 30 days)
   var today = new Date();

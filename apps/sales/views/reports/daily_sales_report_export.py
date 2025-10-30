@@ -3,11 +3,13 @@ from django.db import connection
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from xhtml2pdf import pisa
-from io import BytesIO
+from io import BytesIO, StringIO
 from datetime import datetime
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from django.contrib import messages
+import csv
 
 
 @login_required
@@ -97,11 +99,30 @@ def daily_sales_report_export(request):
         'grand_total': sum(item['xtotamt'] for item in sales_data)
     }
 
+    # Check date range for PDF export - automatically switch to CSV if >= 31 days
+    if report_format.lower() == 'pdf':
+        try:
+            from_date_obj = datetime.strptime(from_date, '%Y-%m-%d')
+            to_date_obj = datetime.strptime(to_date, '%Y-%m-%d')
+            date_diff = (to_date_obj - from_date_obj).days + 1  # +1 to include both dates
+
+            if date_diff >= 31:
+                print(f"DEBUG: Date range is {date_diff} days (>=31), automatically switching PDF to CSV for performance")
+                messages.warning(request, f"Date range is {date_diff} days (>=31), automatically switching to CSV format for performance.")
+                report_format = 'csv'  # Override format to CSV
+        except ValueError:
+            # If date parsing fails, continue with original format
+            print("DEBUG: Date parsing failed, continuing with original format")
+            pass
+
     # Generate report based on format
     print(f"DEBUG: Checking format - report_format.lower() = '{report_format.lower()}'")
     if report_format.lower() == 'excel':
         print("DEBUG: Generating Excel report")
         return generate_excel_report(sales_data, business_data, from_date, to_date)
+    elif report_format.lower() == 'csv':
+        print("DEBUG: Generating CSV report")
+        return generate_csv_report(sales_data, business_data, from_date, to_date)
     else:
         print("DEBUG: Generating PDF report")
         return generate_pdf_report(sales_data, business_data, from_date, to_date, grand_totals)
@@ -216,5 +237,61 @@ def generate_excel_report(sales_data, business_data, from_date, to_date):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = f'attachment; filename="daily_sales_report_{from_date}_to_{to_date}.xlsx"'
+
+    return response
+
+
+def generate_csv_report(sales_data, business_data, from_date, to_date):
+    """Generate CSV report using Python's csv module"""
+
+    # Create StringIO buffer
+    output = StringIO()
+    writer = csv.writer(output)
+
+    # Write business header information
+    writer.writerow([business_data['business_name']])
+    writer.writerow([business_data['business_address']])
+    writer.writerow([f"Mobile: {business_data['business_mobile']} | Email: {business_data['business_email']}"])
+    writer.writerow([f"Website: {business_data['business_website']}"])
+    writer.writerow([])  # Empty row
+
+    # Write report title and date range
+    writer.writerow(['DAILY SALES REPORT'])
+    writer.writerow([f'From: {from_date} To: {to_date}'])
+    writer.writerow([f'Generated on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'])
+    writer.writerow([])  # Empty row
+
+    # Write column headers
+    headers = ['Date', 'Order Number', 'Bank', 'Card Amount', 'Cash Amount', 'Discount', 'Total']
+    writer.writerow(headers)
+
+    # Write data rows
+    for item in sales_data:
+        writer.writerow([
+            item['xdate'],
+            item['xordernum'],
+            item['xsalescat'],
+            item['xdtcomm'],
+            item['cash_amount'],
+            item['discount'],
+            item['xtotamt']
+        ])
+
+    # Write summary totals
+    writer.writerow([])  # Empty row
+    writer.writerow(['SUMMARY'])
+    writer.writerow(['Total Records:', len(sales_data)])
+    writer.writerow(['Total Card Amount:', sum(item['xdtcomm'] for item in sales_data)])
+    writer.writerow(['Total Cash Amount:', sum(item['cash_amount'] for item in sales_data)])
+    writer.writerow(['Total Discount:', sum(item['discount'] for item in sales_data)])
+    writer.writerow(['Grand Total:', sum(item['xtotamt'] for item in sales_data)])
+
+    # Get CSV content
+    csv_content = output.getvalue()
+    output.close()
+
+    # Create HTTP response
+    response = HttpResponse(csv_content, content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="daily_sales_report_{from_date}_to_{to_date}.csv"'
 
     return response
