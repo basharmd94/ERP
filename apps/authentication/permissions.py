@@ -93,16 +93,16 @@ def has_module_access(user, module_code, zid=None, business=None, permission_typ
 
     print(f"DEBUG: Found {access_records.count()} access records for {module.name} in {business.name}")
 
-    # Check if any of the access records contain groups that the user belongs to
+    # Check if any of the access records have groups that the user belongs to
     has_permission = False
     for record in access_records:
-        record_groups = record.get_group_list()
-        print(f"DEBUG: Access record groups: {record_groups}")
+        record_group_name = record.group.name
+        print(f"DEBUG: Access record group: {record_group_name}")
 
-        # Check if any of the user's groups are in this record's group list
-        if any(group_name in record_groups for group_name in user_group_names):
+        # Check if the user belongs to this record's group
+        if record_group_name in user_group_names:
             has_permission = True
-            print(f"DEBUG: Found matching group in record: {record.groups}")
+            print(f"DEBUG: Found matching group in record: {record_group_name}")
             break
 
     print(f"DEBUG: Permission check result for {permission_type}: {has_permission}")

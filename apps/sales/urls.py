@@ -7,7 +7,7 @@ from .views.print_invoice import print_invoice
 from .views.todays_sales import todays_sales_ajax, todays_sales_summary
 from .views.edit_sales import SalesEditView
 from .views.edit_sales_api import update_transaction_api, delete_transaction_api
-from .views.day_end_process import DayEndProcess, delete_day_end_process
+from .views.day_end_process import DayEndProcess, create_day_end_process, delete_day_end_process
 from .views.sales_return import SalesReturnView
 from .views.sales_return_confirm import sales_return_confirm
 from .views.sales_return_detail import SalesReturnDetailView
@@ -36,6 +36,7 @@ urlpatterns = [
     # |   Day End Process URLS   |
     # +--------------------------+
     path("day-end-process/", DayEndProcess.as_view(), name="day-end-process"),
+    path("create-day-end-process/", create_day_end_process, name="create-day-end-process"),
     # create a block comment Sales Return URLs
     path("api/delete-day-end-process/<str:date>/", delete_day_end_process, name="delete-day-end-process"),
     # AJAX API endpoints

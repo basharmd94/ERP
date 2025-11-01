@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load i18n %}
+{% load menu_permissions %}
 
 {% block title %}Day End Process{% endblock %}
 
@@ -11,130 +12,6 @@
 <link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
 {% endblock vendor_css %}
-
-{% block page_css %}
-<style>
-    .process-card {
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    
-    .process-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #ffffff !important;
-        border-radius: 0.5rem 0.5rem 0 0;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-    
-    .process-header h4,
-    .process-header p {
-        color: #ffffff !important;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-    
-    .date-input-group {
-        position: relative;
-    }
-    
-    .date-input-group .input-group-text {
-        background-color: #f8f9fa;
-        border-color: #dee2e6;
-    }
-    
-    .process-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        padding: 12px 30px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-    }
-    
-    .process-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    }
-    
-    .process-btn:disabled {
-        background: #6c757d;
-        transform: none;
-        box-shadow: none;
-    }
-    
-    .status-card {
-        border-left: 4px solid #28a745;
-        background-color: #f8f9fa;
-    }
-    
-    .loading-spinner {
-        display: none;
-    }
-    
-    .process-result {
-        display: none;
-        margin-top: 20px;
-    }
-    
-    .result-success {
-        border-left: 4px solid #28a745;
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .result-error {
-        border-left: 4px solid #dc3545;
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
-    .result-warning {
-        border-left: 4px solid #ffc107;
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    /* SweetAlert2 Custom Styling */
-    .swal-wide {
-        width: 600px !important;
-    }
-    
-    .swal2-popup .swal2-actions {
-        gap: 0.5rem;
-    }
-    
-    .swal2-popup .btn {
-        font-weight: 500;
-        padding: 0.5rem 1.5rem;
-        border-radius: 0.375rem;
-        transition: all 0.15s ease-in-out;
-    }
-    
-    .swal2-popup .btn-primary {
-        background-color: #667eea;
-        border-color: #667eea;
-        color: #fff;
-    }
-    
-    .swal2-popup .btn-primary:hover {
-        background-color: #5a6fd8;
-        border-color: #5a6fd8;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-    
-    .swal2-popup .btn-label-secondary {
-        background-color: transparent;
-        border-color: #6c757d;
-        color: #6c757d;
-    }
-    
-    .swal2-popup .btn-label-secondary:hover {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        color: #fff;
-    }
-</style>
-{% endblock %}
 
 {% block vendor_js %}
 {{ block.super }}
@@ -150,156 +27,138 @@
 
 {% block content %}
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-            <a href="javascript:void(0);">Sales</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="javascript:void(0);">Process</a>
-        </li>
-        <li class="breadcrumb-item active">Day End Process</li>
-    </ol>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="javascript:void(0);">Sales</a>
+    </li>
+    <li class="breadcrumb-item active">Day End Process</li>
+  </ol>
 </nav>
 
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- Main Process Card -->
-            <div class="card process-card">
-                <div class="card-header process-header text-center py-4">
-                    <h4 class="mb-0">
-                        <i class="ti ti-calendar-event me-2"></i>
-                        Day End Process
-                    </h4>
-                    <p class="mb-0 mt-2 opacity-75">Generate daily sales vouchers and accounting entries</p>
-                </div>
-                
-                <div class="card-body p-4">
-                    <form id="day-end-form">
-                        {% csrf_token %}
-                        
-                        <!-- Date Selection -->
-                        <div class="mb-4">
-                            <label for="process-date" class="form-label fw-semibold">
-                                <i class="ti ti-calendar me-1"></i>
-                                Select Process Date
-                            </label>
-                            <div class="input-group date-input-group">
-                                <span class="input-group-text">
-                                    <i class="ti ti-calendar"></i>
-                                </span>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="process-date" 
-                                       name="xdate"
-                                       placeholder="YYYY-MM-DD"
-                                       required>
-                            </div>
-                            <div class="form-text">
-                                <i class="ti ti-info-circle me-1"></i>
-                                Select the date for which you want to process the day end operations
-                            </div>
-                        </div>
-                        
-                        <!-- Process Buttons -->
-                        <div class="text-center mb-4">
-                            <button type="submit" 
-                                    class="btn btn-primary process-btn me-3" 
-                                    id="process-btn">
-                                <span class="btn-text">
-                                    <i class="ti ti-play me-2"></i>
-                                    Start Day End Process
-                                </span>
-                                <span class="loading-spinner">
-                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                    Processing...
-                                </span>
-                            </button>
-                            
-                            <button type="button" 
-                                    class="btn btn-danger delete-btn" 
-                                    id="delete-btn">
-                                <i class="ti ti-trash me-2"></i>
-                                Delete Day End Process
-                            </button>
-                        </div>
-                        
-                        <!-- Process Status -->
-                        <div class="process-result" id="process-result">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="card-title">
-                                        <i class="ti ti-check-circle me-2"></i>
-                                        Process Result
-                                    </h6>
-                                    <div id="result-content"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+
+<div class="row">
+  <!-- Main Process Form -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="ti ti-calendar-event me-2"></i>
+          Day End Process
+        </h5>
+        <small class="text-muted">Generate daily sales vouchers and accounting entries</small>
+      </div>
+
+      <div class="card-body">
+        <form id="day-end-form">
+          {% csrf_token %}
+
+          <!-- Date Selection -->
+          <div class="mb-3">
+            <label for="process-date" class="form-label">
+              <i class="ti ti-calendar me-1"></i>
+              Process Date
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="ti ti-calendar"></i>
+              </span>
+              <input type="text" class="form-control" id="process-date" name="xdate" placeholder="YYYY-MM-DD" required>
             </div>
-            
-            <!-- Information Card -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="ti ti-info-circle me-2"></i>
-                        Process Information
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="fw-semibold mb-2">What this process does:</h6>
-                            <ul class="list-unstyled">
-                                <li class="mb-1">
-                                    <i class="ti ti-check text-success me-2"></i>
-                                    Aggregates daily sales data
-                                </li>
-                                <li class="mb-1">
-                                    <i class="ti ti-check text-success me-2"></i>
-                                    Generates accounting vouchers
-                                </li>
-                                <li class="mb-1">
-                                    <i class="ti ti-check text-success me-2"></i>
-                                    Creates GL entries for cash/card sales
-                                </li>
-                                <li class="mb-1">
-                                    <i class="ti ti-check text-success me-2"></i>
-                                    Processes bank transactions
-                                </li>
-                                <li class="mb-1">
-                                    <i class="ti ti-check text-success me-2"></i>
-                                    Handles discount and return amounts
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="fw-semibold mb-2">Important Notes:</h6>
-                            <ul class="list-unstyled">
-                                <li class="mb-1">
-                                    <i class="ti ti-alert-triangle text-warning me-2"></i>
-                                    Process can only be run once per date
-                                </li>
-                                <li class="mb-1">
-                                    <i class="ti ti-alert-triangle text-warning me-2"></i>
-                                    Ensure all sales are completed for the day
-                                </li>
-                                <li class="mb-1">
-                                    <i class="ti ti-alert-triangle text-warning me-2"></i>
-                                    Process creates permanent accounting entries
-                                </li>
-                                <li class="mb-1">
-                                    <i class="ti ti-alert-triangle text-warning me-2"></i>
-                                    Cannot be undone without manual intervention
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-text">
+              Select the date for which you want to process the day end operations
             </div>
-        </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2 mb-3">
+            <button type="submit" class="btn btn-primary" id="process-btn" {% if not user|has_module_access_permission:"day_end_process:create" %}disabled{% endif %}>
+              <span class="btn-text">
+                <i class="ti ti-play me-2"></i>
+                Start Process
+              </span>
+              <span class="d-none" id="loading-spinner">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Processing...
+              </span>
+            </button>
+
+            <button type="button" class="btn btn-label-danger" id="delete-btn" {% if not user|has_module_access_permission:"day_end_process:delete" %}disabled{% endif %}>
+              <i class="ti ti-trash me-2"></i>
+              Delete Process
+            </button>
+          </div>
+
+          <!-- Process Result -->
+          <div class="d-none" id="process-result">
+            <div class="alert alert-primary" role="alert">
+              <h6 class="alert-heading">
+                <i class="ti ti-check-circle me-2"></i>
+                Process Result
+              </h6>
+              <div id="result-content"></div>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
+
+  <!-- Information Panel -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="card-title mb-0">
+          <i class="ti ti-info-circle me-2"></i>
+          Process Information
+        </h6>
+      </div>
+      <div class="card-body">
+        <h6 class="mb-3">What this process does:</h6>
+        <ul class="list-unstyled mb-4">
+          <li class="mb-2">
+            <i class="ti ti-check text-success me-2"></i>
+            <small>Aggregates daily sales data</small>
+          </li>
+          <li class="mb-2">
+            <i class="ti ti-check text-success me-2"></i>
+            <small>Generates accounting vouchers</small>
+          </li>
+          <li class="mb-2">
+            <i class="ti ti-check text-success me-2"></i>
+            <small>Creates GL entries for cash/card sales</small>
+          </li>
+          <li class="mb-2">
+            <i class="ti ti-check text-success me-2"></i>
+            <small>Processes bank transactions</small>
+          </li>
+          <li class="mb-2">
+            <i class="ti ti-check text-success me-2"></i>
+            <small>Handles discount and return amounts</small>
+          </li>
+        </ul>
+
+        <h6 class="mb-3">Important Notes:</h6>
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <i class="ti ti-alert-triangle text-warning me-2"></i>
+            <small>Process can only be run once per date</small>
+          </li>
+          <li class="mb-2">
+            <i class="ti ti-alert-triangle text-warning me-2"></i>
+            <small>Ensure all sales are completed for the day</small>
+          </li>
+          <li class="mb-2">
+            <i class="ti ti-alert-triangle text-warning me-2"></i>
+            <small>Process creates permanent accounting entries</small>
+          </li>
+          <li class="mb-2">
+            <i class="ti ti-alert-triangle text-warning me-2"></i>
+            <small>Cannot be undone without manual intervention</small>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 {% endblock content %}

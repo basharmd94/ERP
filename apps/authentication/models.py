@@ -59,44 +59,18 @@ class BusinessModuleGroupAccess(models.Model):
     """Model to manage group access to specific modules within businesses"""
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='module_permissions')
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
-    groups = models.TextField(
-        help_text="Comma-separated list of group names (e.g., 'Sales,Purchase,SOP')"
-    )
+    group = models.ForeignKey(PermissionGroup, on_delete=models.CASCADE)
     can_view = models.BooleanField(default=True)
     can_create = models.BooleanField(default=False)
     can_edit = models.BooleanField(default=False)
     can_delete = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('business', 'module')
+        unique_together = ('business', 'module', 'group')
         verbose_name_plural = 'Business Module Group Access'
 
     def __str__(self):
-        return f"{self.groups} - {self.module.name} - {self.business.name}"
-
-    def get_group_list(self):
-        """Return a list of group names from the comma-separated string"""
-        if not self.groups:
-            return []
-        return [group.strip() for group in self.groups.split(',') if group.strip()]
-
-    def has_group(self, group_name):
-        """Check if a specific group is in the comma-separated list"""
-        return group_name in self.get_group_list()
-
-    def add_group(self, group_name):
-        """Add a group to the comma-separated list if not already present"""
-        groups = self.get_group_list()
-        if group_name not in groups:
-            groups.append(group_name)
-            self.groups = ','.join(groups)
-
-    def remove_group(self, group_name):
-        """Remove a group from the comma-separated list"""
-        groups = self.get_group_list()
-        if group_name in groups:
-            groups.remove(group_name)
-            self.groups = ','.join(groups)
+        return f"{self.group.name} - {self.module.name} - {self.business.name}"
 
 
 class UserBusinessAccess(models.Model):

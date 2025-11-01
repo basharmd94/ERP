@@ -45,6 +45,12 @@ function setupFormHandlers() {
     $('#day-end-form').on('submit', function(e) {
         e.preventDefault();
 
+        // Check if process button is disabled
+        if ($('#process-btn').prop('disabled')) {
+            toastr.warning('You do not have permission to start the day-end process');
+            return;
+        }
+
         if (validateForm()) {
             showConfirmationDialog();
         }
@@ -53,6 +59,12 @@ function setupFormHandlers() {
     // Delete button handler
     $('#delete-btn').on('click', function(e) {
         e.preventDefault();
+
+        // Check if delete button is disabled
+        if ($(this).prop('disabled')) {
+            toastr.warning('You do not have permission to delete the day-end process');
+            return;
+        }
 
         if (validateForm()) {
             showDeleteConfirmationDialog();
@@ -210,7 +222,7 @@ function submitDayEndProcess() {
     showLoadingState();
 
     $.ajax({
-        url: window.location.pathname, // Same URL as current page
+        url: '/sales/create-day-end-process/', // Use the new API endpoint
         type: 'POST',
         data: formData,
         dataType: 'json',
@@ -256,7 +268,7 @@ function showLoadingState() {
     const btn = $('#process-btn');
     btn.prop('disabled', true);
     btn.find('.btn-text').hide();
-    btn.find('.loading-spinner').show();
+    $('#loading-spinner').removeClass('d-none');
 
     // Disable form
     $('#day-end-form input, #day-end-form button').prop('disabled', true);
@@ -270,7 +282,7 @@ function hideLoadingState() {
     const btn = $('#process-btn');
     btn.prop('disabled', false);
     btn.find('.btn-text').show();
-    btn.find('.loading-spinner').hide();
+    $('#loading-spinner').addClass('d-none');
 
     // Re-enable form
     $('#day-end-form input, #day-end-form button').prop('disabled', false);
@@ -283,20 +295,14 @@ function showSuccessResult(response) {
     const resultDiv = $('#process-result');
     const contentDiv = $('#result-content');
 
-    let html = `
-        <div class="alert alert-success result-success">
-            <h6 class="alert-heading">
-                <i class="ti ti-check-circle me-2"></i>
-                Process Completed Successfully
-            </h6>
-            <p class="mb-2">${response.message}</p>
-    `;
+    // Update alert to success style
+    resultDiv.find('.alert').removeClass('alert-primary').addClass('alert-success');
+    resultDiv.find('.alert-heading').html('<i class="ti ti-check-circle me-2"></i>Process Completed Successfully');
+
+    let html = `<p class="mb-0">${response.message}</p>`;
 
     if (response.details) {
-        html += `
-            <hr class="my-2">
-            <div class="row">
-        `;
+        html += `<div class="row mt-3">`;
 
         if (response.details.sales_voucher) {
             html += `
@@ -321,10 +327,8 @@ function showSuccessResult(response) {
         html += `</div>`;
     }
 
-    html += `</div>`;
-
     contentDiv.html(html);
-    resultDiv.show();
+    resultDiv.removeClass('d-none');
 
     // Scroll to result
     $('html, body').animate({
@@ -339,26 +343,24 @@ function showErrorResult(response) {
     const resultDiv = $('#process-result');
     const contentDiv = $('#result-content');
 
-    let html = `
-        <div class="alert alert-danger result-error">
-            <h6 class="alert-heading">
-                <i class="ti ti-x-circle me-2"></i>
-                Process Failed
-            </h6>
-            <p class="mb-0">${response.message}</p>
-    `;
+    // Update alert to danger style
+    resultDiv.find('.alert').removeClass('alert-primary').addClass('alert-danger');
+    resultDiv.find('.alert-heading').html('<i class="ti ti-x-circle me-2"></i>Process Failed');
+
+    let html = `<p class="mb-0">${response.message}</p>`;
 
     if (response.details) {
         html += `
-            <hr class="my-2">
-            <small class="text-muted">Details: ${response.details}</small>
+            <hr class="my-3">
+            <div class="details-section">
+                <h6 class="mb-2">Error Details:</h6>
+                <pre class="small text-muted">${response.details}</pre>
+            </div>
         `;
     }
 
-    html += `</div>`;
-
     contentDiv.html(html);
-    resultDiv.show();
+    resultDiv.removeClass('d-none');
 
     // Scroll to result
     $('html, body').animate({
@@ -457,7 +459,7 @@ function submitDeleteDayEndProcess() {
             hideLoadingState();
 
             let errorMessage = 'An error occurred while deleting the day end process';
-            
+
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 errorMessage = xhr.responseJSON.message;
             } else if (xhr.status === 404) {

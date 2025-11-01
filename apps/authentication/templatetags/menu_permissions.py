@@ -1,5 +1,5 @@
 from django import template
-from apps.authentication.permissions import has_module_permission
+from apps.authentication.permissions import has_module_permission, has_module_access
 
 register = template.Library()
 
@@ -55,3 +55,31 @@ def has_submenu_permissions(user, submenu):
 
     print("DEBUG: No permitted submenu items found")
     return False
+
+@register.filter
+def has_module_access_permission(user, permission_string):
+    """
+    Template filter to check if user has specific module access permission
+    Usage: {% if user|has_module_access_permission:"day_end_process:create" %}
+    """
+    if not permission_string:
+        return False
+    
+    try:
+        module_code, permission_type = permission_string.split(':')
+    except ValueError:
+        print(f"DEBUG: Invalid permission string format: {permission_string}")
+        return False
+
+    if not hasattr(user, 'request'):
+        print(f"DEBUG: No request on user object for permission {permission_string}")
+        return False
+
+    current_zid = getattr(user.request, 'zid', None)
+    if not current_zid:
+        print(f"DEBUG: No ZID in request for permission {permission_string}")
+        return False
+
+    has_perm = has_module_access(user, module_code, zid=current_zid, permission_type=permission_type)
+    print(f"DEBUG: Checking module access {permission_string} for user {user.username} with ZID {current_zid}: {has_perm}")
+    return has_perm
