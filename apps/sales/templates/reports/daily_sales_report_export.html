@@ -165,7 +165,7 @@
           <td class="right" style="padding: 8px;">{{ grand_totals.total_card_amount|floatformat:2 }}</td>
           <td class="right" style="padding: 8px;">{{ grand_totals.total_cash_amount|floatformat:2 }}</td>
           <td class="right" style="padding: 8px;">{{ grand_totals.total_discount|floatformat:2 }}</td>
-          <td class="right" style="padding: 8px;">{{ grand_totals.grand_total|floatformat:2 }}</td>
+          <td class="right" style="padding: 8px;">{{ grand_totals.grand_total|bdt_with_decimals:2|default:"Tk 0.00" }}</td>
         </tr>
       </tfoot>
     </table>
@@ -193,7 +193,7 @@
 
     <!-- Notes -->
     <div style="font-size: 8px; font-weight: bold; margin-top: 15px;">
-      <strong>Note:</strong> This report shows daily sales data including order numbers, payment methods, amounts, and discounts for the specified date range.
+      <strong>InWord:</strong> {{ grand_totals.grand_total|inword_currency|default:"Zero Taka Only" }} <br>
     </div>
 
     <!-- Signature -->
@@ -207,6 +207,10 @@
           Reviewed By
         </td>
         <td style="width: 25%;"></td>
+        <td style="border-top: 1px solid #000; width: 25%;">
+          Authorized By
+        </td>
+
       </tr>
     </table>
 

@@ -23,7 +23,7 @@ class ModuleAdmin(admin.ModelAdmin):
 
 @admin.register(PermissionGroup)
 class PermissionGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_active')
+    list_display = ('name', 'description', 'is_active')
     list_filter = ('is_active',)
     search_fields = ('name', 'description')
     ordering = ('name',)

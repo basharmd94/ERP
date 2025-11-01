@@ -30,6 +30,67 @@ $(document).ready(function() {
     });
   }
 
+  // Handle form target based on report type
+  function updateFormTarget() {
+    const reportType = $('#report_type').val();
+    const form = $('#dailySalesReportForm');
+
+    if (reportType === 'pdf') {
+      form.attr('target', '_blank');
+    } else {
+      form.removeAttr('target');
+    }
+  }
+
+  // Set initial target on page load
+  updateFormTarget();
+
+  // Update target when report type changes
+  $('#report_type').on('change', updateFormTarget);
+  // form validation
+    $('#dailySalesReportForm').on('submit', function(e) {
+    const from = $('#from_date').val();
+    const to = $('#to_date').val();
+    const format = $('#report_type').val();
+    if (format === 'pdf' && from && to) {
+      const fromDate = new Date(from);
+      const toDate = new Date(to);
+      const diffTime = Math.abs(toDate - fromDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
+
+      if (diffDays >= 7) {
+        e.preventDefault(); // Stop form submission
+        Swal.fire({
+          icon: 'warning',
+          title: 'Large Date Range Detected',
+          text: `Your selected date range is ${diffDays} days. PDF export is limited to 7 days for performance. Switching to CSV.`,
+          showConfirmButton: true,
+          confirmButtonText: 'Export as CSV'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            $('#report_type').val('csv');
+            $(this).removeAttr('target'); // ensure no _blank
+            this.submit(); // resubmit form
+          }
+        });
+        return false;
+      }
+    }
+  });
+
+  // Handle target for PDF
+  function updateFormTarget() {
+    const reportType = $('#report_type').val();
+    const form = $('#dailySalesReportForm');
+    if (reportType === 'pdf') {
+      form.attr('target', '_blank');
+    } else {
+      form.removeAttr('target');
+    }
+  }
+
+  updateFormTarget();
+  $('#report_type').on('change', updateFormTarget);
 
 
   // // Initialize Select2 for brands using XCode API
