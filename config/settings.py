@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "apps.sales",  # New Sales Management app
     "apps.inventory",  # New Inventory Management app
     "apps.api",
+    "apps.accounting",  # New Accounting app
     # Celery
     "django_celery_beat",
     "django_celery_results",

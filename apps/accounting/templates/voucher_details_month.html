@@ -1,0 +1,66 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Accounting - Voucher Details Month {% endblock %}
+
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/pickr/pickr-themes.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<script src="{% static 'vendor/libs/pickr/pickr.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/vertical_cart_layout.css' %}" />
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+
+
+<script src="{% static 'js/forms-pickers.js' %}"></script>
+<script src="{% static 'js/forms-selects.js' %}"></script>
+
+{% endblock page_js %}
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="javascript:void(0);">Accounting</a>
+    </li>
+    <li class="breadcrumb-item active">Voucher Details Month</li>
+  </ol>
+</nav>
+
+
+<div class="card-body">
+  <!--end of card-->
+</div>
+
+
+{% endblock %}
+
+{% block custom_api_js %}
+
+{% endblock custom_api_js %}

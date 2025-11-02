@@ -119,6 +119,9 @@ urlpatterns = [
     # Sales Management urls
     path("sales/", include("apps.sales.urls")),
 
+    # Accounting urls
+    path("accounting/", include("apps.accounting.urls")),
+
     # OpOrd urls
     path("opord/", include("apps.opord.urls")),
 

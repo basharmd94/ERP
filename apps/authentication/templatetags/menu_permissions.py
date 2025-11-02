@@ -64,7 +64,7 @@ def has_module_access_permission(user, permission_string):
     """
     if not permission_string:
         return False
-    
+
     try:
         module_code, permission_type = permission_string.split(':')
     except ValueError:
