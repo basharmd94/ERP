@@ -1,8 +1,4 @@
 from django.http import JsonResponse
-from django.views.generic import TemplateView
-from web_project import TemplateLayout
-from apps.authentication.mixins import ZidRequiredMixin
-from apps.authentication.mixins import ModulePermissionMixin
 from apps.authentication.decorators import require_module_permission
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -14,19 +10,6 @@ import logging
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
-
-class DayEndProcess(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
-    module_code = 'day_end_process'
-    template_name = 'day_end_process.html'
-
-    def get_context_data(self, **kwargs):
-        # A function to init the global layout. It is defined in web_project/__init__.py file
-        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-        return context
-
-
-# Helper functions for day end process
 
 
 def check_duplicate_processing(zid, xdate):
@@ -167,7 +150,7 @@ def insert_gl_detail_row(cursor, ztime, zid, xvoucher, xrow, xacc,
         logger.error(f"Parameters: voucher={xvoucher}, row={xrow}, account={xacc}")
         raise
 
-
+# Helper function to insert GL details
 def insert_gl_details(zid, voucher, xdate, aggregated_data):
     """
     Insert all GL detail records
@@ -278,7 +261,7 @@ def insert_gl_details(zid, voucher, xdate, aggregated_data):
                 "Expenditure", voucher, xdate, xdate, xdate
             )
 
-
+# Helper function to execute day end process
 def execute_day_end_process(zid, xdate, session_user):
     """
     Execute the complete day end process
@@ -326,13 +309,14 @@ def execute_day_end_process(zid, xdate, session_user):
         raise
 
 
+#
 @csrf_exempt
 @login_required
-# @require_module_permission('day_end_process', 'create')
+@require_module_permission('day_end_process', 'create')
 @transaction.atomic
 def create_day_end_process(request):
     """
-    Function-based view to handle day end process creation
+    Insert all GL detail records
     """
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Only POST method allowed'})

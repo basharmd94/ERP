@@ -7,12 +7,7 @@ from datetime import datetime
 from django.db import transaction, connection
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
-
-# Local application imports
-from web_project import TemplateLayout
-from apps.authentication.mixins import ModulePermissionMixin, ZidRequiredMixin
 from apps.utils.average_price_calculation import get_average_prices_bulk
 from apps.utils.items_check_inventory import items_check_inventory
 from apps.utils.voucher_generator import generate_voucher_number
@@ -20,17 +15,6 @@ from apps.utils.voucher_generator import generate_voucher_number
 # Set up logging
 logger = logging.getLogger(__name__)
 
-
-
-class SalesView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
-    module_code = 'pos_sales'
-    template_name = 'pos_sales.html'
-
-    def get_context_data(self, **kwargs):
-        # A function to init the global layout. It is defined in web_project/__init__.py file
-        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-
-        return context
 
 
 
