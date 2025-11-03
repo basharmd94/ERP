@@ -1,7 +1,7 @@
 """
 Utility functions for checking module permissions
 """
-from .models import Business, Module, UserBusinessAccess, UserGroupMembership, BusinessModuleGroupAccess
+from .models import Business, Module, UserBusinessAccess, UserGroupMembership, BusinessModuleAccess, PermissionGroup
 
 
 def has_business_access(user, zid=None, business=None):
@@ -34,7 +34,7 @@ def has_business_access(user, zid=None, business=None):
 
 def has_module_access(user, module_code, zid=None, business=None, permission_type='view'):
     """
-    Check if a user has access to a specific module in a business
+    Check if a user has access to a specific module in a business using the new permission group system
 
     Args:
         user: The user to check
@@ -78,32 +78,38 @@ def has_module_access(user, module_code, zid=None, business=None, permission_typ
 
     # Get all permission groups the user belongs to
     user_group_objects = UserGroupMembership.objects.filter(user=user).select_related('group')
-    user_group_names = [membership.group.name for membership in user_group_objects]
+    user_groups = [membership.group for membership in user_group_objects]
+    user_group_names = [group.name for group in user_groups]
     print(f"DEBUG: User {user.username} belongs to groups: {user_group_names}")
 
-    # Check if any of the user's groups have the required permission for this module in this business
-    permission_field = f'can_{permission_type}'
+    # Get the BusinessModuleAccess record for this business and module
+    try:
+        module_access = BusinessModuleAccess.objects.get(
+            business=business,
+            module=module,
+            is_active=True
+        )
+        print(f"DEBUG: Found module access record for {module.name} in {business.name}")
+    except BusinessModuleAccess.DoesNotExist:
+        print(f"DEBUG: No module access record found for {module.name} in {business.name}")
+        return False
 
-    # Get all BusinessModuleGroupAccess records for this business and module
-    access_records = BusinessModuleGroupAccess.objects.filter(
-        business=business,
-        module=module,
-        **{permission_field: True}
-    )
+    # Get the list of permission groups assigned to this module
+    assigned_groups = module_access.get_permission_groups_list()
+    print(f"DEBUG: Module {module.name} has assigned groups: {assigned_groups}")
 
-    print(f"DEBUG: Found {access_records.count()} access records for {module.name} in {business.name}")
-
-    # Check if any of the access records have groups that the user belongs to
+    # Check if any of the user's groups are in the assigned groups and have the required permission
     has_permission = False
-    for record in access_records:
-        record_group_name = record.group.name
-        print(f"DEBUG: Access record group: {record_group_name}")
-
-        # Check if the user belongs to this record's group
-        if record_group_name in user_group_names:
-            has_permission = True
-            print(f"DEBUG: Found matching group in record: {record_group_name}")
-            break
+    for user_group in user_groups:
+        if user_group.name in assigned_groups:
+            print(f"DEBUG: User group {user_group.name} is assigned to module {module.name}")
+            # Check if this group has the required permission type
+            if user_group.has_permission(permission_type):
+                has_permission = True
+                print(f"DEBUG: Group {user_group.name} has {permission_type} permission")
+                break
+            else:
+                print(f"DEBUG: Group {user_group.name} does not have {permission_type} permission (has: {user_group.permissions})")
 
     print(f"DEBUG: Permission check result for {permission_type}: {has_permission}")
     return has_permission
@@ -141,3 +147,55 @@ def has_module_permission(user, zid, permission_code):
 
     # Check module access with the specific permission type
     return has_module_access(user, module_name, zid=zid, permission_type=action)
+
+
+def get_user_module_permissions(user, zid):
+    """
+    Get all module permissions for a user in a specific business
+
+    Args:
+        user: The user to get permissions for
+        zid: The business ZID context
+
+    Returns:
+        dict: Dictionary with module codes as keys and permission types as values
+    """
+    if user.is_superuser:
+        return {}  # Superuser has all permissions
+
+    try:
+        business = Business.objects.get(zid=zid)
+    except Business.DoesNotExist:
+        return {}
+
+    if not UserBusinessAccess.objects.filter(user=user, business=business).exists():
+        return {}
+
+    # Get user's groups
+    user_groups = UserGroupMembership.objects.filter(user=user).select_related('group')
+    user_group_names = [membership.group.name for membership in user_groups]
+    user_group_dict = {group.group.name: group.group for group in user_groups}
+
+    # Get all module access records for this business
+    module_access_records = BusinessModuleAccess.objects.filter(
+        business=business,
+        is_active=True
+    ).select_related('module')
+
+    permissions = {}
+    for record in module_access_records:
+        assigned_groups = record.get_permission_groups_list()
+        module_permissions = []
+
+        for group_name in assigned_groups:
+            if group_name in user_group_names:
+                group = user_group_dict[group_name]
+                if group.permissions == 'full':
+                    module_permissions.extend(['view', 'create', 'edit', 'delete'])
+                else:
+                    module_permissions.append(group.permissions)
+
+        if module_permissions:
+            permissions[record.module.code] = list(set(module_permissions))  # Remove duplicates
+
+    return permissions
