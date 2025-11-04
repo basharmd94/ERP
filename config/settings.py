@@ -99,6 +99,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "apps.authentication.middleware.ZidMiddleware",  # Add ZID middleware after auth
+    "apps.authentication.middleware.BusinessInfoMiddleware",  # Cache business info for templates
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

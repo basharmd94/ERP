@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ report_title|default:"Report" }}{% endblock %}</title>
+    <style>
+    /* Common page and footer frames for xhtml2pdf */
+    @page {
+      size: letter;
+      margin: 0.5in 0.5in 0.8in 0.5in;
+
+      /* Footer frame at bottom */
+      @frame footer_frame {
+        -pdf-frame-content: footerContent;
+        bottom: 0in;
+        margin-left: 0.5in;
+        margin-right: 0.5in;
+        height: 0.8in;
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      line-height: 1.2;
+      margin: 0;
+      padding: 0;
+      color: #000;
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .date-range {
+      font-size: 12px;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    /* Utility classes (optional) */
+    .text-right {
+      text-align: right;
+    }
+
+    .text-left {
+      text-align: left;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    </style>
+  </head>
+
+  <body>
+
+    <!-- Shared Report Header -->
+    <div class="report-header">
+      <div style="font-size: 20px; font-weight: bold;">
+        {{ business.business_name|default:"My Business" }}
+      </div>
+      <div>{{ business.business_address|default:"Address" }}</div>
+      <div>Mobile: {{ business.business_mobile|default:"-" }} | Email: {{ business.business_email|default:"-" }}</div>
+      <div>Website: {{ business.business_website|default:"-" }}</div>
+      <div style="font-size: 14px; font-weight: bold; text-decoration: underline; margin-top: 10px;">
+        {% block header_title %}{{ report_title|default:"Report" }}{% endblock %}
+      </div>
+      <div class="date-range">
+        From: {{ from_date }} To: {{ to_date }}
+      </div>
+      {% block header_info %}{% endblock %}
+    </div>
+
+    <!-- Main Report Content -->
+    <div>
+      {% block content %}{% endblock %}
+    </div>
+
+    <!-- Shared Footer (Fixed Bottom via @frame) -->
+    <div id="footerContent" style="margin-top: 3px; font-family: 'Lucida Console', 'Courier New', monospace; font-style: italic;">
+      {% block footer_info %}
+      <div style="text-align: left; font-size: 9px; color: #000;">
+        System Generated Report | Developed by dreamerp | Bashar@01675373799 | Generated on: {{ print_date }} |  copywrite © {{ current_year }} {{ business.business_name|default:"My Business" }}.|
+        <span style="font-weight: bold;"> Page
+          <pdf:pagenumber /> of
+          <pdf:pagecount /> </span>
+
+      </div>
+      {% endblock %}
+    </div>
+
+  </body>
+
+</html>

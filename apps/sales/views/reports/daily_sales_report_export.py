@@ -50,31 +50,15 @@ def daily_sales_report_export(request):
         cursor.execute(daily_sales_sql, [session_zid, from_date, to_date])
         rows = cursor.fetchall()
 
-        # Get business information
-        business_sql = """
-            SELECT
-                zid,
-                name as business_name,
-                address as business_address,
-                mobile as business_mobile,
-                email as business_email,
-                website as business_website
-            FROM authentication_business
-            WHERE zid = %s
-        """
-        cursor.execute(business_sql, [session_zid])
-        business_row = cursor.fetchone()
-
-        if not business_row:
-            return HttpResponse('Business information not found', status=404)
-
+        # Get business information from session (populated by BusinessInfoMiddleware)
+        business_info = request.session.get('business_info', {})
         business_data = {
-            'business_id': business_row[0],
-            'business_name': business_row[1] or '',
-            'business_address': business_row[2] or '',
-            'business_mobile': business_row[3] or '',
-            'business_email': business_row[4] or '',
-            'business_website': business_row[5] or ''
+            'business_id': business_info.get('zid'),
+            'business_name': business_info.get('business_name', ''),
+            'business_address': business_info.get('business_address', ''),
+            'business_mobile': business_info.get('business_mobile', ''),
+            'business_email': business_info.get('business_email', ''),
+            'business_website': business_info.get('business_website', ''),
         }
 
         # Process the sales data
@@ -106,9 +90,9 @@ def daily_sales_report_export(request):
             to_date_obj = datetime.strptime(to_date, '%Y-%m-%d')
             date_diff = (to_date_obj - from_date_obj).days + 1  # +1 to include both dates
 
-            if date_diff >= 31:
-                print(f"DEBUG: Date range is {date_diff} days (>=31), automatically switching PDF to CSV for performance")
-                messages.warning(request, f"Date range is {date_diff} days (>=31), automatically switching to CSV format for performance.")
+            if date_diff >= 7:
+                print(f"DEBUG: Date range is {date_diff} days (>=7), automatically switching PDF to CSV for performance")
+                messages.warning(request, f"Date range is {date_diff} days (>=7), automatically switching to CSV format for performance.")
                 report_format = 'csv'  # Override format to CSV
         except ValueError:
             # If date parsing fails, continue with original format
@@ -125,10 +109,10 @@ def daily_sales_report_export(request):
         return generate_csv_report(sales_data, business_data, from_date, to_date)
     else:
         print("DEBUG: Generating PDF report")
-        return generate_pdf_report(sales_data, business_data, from_date, to_date, grand_totals)
+        return generate_pdf_report(request, sales_data, business_data, from_date, to_date, grand_totals)
 
 
-def generate_pdf_report(sales_data, business_data, from_date, to_date, grand_totals):
+def generate_pdf_report(request, sales_data, business_data, from_date, to_date, grand_totals):
     """Generate PDF report using xhtml2pdf"""
 
     # Render HTML template
@@ -139,8 +123,9 @@ def generate_pdf_report(sales_data, business_data, from_date, to_date, grand_tot
         'to_date': to_date,
         'print_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'total_records': len(sales_data),
-        'grand_totals': grand_totals
-    })
+        'grand_totals': grand_totals,
+        'report_title': 'Daily Sales Report',
+    }, request=request)
 
     # Generate PDF using xhtml2pdf
     result = BytesIO()
