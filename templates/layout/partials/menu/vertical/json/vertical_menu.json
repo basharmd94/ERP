@@ -283,7 +283,7 @@
           "icon": "menu-icon tf-icons ti ti-package",
           "name": "Reports",
           "slug": "accounting-reports",
-          "permission": "acct_reports.view"
+          "permission": "acreports.view"
         },
         {
           "url": "/accounting/code/",

@@ -1,0 +1,396 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Accounting - Transaction Entries {% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="javascript:void(0);">Accounting</a>
+    </li>
+    <li class="breadcrumb-item active">Transaction Entries</li>
+  </ol>
+</nav>
+
+<div class="row justify-content-center">
+  <!-- Column 1: Basic Transactions -->
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="mb-0">Basic Transactions</h5>
+          <small class="text-muted">Core accounting entries</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+
+          <!-- Voucher Entry -->
+          <li>
+            <a href="{% url 'voucher-entry' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-success p-2 me-3 rounded"><i class="ti ti-receipt ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Voucher Entry</h6>
+                  <small class="text-muted">General voucher transactions</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+          <!-- Payment Voucher Entry -->
+          <li>
+            <a href="{% url 'payment-voucher-entry' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-primary p-2 me-3 rounded"><i class="ti ti-credit-card ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Payment Voucher Entry</h6>
+                  <small class="text-muted">Record payment transactions</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+
+          <!-- Receipt Voucher Entry -->
+          <li>
+            <a href="{% url 'receipt-voucher-entry' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-info p-2 me-3 rounded"><i class="ti ti-receipt-2 ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Receipt Voucher Entry</h6>
+                  <small class="text-muted">Record receipt transactions</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- Opening Balances -->
+          <li>
+            <a href="{% url 'opening-balances' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-warning p-2 me-3 rounded"><i class="ti ti-calculator ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Opening Balances</h6>
+                  <small class="text-muted">Set initial account balances</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- Column 3: Advanced Operations -->
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="mb-0">Advanced Operations</h5>
+          <small class="text-muted">System operations & reports</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <!-- Chart of Accounts -->
+          <li>
+            <a href="{% url 'chart-of-accounts' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-primary p-2 me-3 rounded"><i class="ti ti-hierarchy ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Chart of Accounts</h6>
+                  <small class="text-muted">Manage account structure</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- Year End Processing -->
+          <li>
+            <a href="{% url 'year-end-processing' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-success p-2 me-3 rounded"><i class="ti ti-calendar-time ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Year End Processing</h6>
+                  <small class="text-muted">Annual closing procedures</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- IM to GL Trial Run -->
+          <li>
+            <a href="{% url 'im-to-gl-trial-run' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-info p-2 me-3 rounded"><i class="ti ti-test-pipe ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">IM to GL Trial Run</h6>
+                  <small class="text-muted">Test inventory to GL transfer</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- IM to GL Final Run -->
+          <li>
+            <a href="{% url 'im-to-gl-final-run' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-warning p-2 me-3 rounded"><i class="ti ti-check ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">IM to GL Final Run</h6>
+                  <small class="text-muted">Execute inventory to GL transfer</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- IM to GL Audit Trail -->
+          <li>
+            <a href="{% url 'im-to-gl-audit-trail' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-secondary p-2 me-3 rounded"><i class="ti ti-search ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">IM to GL Audit Trail</h6>
+                  <small class="text-muted">Track transfer history</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- Voucher Details Single -->
+          <li>
+            <a href="{% url 'voucher-details-single' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-dark p-2 me-3 rounded"><i class="ti ti-file-text ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Voucher Details Single</h6>
+                  <small class="text-muted">View individual voucher details</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- Voucher Details Month -->
+          <li>
+            <a href="{% url 'voucher-details-month' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-danger p-2 me-3 rounded"><i class="ti ti-calendar ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Voucher Details Month</h6>
+                  <small class="text-muted">Monthly voucher summary</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 2: Cheque Management -->
+  <div class="col-lg-4 col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="mb-0">Cheque Management</h5>
+          <small class="text-muted">Cheque related transactions</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <!-- Cheque -->
+          <li>
+            <a href="{% url 'cheque' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-primary p-2 me-3 rounded"><i class="ti ti-file-check ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Cheque</h6>
+                  <small class="text-muted">Manage cheque transactions</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- Cheque Register Entry -->
+          <li>
+            <a href="{% url 'cheque-register-entry' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-success p-2 me-3 rounded"><i class="ti ti-book ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Cheque Register Entry</h6>
+                  <small class="text-muted">Register new cheques</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <!-- Cheque Receive Register -->
+          <li>
+            <a href="{% url 'cheque-receive-register' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-info p-2 me-3 rounded"><i class="ti ti-inbox ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Cheque Receive Register</h6>
+                  <small class="text-muted">Track received cheques</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+
+          <!-- Cheque Deposit Entry -->
+          <li>
+            <a href="{% url 'cheque-deposit-entry' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-warning p-2 me-3 rounded"><i class="ti ti-building-bank ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Cheque Deposit Entry</h6>
+                  <small class="text-muted">Record cheque deposits</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+{% endblock %}
+
+{% block custom_api_js %}
+
+{% endblock custom_api_js %}
+
+{% block page_css %}
+<style>
+.report-item-link {
+  display: block;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.report-item-link:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.08);
+  border-color: rgba(var(--bs-primary-rgb), 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.report-item-link:hover .badge {
+  transform: scale(1.05);
+}
+
+.report-item-link:hover h6 {
+  color: var(--bs-primary) !important;
+}
+
+.report-item-link:hover .ti-chevron-right {
+  color: var(--bs-primary) !important;
+  transform: translateX(4px);
+}
+
+.report-item-disabled {
+  padding: 12px 16px;
+  border-radius: 8px;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.report-item-disabled:hover {
+  background-color: rgba(var(--bs-secondary-rgb), 0.05);
+}
+
+.badge {
+  transition: transform 0.3s ease;
+}
+
+.ti-chevron-right {
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+/* Active state for clicked items */
+.report-item-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Focus state for accessibility */
+.report-item-link:focus {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+/* Card height consistency */
+.card.h-100 {
+  height: 100% !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .col-lg-4 {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .col-md-6 {
+    margin-bottom: 1rem;
+  }
+}
+
+</style>
+{% endblock %}

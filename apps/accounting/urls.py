@@ -19,15 +19,16 @@ from .views.modules import (
     ChequeReceiveRegisterView,
     ChequeDepositEntryView,
 )
+from .reports.modules import ReportsView
 
 urlpatterns = [
     # +--------------------------------+
     # |   Accounting Transaction URLs  |
     # +--------------------------------+
-    
+
     # Main Transaction View
     path("transaction/", TransactionView.as_view(), name="acct-transaction"),
-    
+
     # +--------------------------------+
     # |   First Column - Basic Transactions
     # +--------------------------------+
@@ -35,7 +36,7 @@ urlpatterns = [
     path("transaction/payment-voucher-entry/", PaymentVoucherEntryView.as_view(), name="payment-voucher-entry"),
     path("transaction/receipt-voucher-entry/", ReceiptVoucherEntryView.as_view(), name="receipt-voucher-entry"),
     path("transaction/opening-balances/", OpeningBalancesView.as_view(), name="opening-balances"),
-    
+
     # +--------------------------------+
     # |   Second Column - Advanced Operations
     # +--------------------------------+
@@ -46,7 +47,7 @@ urlpatterns = [
     path("transaction/im-to-gl-audit-trail/", ImToGlAuditTrailView.as_view(), name="im-to-gl-audit-trail"),
     path("transaction/voucher-details-single/", VoucherDetailsSingleView.as_view(), name="voucher-details-single"),
     path("transaction/voucher-details-month/", VoucherDetailsMonthView.as_view(), name="voucher-details-month"),
-    
+
     # +--------------------------------+
     # |   Third Column - Cheque Management
     # +--------------------------------+
@@ -54,4 +55,10 @@ urlpatterns = [
     path("transaction/cheque-register-entry/", ChequeRegisterEntryView.as_view(), name="cheque-register-entry"),
     path("transaction/cheque-receive-register/", ChequeReceiveRegisterView.as_view(), name="cheque-receive-register"),
     path("transaction/cheque-deposit-entry/", ChequeDepositEntryView.as_view(), name="cheque-deposit-entry"),
+
+    # +--------------------------------+
+    # |   REPORTS-ACCOUNTING
+    # +--------------------------------+
+    path("reports/", ReportsView.as_view(), name="reports"),
+
 ]
