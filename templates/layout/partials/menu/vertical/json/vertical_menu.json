@@ -173,6 +173,39 @@
         }
       ]
     },
+
+    {
+      "name": "Purchase",
+      "icon": "menu-icon tf-icons ti ti-briefcase",
+      "slug": "purchase-management",
+      "permission": "po_trx.view",
+      "submenu": [
+        {
+          "url": "/purchase/purchase-order/",
+          "name": "Purchase Order",
+          "slug": "purchase-order",
+          "permission": "po_order.view"
+        },
+        {
+          "url": "/purchase/confirm-grn/",
+          "name": "Confirm GRN",
+          "slug": "confirm-grn",
+          "permission": "po_grn.view"
+        },
+        {
+          "url": "/purchase/purchase-list/",
+          "name": "Purchase List",
+          "slug": "purchase-list",
+          "permission": "po_list.view"
+        },
+        {
+          "url": "/purchase/reports/",
+          "name": "Reports",
+          "slug": "purchase-reports",
+          "permission": "po_reports.view"
+        }
+      ]
+    },
     {
       "name": "Accounting",
       "icon": "menu-icon tf-icons ti ti-align-box-bottom-center",
@@ -184,99 +217,7 @@
           "icon": "menu-icon tf-icons ti ti-align-box-bottom-center",
           "name": "Transaction",
           "slug": "transaction",
-          "permission": "acct_transaction.view",
-          "submenu": [
-            {
-              "url": "/accounting/transaction/voucher-entry/",
-              "name": "Voucher Entry",
-              "slug": "voucher-entry",
-              "permission": "voucher_entry.view"
-            },
-            {
-              "url": "/accounting/transaction/receipt-voucher-entry/",
-              "name": "Receipt Voucher Entry",
-              "slug": "receipt-voucher-entry",
-              "permission": "receipt_voucher_entry.view"
-            },
-            {
-              "url": "/accounting/transaction/payment-voucher-entry/",
-              "name": "Payment Voucher Entry",
-              "slug": "payment-voucher-entry",
-              "permission": "payment_voucher_entry.view"
-            },
-            {
-              "url": "/accounting/transaction/cheque/",
-              "name": "Cheque",
-              "slug": "cheque",
-              "permission": "cheque.view"
-            },
-            {
-              "url": "/accounting/transaction/cheque-receive-register/",
-              "name": "Cheque Receive Register",
-              "slug": "cheque-receive-register",
-              "permission": "cheque_receive_register.view"
-            },
-            {
-              "url": "/accounting/transaction/chart-of-accounts/",
-              "name": "Chart of Accounts",
-              "slug": "chart-of-accounts",
-              "permission": "chart_of_accounts.view"
-            },
-            {
-              "url": "/accounting/transaction/opening-balances/",
-              "name": "Opening Balances",
-              "slug": "opening-balances",
-              "permission": "opening_balances.view"
-            },
-            {
-              "url": "/accounting/transaction/year-end-processing/",
-              "name": "Year End Processing",
-              "slug": "year-end-processing",
-              "permission": "year_end_processing.view"
-            },
-            {
-              "url": "/accounting/transaction/im-to-gl-trial-run/",
-              "name": "IM to GL Trial Run",
-              "slug": "im-to-gl-trial-run",
-              "permission": "im_to_gl_trial_run.view"
-            },
-            {
-              "url": "/accounting/transaction/im-to-gl-final-run/",
-              "name": "IM to GL Final Run",
-              "slug": "im-to-gl-final-run",
-              "permission": "im_to_gl_final_run.view"
-            },
-            {
-              "url": "/accounting/transaction/im-to-gl-audit-trail/",
-              "name": "IM to GL Audit Trail",
-              "slug": "im-to-gl-audit-trail",
-              "permission": "im_to_gl_audit_trail.view"
-            },
-            {
-              "url": "/accounting/transaction/voucher-details-single/",
-              "name": "Voucher Details - Single",
-              "slug": "voucher-details-single",
-              "permission": "voucher_details_single.view"
-            },
-            {
-              "url": "/accounting/transaction/voucher-details-month/",
-              "name": "Voucher Details - Month",
-              "slug": "voucher-details-month",
-              "permission": "voucher_details_month.view"
-            },
-            {
-              "url": "/accounting/transaction/cheque-register-entry/",
-              "name": "Cheque Register Entry",
-              "slug": "cheque-register-entry",
-              "permission": "cheque_register_entry.view"
-            },
-            {
-              "url": "/accounting/transaction/cheque-deposit-entry/",
-              "name": "Cheque Deposit Entry",
-              "slug": "cheque-deposit-entry",
-              "permission": "cheque_deposit_entry.view"
-            }
-          ]
+          "permission": "acct_transaction.view"
         },
         {
           "url": "/accounting/reports/",
@@ -292,6 +233,7 @@
           "slug": "codes",
           "permission": "acct_codes.view"
         }
+
       ]
     }
   ]
