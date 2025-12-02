@@ -1,0 +1,180 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Purchase - Reports {% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="javascript:void(0);">Purchase</a>
+    </li>
+    <li class="breadcrumb-item active">Purchase Reports</li>
+  </ol>
+</nav>
+
+
+<div class="row justify-content-center">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="mb-0">Purchase Reports</h5>
+          <small class="text-muted">Access comprehensive purchase analytics</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li>
+            <a href="{% url 'po-reports-product-purchase' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-primary p-2 me-3 rounded"><i class="ti ti-shopping-bag ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Product Purchase</h6>
+                  <small class="text-muted">Analyze purchases aggregated by product</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a href="{% url 'po-reports-mrr-date' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-success p-2 me-3 rounded"><i class="ti ti-calendar-stats ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">MRR Report By Date</h6>
+                  <small class="text-muted">View MRR documents summarized by date</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a href="{% url 'po-reports-item-wise' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-info p-2 me-3 rounded"><i class="ti ti-package ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Item-wise MRR</h6>
+                  <small class="text-muted">Breakdown of MRR by individual item</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a href="{% url 'po-reports-stat-supplier' %}" class="report-item-link text-decoration-none">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-warning p-2 me-3 rounded"><i class="ti ti-file-invoice ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-body">Statement By Supplier</h6>
+                  <small class="text-muted">Supplier-wise statement and balances</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <div class="report-item-disabled">
+              <div class="d-flex align-items-start">
+                <div class="badge bg-label-secondary p-2 me-3 rounded"><i class="ti ti-plus ti-sm"></i></div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 text-muted">More Reports</h6>
+                  <small class="text-muted">Additional reporting features coming soon</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="ti ti-clock text-muted"></i>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+{% block custom_api_js %}
+
+{% endblock custom_api_js %}
+
+{% block page_css %}
+<style>
+.report-item-link {
+  display: block;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.report-item-link:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.08);
+  border-color: rgba(var(--bs-primary-rgb), 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.report-item-link:hover .badge {
+  transform: scale(1.05);
+}
+
+.report-item-link:hover h6 {
+  color: var(--bs-primary) !important;
+}
+
+.report-item-link:hover .ti-chevron-right {
+  color: var(--bs-primary) !important;
+  transform: translateX(4px);
+}
+
+.report-item-disabled {
+  padding: 12px 16px;
+  border-radius: 8px;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.report-item-disabled:hover {
+  background-color: rgba(var(--bs-secondary-rgb), 0.05);
+}
+
+.badge {
+  transition: transform 0.3s ease;
+}
+
+.ti-chevron-right {
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.report-item-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.report-item-link:focus {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+</style>
+{% endblock %}

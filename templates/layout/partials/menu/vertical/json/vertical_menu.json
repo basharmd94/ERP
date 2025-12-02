@@ -181,27 +181,38 @@
       "permission": "po_trx.view",
       "submenu": [
         {
-          "url": "/purchase/purchase-order/",
+          "url": "/purchase/po-create/",
+          "icon": "menu-icon tf-icons ti ti-briefcase",
           "name": "Purchase Order",
-          "slug": "purchase-order",
-          "permission": "po_order.view"
+          "slug": "po-create",
+          "permission": "po_create.view"
         },
         {
-          "url": "/purchase/confirm-grn/",
-          "name": "Confirm GRN",
-          "slug": "confirm-grn",
-          "permission": "po_grn.view"
+          "url": "/purchase/po-confirm/",
+          "icon": "menu-icon tf-icons ti ti-briefcase",
+          "name": "Confirm GRN/MRR",
+          "slug": "po-confirm",
+          "permission": "po_confirm.view"
         },
         {
-          "url": "/purchase/purchase-list/",
+          "url": "/purchase/po-list/",
+          "icon": "menu-icon tf-icons ti ti-briefcase",
           "name": "Purchase List",
-          "slug": "purchase-list",
+          "slug": "po-list",
           "permission": "po_list.view"
         },
         {
-          "url": "/purchase/reports/",
+          "url": "/purchase/po-return/",
+          "icon": "menu-icon tf-icons ti ti-return-right",
+          "name": "Purchase Return",
+          "slug": "po-return",
+          "permission": "po_return.view"
+        },
+        {
+          "url": "/purchase/po-reports/",
           "name": "Reports",
-          "slug": "purchase-reports",
+          "icon": "menu-icon tf-icons ti ti-package",
+          "slug": "po-reports",
           "permission": "po_reports.view"
         }
       ]
@@ -233,7 +244,6 @@
           "slug": "codes",
           "permission": "acct_codes.view"
         }
-
       ]
     }
   ]

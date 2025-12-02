@@ -127,6 +127,9 @@ urlpatterns = [
 
     # Inventory Management
     path("inventory/", include("apps.inventory.urls")),
+
+    # Purchase Management
+    path("purchase/", include("apps.purchase.urls")),
 ]
 
 handler403 = permission_denied_view

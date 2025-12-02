@@ -4,6 +4,17 @@ from apps.authentication.mixins import ZidRequiredMixin
 from apps.authentication.mixins import ModulePermissionMixin
 
 
+
+class POTrasanctionView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
+    module_code = 'po_trx'
+
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        return context
+
+
+
+
 class POCreateView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
     module_code = 'po_create'
     template_name = 'po_create.html'
