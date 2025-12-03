@@ -1,0 +1,263 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+{% load menu_permissions %}
+
+{% block title %}{% trans "Purchase Order Create" %}{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/pickr/pickr-themes.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<script src="{% static 'vendor/libs/pickr/pickr.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/vertical_cart_layout.css' %}" />
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/forms-pickers.js' %}"></script>
+<script src="{% static 'js/forms-selects.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="javascript:void(0);">Purchase</a>
+    </li>
+    <li class="breadcrumb-item active">Purchase Order Create</li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'po-list' %}">PO List</a>
+    </li>
+  </ol>
+</nav>
+
+<div class="card-body">
+  <form id="po-create-entry-form">
+
+    <!-- Two Column Layout -->
+    <div class="row po-create-container">
+
+      <!-- Left Column: Header & Item Selector (5 columns) -->
+      <div class="col-md-5">
+        <div class="card border-primary mb-3">
+          <div class="card-header bg-primary text-white">
+            <h6 class="card-title text-white mb-0">
+              <i class="fas fa-edit me-2"></i>Purchase Order Details
+            </h6>
+          </div>
+          <div class="card-body">
+
+            <!-- Transaction Details in 2 columns -->
+            <div class="row mt-2">
+              <div class="col-md-6 mb-2">
+                <label for="transaction-prefix" class="form-label">Transaction Prefix</label>
+                <select id="transaction-prefix" class="select2 form-select" data-allow-clear="true">
+                  <option value="PO-">PO-</option>
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="transaction-date" class="form-label">Date <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="transaction-date" placeholder="Select date" readonly required />
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="supplierSelect" class="form-label">Supplier Number <span class="text-danger">*</span></label>
+                <select id="supplierSelect" class="form-select select2" data-allow-clear="true" required>
+                  <option></option>
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="warehouse" class="form-label">Warehouse <span class="text-danger">*</span></label>
+                <select id="warehouse" class="select2 form-select" data-allow-clear="true" required>
+                  <option></option>
+                </select>
+              </div>
+
+              <div class="col-md-12 mb-2">
+                <label for="project" class="form-label">Project <span class="text-danger">*</span></label>
+                <select id="project" class="select2 form-select" data-allow-clear="true" required>
+                  <option></option>
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="discount-percent" class="form-label">Discount %</label>
+                <input type="number" class="form-control" id="discount-percent" placeholder="0.00" step="0.01" min="0" max="100" />
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="fixed-discount" class="form-label">Fixed Discount</label>
+                <input type="number" class="form-control" id="fixed-discount" placeholder="0.00" step="0.01" min="0" />
+              </div>
+
+              <div class="col-12 mb-2">
+                <label for="notes" class="form-label">Notes</label>
+                <textarea class="form-control" id="notes" rows="2" placeholder="Enter notes"></textarea>
+              </div>
+            </div>
+
+            <!-- Item Selector -->
+            <div class="border-top pt-3">
+              <h6 class="text-primary mb-3">
+                <i class="fas fa-search me-2"></i>Add Items
+              </h6>
+              <div class="mb-2">
+                <label for="avg-item-search" class="form-label">Search Items</label>
+                <small class="text-muted">Search by item code, description, or barcode</small>
+                <select id="avg-item-search" class="form-select">
+                  <option></option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <label for="entered-by" class="form-label">Entered by</label>
+              <input type="text" class="form-control border-none" id="entered-by" value="{{ user.username }}" readonly />
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Cart (7 columns) -->
+      <div class="col-md-7 cart-column">
+        <div class="cart-section-wrapper">
+          <!-- Empty Cart Message -->
+          <div id="empty-cart-message" class="text-center py-5">
+            <div class="card border-light">
+              <div class="card-body">
+                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Your cart is empty</h5>
+                <p class="text-muted">Search and select items to add them to your cart</p>
+              </div>
+            </div>
+          </div>
+          <!-- Cart Section -->
+          <!-- give full height to cart section -->
+          <div id="cart-section" style="display: none;">
+            <div class="card border-success">
+              <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h6 class="card-title text-white mb-0">
+                  <i class="fas fa-shopping-cart me-2"></i>
+                  Purchase Order Cart (<span id="cart-items-count">0</span> items)
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="clearCart()" title="Clear Cart">
+                  <i class="fas fa-trash me-1"></i>Clear All
+                </button>
+              </div>
+              <div class="card-body p-0">
+                <div class="card-datatable table-responsive">
+                  <table id="cart-datatable" class="datatables-cart table table-hover">
+                    <thead>
+                      <tr>
+                        <th class="w-5 text-center">Sl</th>
+                        <th class="w-20 text-start">Item Code</th>
+                        <th class="w-25 text-start">Item Name</th>
+                        <th class="w-10 text-start">Qty</th>
+                        <th class="w-15 text-start">Rate</th>
+                        <th class="w-15 text-center">Line Amount</th>
+                        <th class="w-10 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="cart-items-tbody">
+                      <!-- Cart items will be dynamically added here -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="card-footer bg-light">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Total Items:</span>
+                        <span id="cart-total-items" class="text-primary fw-bold">0.00</span>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Total Amount:</span>
+                        <span id="cart-total-amount" class="text-success fw-bold fs-5">৳0.00</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Discount Summary -->
+                  <div class="row mt-2">
+                    <div class="col-md-6">
+                      <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Discount:</span>
+                        <span id="cart-total-discount" class="text-danger fw-bold">৳0.00</span>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Net Amount:</span>
+                        <span id="cart-net-amount" class="text-info fw-bold fs-5">৳0.00</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="row mt-3">
+                    <div class="col-md-12 text-end">
+                      <button type="button" class="btn btn-outline-secondary me-2" onclick="clearCart()">
+                        <i class="fas fa-trash me-1"></i>Clear Cart
+                      </button>
+                      <button type="button" class="btn btn-primary me-2">
+                        <i class="fas fa-save me-1"></i>Save Draft
+                      </button>
+                      <button type="button" class="btn btn-success" id="process-po" onclick="processPO()">
+                        <i class="fas fa-check me-1"></i>Process PO
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> <!-- End cart-section-wrapper -->
+
+      </div>
+
+    </div>
+
+  </form>
+
+  <!--end of card-->
+</div>
+
+{% endblock %}
+
+{% block custom_api_js %}
+<script src="{% static 'custom/api_get_supplier.js' %}"></script>
+<script src="{% static 'custom/api_get_warehouse.js' %}"></script>
+<script src="{% static 'custom/api_get_project.js' %}"></script>
+<script src="{% static 'custom/avg_item_price.js' %}"></script>
+<script src="{% static 'custom/purchase_order.js' %}"></script>
+{% endblock custom_api_js %}

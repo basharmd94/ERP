@@ -181,11 +181,11 @@
       "permission": "po_trx.view",
       "submenu": [
         {
-          "url": "/purchase/po-create/",
+          "url": "/purchase/purchase-order/",
           "icon": "menu-icon tf-icons ti ti-briefcase",
           "name": "Purchase Order",
-          "slug": "po-create",
-          "permission": "po_create.view"
+          "slug": "purchase-order",
+          "permission": "purchase_order.view"
         },
         {
           "url": "/purchase/po-confirm/",

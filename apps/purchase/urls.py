@@ -1,20 +1,26 @@
 from django.urls import path
 
-from .views.modules import POCreateView, POConfirmView, POListView, PurchaseReturnView
+from .views.modules import PurchaseOrderView,  POConfirmView, POListView, PurchaseReturnView
 from .reports.modules import (
     POReportView, ProductPurchaseReportView, MrrReportByDateView,
     ItemWiseMrrReportView, StatementBySupplierView)
 
-
+from .views.po_create import po_create # Purchase Order Create function
 
 urlpatterns = [
     # +--------------------------+
     # |   Purchase Menu List     |
     # +--------------------------+
-    path('po-create/', POCreateView.as_view(), name='po-create'),
+
+    # Purchase Order Page
+    path('purchase-order/', PurchaseOrderView.as_view(), name='purchase-order'),
+
+    # Purchase Order Create function
+    path('po-create/', po_create, name='po-create'),
+
+    # Purchase Order Create view
     path('po-confirm/', POConfirmView.as_view(), name='po-confirm'),
     path('po-list/', POListView.as_view(), name='po-list'),
-
     # +--------------------------+
     # |   Purchase Return URLS   |
     # +--------------------------+

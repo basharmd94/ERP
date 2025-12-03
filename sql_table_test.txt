@@ -1,0 +1,79 @@
+"ztime"	"2025-09-24T15:27:20.444" -- current timestamp
+"zid"	100001 -- session zid
+"xpornum"	"PO--002720" -- call generate_voucher_number(
+            zid=current_zid,
+            prefix='PO--',
+            table='poord',
+            column='xpornum'
+        )
+"xdate"	"2025-09-24" -- input date from frontend date input box
+"xsup"	"SUP-000001" -- input supplier from frontend supplier input box
+"xsupref"
+"xdatesupref"	"2025-09-24" --input date from frontend date input box
+"xdiv"
+"xsec"	"Any" defaul Any
+"xproj"	"HMBR FIXIT GULSHAN" -- input project from frontend project input box
+"xstatuspor"	"1-Open" -- default 1-Open
+"xappamt"	"0.00" -- default 0.00
+"xpartial"	"0" -- default 0
+"xcur"	"BDT" -- default BDT
+"xexch"	"1.0000000000" -- default 1
+"xrem"	"TO--004493." -- input Note from frontend Note input box
+"xwh"	"Fixit Gulshan" -- input warehouse from frontend warehouse input box
+"xdisc"	"0.00" -- input percent discount from frontend percent discount input box
+"xdtwotax"	"73727.00" -- total amount of cart
+"xdtdisc"	"0.00"  -- input fixed discount from frontend fixed discount input box
+"xdttax"	"0.00"
+"xval"	"73727.00" -- total amount of cart
+"xdiscamt"	"0.00" -- total discount amount xdtdisc + xdisc
+"xtotamt"	"73727.00" -- total amount of cart
+"zemail"	"manager@fixit.com" -- session user
+"xemail" 	"manager@fixit.com" -- session user email
+"xtrnpor"	"PO--" default PO--
+"xtypepor"	"Local" default Local
+"xwhoption"	"Header" default Header
+"xmember"	"manager@fixit.com" session user email
+
+
+{% comment %} poodt table {% endcomment %}
+"ztime"	2025-09-24T15:28:17.867 -- current timestamp
+"zid"	100001 -- session zid
+"xpornum"	"PO--002720" -- header (poord) generated voucher number
+"xrow"	"1" -- Item SL number
+"xcode"	"26-2041" -- cart item code
+"xcodebasis"	"Our Code" -- default Our Code
+"xitem"	"26-2041" -- cart item code
+"xstatuspdt"	"Priced" -- default Priced
+"xstype"	"Stock-N-Sell" -- default Stock-N-Sell
+"xwh"	"Fixit Gulshan" -- input warehouse from frontend warehouse input box
+"xdropship"	0   -- default 0
+"xqtyord"	"12.000" -- input cart item quantity
+"xqtygrn"	"12.000" -- input same as xqtyord
+"xqtystk"	"0.000" -- default 0.000
+"xcfpur"	"1.000000" -- default 1
+"xwtunit"	"0.000" -- default 0.000
+"xcur"	"BDT" -- default BDT
+"xexch"	"1.0000000000" -- default 1
+"xrate"	"189.0000" -- cart item rate
+"xmargin"	"0.00"  -- default 0.00
+"xdisc"	"0.00" -- default 0.00
+"xdiscf"	"0.00" -- default 0
+"xcomm"	"0.00" --default 0
+"xpricebasis"	"Entered" -- default Entered
+"xexchbuy"	"0.0000000000" -- default 0
+"xprice"	"189.0000" -- cart item rate
+"xdatesch"	"2999-12-31" -- default 2999-12-31
+"xtaxrate1"	"0.0000" -- default 0.0000
+"xtaxrate2"	"0.0000" -- default 0.0000
+"xtaxrate3"	"0.0000" -- default 0.0000
+"xtaxrate4"	"0.0000" -- default 0.0000
+"xtaxcode5"
+"xtaxrate5"	"0.0000" -- default 0.0000
+"xlandcost"	"0.000" -- default 0.000
+"xdttax"	"0.00" -- default 0.00
+"xdtdisc"	"0.00" -- default 0.00
+"xdtwotax"	"2268.000000" -- total amount of cart
+"xlineamt"	"2268.000000" -- total amount of cart
+"xline"	"0" -- default 0
+"xcompwh"	"Fixit Gulshan" -- warehouse
+

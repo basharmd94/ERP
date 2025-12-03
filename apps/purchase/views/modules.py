@@ -15,9 +15,9 @@ class POTrasanctionView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
 
 
 
-class POCreateView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
-    module_code = 'po_create'
-    template_name = 'po_create.html'
+class PurchaseOrderView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
+    module_code = 'purchase_order'
+    template_name = 'purchase_order.html'
 
     def get_context_data(self, **kwargs):
         # A function to init the global layout. It is defined in web_project/__init__.py file
