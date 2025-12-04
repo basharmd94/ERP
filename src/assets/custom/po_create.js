@@ -295,7 +295,7 @@ $(document).ready(function() {
             const quantityInput = $(`.quantity-input[data-cart-id="${targetCartId}"]`);
             if (quantityInput.length > 0) {
                 quantityInput.focus().select();
-
+                
                 // Scroll to input if needed
                 const cartTable = $('.card-datatable');
                 const inputOffset = quantityInput.offset();
@@ -320,7 +320,7 @@ $(document).ready(function() {
         }
 
         toastr.success('Item added to cart successfully!');
-
+        
         // Clear search selection
         $('#avg-item-search').val(null).trigger('change');
     };
@@ -499,7 +499,7 @@ $(document).ready(function() {
                     if (savedData.formData) {
                         $('#transaction-date').val(savedData.formData.transaction_date || '');
                         $('#transaction-prefix').val(savedData.formData.transaction_prefix || 'PO--').trigger('change');
-
+                        
                         if (savedData.formData.supplier_select) {
                             restoreSupplierSelection(savedData.formData.supplier_select);
                         }
@@ -654,7 +654,7 @@ $(document).ready(function() {
 
                     // API Call
                     $.ajax({
-                        url: '/purchase/po-create/',
+                        url: '/purchase/api/po-create/',
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify(poData),
@@ -667,11 +667,9 @@ $(document).ready(function() {
                                 ).then(() => {
                                     // Open print window
                                     window.open('/purchase/po-req-print/' + response.voucher_number + '/', '_blank');
-
+                                    
                                     // Clear cart
                                     window.clearCart();
-                                    // redirect to the purchase open list page
-                                    window.location.href = '/purchase/po-confirm/';
                                 });
                             } else {
                                 toastr.error(response.message || 'Failed to create Purchase Order');

@@ -6,6 +6,10 @@ from .reports.modules import (
     ItemWiseMrrReportView, StatementBySupplierView)
 
 from .views.po_create import po_create # Purchase Order Create function
+from .views.po_open_list import po_open_list # Show Purchase Open List in Confirm GRN/MRR Page
+from .reports.po_req_print import po_req_print # Purchase Requisition Print function
+
+
 
 urlpatterns = [
     # +--------------------------+
@@ -17,6 +21,12 @@ urlpatterns = [
 
     # Purchase Order Create function
     path('po-create/', po_create, name='po-create'),
+
+    # Purchase Requisition Print function
+    path('po-req-print/<str:transaction_id>/', po_req_print, name='po-req-print'),
+
+    # Show Purchase Open List in Confirm GRN/MRR Page
+    path('po-open-list/', po_open_list, name='po-open-list'),
 
     # Purchase Order Create view
     path('po-confirm/', POConfirmView.as_view(), name='po-confirm'),

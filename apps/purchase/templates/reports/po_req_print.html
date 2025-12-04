@@ -1,0 +1,82 @@
+{% extends 'reports/base_report.html' %}
+
+
+{% block title %}Purchase Order{% endblock %}
+{% block header_title %}PURCHASE REQUISITION/ORDER{% endblock %}
+
+{% block header_info %}
+<!-- Purchase Order Specific Header -->
+<div style="margin-bottom: 8px;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+    <tr>
+      <td style="width: 50%; text-align: left; border: 1px solid #000; padding: 4px; vertical-align: top;">
+        <strong>SUPPLIER NAME:</strong> {{ header.supplier_name }} ( {{ header.xsup }} )<br>
+        <strong>SUPPLIER ADDRESS:</strong> {{ header.supplier_address|default:"-" }}<br>
+        <strong>SUPPLIER REFERENCE:</strong> {{ header.supplier_ref|default:"-" }}<br>
+        <strong>PROJECT:</strong> {{ header.xproj|default:"-" }}
+      </td>
+      <td style="width: 50%; text-align: right; border: 1px solid #000; padding: 4px; vertical-align: top;">
+        <strong>ORDER NO.:</strong> {{ header.xpornum }}<br>
+        <strong>ORDER DATE:</strong> {{ header.xdate }}<br>
+        <strong>WH:</strong> {{ header.xwh }}
+      </td>
+    </tr>
+  </table>
+</div>
+{% endblock %}
+
+{% block content %}
+<table cellspacing="0" cellpadding="2" width="100%" style="border-collapse: collapse; table-layout: fixed; margin-top: 8px; font-size: 9px;">
+  <thead>
+    <tr>
+      <th style="border: 1px solid #000; padding: 2px; text-align: center; font-weight: bold; width: 12%;">ITEM CODE</th>
+      <th style="border: 1px solid #000; padding: 2px; text-align: center; font-weight: bold; width: 30%;">ITEM NAME</th>
+      <th style="border: 1px solid #000; padding: 2px; text-align: center; font-weight: bold; width: 15%;">SPECIFICATION</th>
+      <th style="border: 1px solid #000; padding: 2px; text-align: center; font-weight: bold; width: 10%;">QUANTITY</th>
+      <th style="border: 1px solid #000; padding: 2px; text-align: center; font-weight: bold; width: 8%;">UNIT</th>
+      <th style="border: 1px solid #000; padding: 2px; text-align: center; font-weight: bold; width: 10%;">Prv. Stock</th>
+      <th style="border: 1px solid #000; padding: 2px; text-align: center; font-weight: bold; width: 15%;">REMARKS</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in line_items %}
+    <tr>
+      <td style="border: 1px solid #000; padding: 2px; width: 12%; text-align: center;">{{ item.xitem }}</td>
+      <td style="border: 1px solid #000; padding: 2px; text-align: left; width: 30%;">{{ item.xdesc }}</td>
+      <td style="border: 1px solid #000; padding: 2px; width: 15%">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 2px; text-align: center; width: 10%;">{{ item.xqtyord|floatformat:0 }}</td>
+      <td style="border: 1px solid #000; padding: 2px; text-align: center; width: 8%;">{{ item.xunitstk }}</td>
+      <td style="border: 1px solid #000; padding: 2px; text-align: center; width: 10%;">{{ item.previous_stock|floatformat:2 }}</td>
+      <td style="border: 1px solid #000; padding: 2px; width: 15%">&nbsp;</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div style="margin-top: 40px; width: 100%; font-size: 10px;">
+  <!-- Email/Prepared By Section -->
+  <div style="margin-bottom: 30px;">
+    {{ request.user.email }}
+  </div>
+
+  <table style="width: 100%; border-collapse: collapse; text-align: center; margin-top: 60px;">
+    <tr>
+      <td style="width: 33%; vertical-align: top;">
+        <div style="border-top: 1px solid #000; margin: 0 20px; padding-top: 3px;">
+          Prepared by ({{ header.zemail|default:"-" }})
+        </div>
+      </td>
+      <td style="width: 33%; vertical-align: top;">
+        <div style="border-top: 1px solid #000; margin: 0 20px; padding-top: 3px;">Accounts Signature</div>
+      </td>
+      <td style="width: 34%; vertical-align: top;">
+        <div style="border-top: 1px solid #000; margin: 0 20px; padding-top: 3px;">Authorised Signature</div>
+      </td>
+    </tr>
+  </table>
+
+  <table style="width: 100%; margin-top: 20px; font-size: 9px; font-weight: bold;">
+
+  </table>
+</div>
+{% endblock %}

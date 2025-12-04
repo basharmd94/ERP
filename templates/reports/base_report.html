@@ -69,9 +69,9 @@
       <div style="font-size: 14px; font-weight: bold; text-decoration: underline; margin-top: 10px;">
         {% block header_title %}{{ report_title|default:"Report" }}{% endblock %}
       </div>
-      <div class="date-range">
+      {% comment %} <div class="date-range">
         From: {{ from_date }} To: {{ to_date }}
-      </div>
+      </div> {% endcomment %}
       {% block header_info %}{% endblock %}
     </div>
 
@@ -84,7 +84,7 @@
     <div id="footerContent" style="margin-top: 3px; font-family: 'Lucida Console', 'Courier New', monospace; font-style: italic;">
       {% block footer_info %}
       <div style="text-align: left; font-size: 9px; color: #000;">
-        System Generated Report | Developed by dreamerp | Bashar@01675373799 | Generated on: {{ print_date }} |  copywrite © {{ current_year }} {{ business.business_name|default:"My Business" }}.|
+        System Generated Report | Developed by dreamerp | Bashar@01675373799 | Generated on: {{ print_date }} | copywrite © {{ current_year }} {{ business.business_name|default:"My Business" }}.|
         <span style="font-weight: bold;"> Page
           <pdf:pagenumber /> of
           <pdf:pagecount /> </span>
