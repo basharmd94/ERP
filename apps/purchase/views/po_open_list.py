@@ -23,7 +23,7 @@ def po_open_list(request):
         if order_direction not in ['asc', 'desc']:
             order_direction = 'desc'
 
-        columns = ['po.xdate', 'po.xpornum', 'po.xsup', 's.xshort', 'po.xstatuspor']
+        columns = ['po.xdate', 'po.xpornum', 'grn.xgrnnum', 'po.xsup', 's.xshort', 'po.xstatuspor']
         order_column = columns[order_column_index] if 0 <= order_column_index < len(columns) else 'po.xdate'
 
         base_where = "po.zid = %s AND s.zid = %s AND po.xstatuspor = '1-Open'"
@@ -34,31 +34,43 @@ def po_open_list(request):
         if search_value:
             search_conditions = [
                 "po.xpornum LIKE %s",
+                "grn.xgrnnum LIKE %s",
                 "po.xsup LIKE %s",
                 "s.xshort LIKE %s",
                 "po.xstatuspor LIKE %s",
                 "CAST(po.xdate AS CHAR) LIKE %s",
             ]
             like = f"%{search_value}%"
-            search_params = [like, like, like, like, like]
+            search_params = [like, like, like, like, like, like]
 
         with connection.cursor() as cursor:
-            count_query = f"SELECT COUNT(*) FROM poord po JOIN casup s ON po.xsup = s.xsup AND po.zid = s.zid WHERE {base_where}"
+            count_query = (
+                f"SELECT COUNT(*) FROM poord po "
+                f"JOIN casup s ON po.xsup = s.xsup AND po.zid = s.zid "
+                f"LEFT JOIN pogrn grn ON grn.xpornum = po.xpornum AND grn.zid = po.zid AND grn.xstatusgrn = '1-Open' "
+                f"WHERE {base_where}"
+            )
             cursor.execute(count_query, base_params)
             total_records = cursor.fetchone()[0]
 
             if search_conditions:
                 where_clause = base_where + " AND (" + " OR ".join(search_conditions) + ")"
-                filtered_count_query = f"SELECT COUNT(*) FROM poord po JOIN casup s ON po.xsup = s.xsup AND po.zid = s.zid WHERE {where_clause}"
+                filtered_count_query = (
+                    f"SELECT COUNT(*) FROM poord po "
+                    f"JOIN casup s ON po.xsup = s.xsup AND po.zid = s.zid "
+                    f"LEFT JOIN pogrn grn ON grn.xpornum = po.xpornum AND grn.zid = po.zid AND grn.xstatusgrn = '1-Open' "
+                    f"WHERE {where_clause}"
+                )
                 cursor.execute(filtered_count_query, base_params + search_params)
                 filtered_records = cursor.fetchone()[0]
             else:
                 filtered_records = total_records
 
             data_query = f"""
-                SELECT po.xdate, po.xpornum, po.xsup, s.xshort AS supplier_name, po.xstatuspor
+                SELECT po.xdate, po.xpornum, grn.xgrnnum AS xgrnnum, po.xsup, s.xshort AS supplier_name, po.xstatuspor
                 FROM poord po
                 JOIN casup s ON po.xsup = s.xsup AND po.zid = s.zid
+                LEFT JOIN pogrn grn ON grn.xpornum = po.xpornum AND grn.zid = po.zid AND grn.xstatusgrn = '1-Open'
                 WHERE {base_where}
             """
             params = base_params
@@ -80,12 +92,14 @@ def po_open_list(request):
                 except Exception:
                     date_val = str(row[0])
             xpornum = str(row[1]) if row[1] else ''
-            xsup = str(row[2]) if row[2] else ''
-            supplier_name = str(row[3]) if row[3] else ''
-            status = str(row[4]) if row[4] else ''
+            xgrnnum = str(row[2]) if row[2] else ''
+            xsup = str(row[3]) if row[3] else ''
+            supplier_name = str(row[4]) if row[4] else ''
+            status = str(row[5]) if row[5] else ''
             data.append([
                 date_val,
                 xpornum,
+                xgrnnum,
                 xsup,
                 supplier_name,
                 status,

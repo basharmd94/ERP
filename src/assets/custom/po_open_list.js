@@ -43,6 +43,18 @@ $(function () {
         },
         {
           data: 2,
+          title: 'GRN Number',
+          orderable: true,
+          searchable: true,
+          render: function (data, type) {
+            if (type === 'display' && data) {
+              return '<strong class="text-info">' + data + '</strong>';
+            }
+            return data || '';
+          }
+        },
+        {
+          data: 3,
           title: 'Supplier',
           orderable: true,
           searchable: true,
@@ -54,7 +66,7 @@ $(function () {
           }
         },
         {
-          data: 3,
+          data: 4,
           title: 'Supplier Name',
           orderable: true,
           searchable: true,
@@ -66,7 +78,7 @@ $(function () {
           }
         },
         {
-          data: 4,
+          data: 5,
           title: 'Status',
           orderable: true,
           searchable: true,
@@ -81,7 +93,7 @@ $(function () {
           }
         },
         {
-          data: 5,
+          data: 6,
           title: 'Confirm',
           orderable: false,
           searchable: false,
@@ -96,7 +108,7 @@ $(function () {
           }
         },
         {
-          data: 6,
+          data: 7,
           title: 'Quick Act',
           orderable: false,
           searchable: false,
@@ -122,7 +134,7 @@ $(function () {
           }
         },
         {
-          data: 7,
+          data: 8,
           title: 'Actions',
           orderable: false,
           searchable: false,

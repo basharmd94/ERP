@@ -232,10 +232,153 @@ def po_create(request):
                 cursor.execute(poodt_sql, poodt_values)
                 row_num += 1
 
+            grn_prefix = 'GRN-'
+            grn_number = generate_voucher_number(
+                zid=current_zid,
+                prefix=grn_prefix,
+                table='pogrn',
+                column='xgrnnum',
+                length=6
+            )
+
+            if not grn_number:
+                return JsonResponse({'success': False, 'message': 'Failed to generate GRN number'}, status=500)
+
+            grn_without_prefix = grn_number[len(grn_prefix):] if grn_number.startswith(grn_prefix) else grn_number
+
+            pogrn_sql = """
+                INSERT INTO pogrn (
+                    ztime, zutime, zid, xgrnnum, xdate, xpornum, xshiplno, xrow, xsinnum,
+                    xsup, xsupref, xdatesupref, xdatedue, xsec, xproj, xstatusgrn, xcur,
+                    xexch, xwh, xrem, xdisc, xdtwotax, xdtdisc, xdttax, xval, xdiscamt,
+                    xtotamt, zemail, xstatusqc, xtypepor, xwhoption, xmember, xconfirmt,
+                  xfailedt,  xreviset,  xinvoicet, xdiscf
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s
+                )
+            """
+
+            pogrn_values = [
+                current_timestamp,          # ztime
+                timezone.now(),             # zutime
+                current_zid,                # zid
+                grn_number,                 # xgrnnum
+                xdate,                      # xdate
+                voucher_number,             # xpornum
+                '0',                        # xshiplno
+                0,                          # xrow
+                grn_without_prefix,         # xsinnum
+                xsup,                       # xsup
+                header_data.get('xsupref', ''),  # xsupref
+                xdate,                      # xdatesupref
+                xdate,                      # xdatedue
+                'Any',                      # xsec
+                xproj,                      # xproj
+                '1-Open',                   # xstatusgrn
+                'BDT',                      # xcur
+                1.0000000000,               # xexch
+                xwh,                        # xwh
+                xrem,                       # xrem
+                xdisc_percent,              # xdisc
+                xdtwotax,                   # xdtwotax
+                xdtdisc_fixed,              # xdtdisc
+                0.00,                       # xdttax
+                xval,                       # xval
+                xdiscamt,                   # xdiscamt
+                xtotamt,                    # xtotamt
+                session_user_email,         # zemail
+                '1-Open',                   # xstatusqc
+                'Local',                    # xtypepor
+                'Header',                   # xwhoption
+                session_user_email,         # xmember
+                timezone.now(),             # xconfirmt
+                timezone.now(),             # xfailedt
+                timezone.now(),             # xreviset
+                timezone.now(),             # xinvoicet
+                0                           # xdiscf
+            ]
+
+            cursor.execute(pogrn_sql, pogrn_values)
+
+            pogdt_sql = """
+                INSERT INTO pogdt (
+                    ztime, zutime, zid, xgrnnum, xrow, xcode, xcodebasis, xitem,
+                    xstype, xwh, xdropship, xqty, xqtygrn, xpornum, xcfpur, xwtunit,
+                    xcur, xrate, xdisc, xdiscf, xcomm, xexch, xpricebasis, xexchbuy,
+                    xprice, xdatesch, xdaterec, xstatusgdt, xtaxrate1, xtaxrate2, xtaxrate3,
+                    xtaxrate4, xtaxrate5, xlandcost, xdttax, xdtdisc, xdtwotax, xlineamt,
+                    xqtycrn, xchgapply
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s
+                )
+            """
+
+            row_num = 1
+            for item in details_data:
+                item_code = item.get('xitem')
+                qty = to_decimal(item.get('xqtyord', 0))
+                rate = to_decimal(item.get('xrate', 0))
+                line_amt = qty * rate
+
+                pogdt_values = [
+                    current_timestamp,      # ztime
+                    timezone.now(),         # zutime
+                    current_zid,            # zid
+                    grn_number,             # xgrnnum
+                    row_num,                # xrow
+                    item_code,              # xcode
+                    'Our Code',             # xcodebasis
+                    item_code,              # xitem
+                    'Stock-N-Sell',         # xstype
+                    xwh,                    # xwh
+                    0,                      # xdropship
+                    qty,                    # xqty
+                    qty,                    # xqtygrn
+                    voucher_number,         # xpornum
+                    1.000000,               # xcfpur
+                    0.000,                  # xwtunit
+                    'BDT',                  # xcur
+                    rate,                   # xrate
+                    0.00,                   # xdisc
+                    0.00,                   # xdiscf
+                    0.00,                   # xcomm
+                    1.0000000000,           # xexch
+                    'Entered',              # xpricebasis
+                    0.0000000000,           # xexchbuy
+                    rate,                   # xprice
+                    '2999-12-31',           # xdatesch
+                    xdate,                  # xdaterec
+                    '1-Open',               # xstatusgdt
+                    0.0000,                 # xtaxrate1
+                    0.0000,                 # xtaxrate2
+                    0.0000,                 # xtaxrate3
+                    0.0000,                 # xtaxrate4
+                    0.0000,                 # xtaxrate5
+                    0.000,                  # xlandcost
+                    0.00,                   # xdttax
+                    0.00,                   # xdtdisc
+                    line_amt,               # xdtwotax
+                    line_amt,               # xlineamt
+                    0.000,                  # xqtycrn
+                    'Yes'                   # xchgapply
+                ]
+
+                cursor.execute(pogdt_sql, pogdt_values)
+                row_num += 1
+
         return JsonResponse({
             'success': True,
             'message': 'Purchase Order created successfully',
-            'voucher_number': voucher_number
+            'voucher_number': voucher_number,
+            'grn_number': grn_number
         })
 
     except Exception as e:
