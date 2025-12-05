@@ -7,6 +7,7 @@ from .reports.modules import (
 
 from .views.po_create import po_create # Purchase Order Create function
 from .views.po_open_list import po_open_list # Show Purchase Open List in Confirm GRN/MRR Page
+from .views.po_confirm import po_confirm # Purchase Order Confirm function
 from .reports.po_req_print import po_req_print # Purchase Requisition Print function
 
 
@@ -28,8 +29,12 @@ urlpatterns = [
     # Show Purchase Open List in Confirm GRN/MRR Page
     path('po-open-list/', po_open_list, name='po-open-list'),
 
-    # Purchase Order Create view
+    # Purchase Confirm Page
     path('po-confirm/', POConfirmView.as_view(), name='po-confirm'),
+
+    # purchase order confirm
+    path('po-confirm/<str:transaction_id>/', po_confirm, name='po-confirm-detail'),
+
     path('po-list/', POListView.as_view(), name='po-list'),
     # +--------------------------+
     # |   Purchase Return URLS   |

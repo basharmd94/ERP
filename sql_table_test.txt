@@ -168,3 +168,38 @@
 "xlineamt"	"2400.000000" -- -- total amount of cart of the item qty * price as like poodt table
 "xqtycrn"	"0.000" -- default 0
 "xchgapply"	"Yes" -- default Yes
+
+##### imtrn table ######
+--loop through each cart item
+"ztime"	"2025-09-30T15:03:28.584" -- current timestamp
+"zid"	100001 -- session zid
+"ximtrnnum"	"RE--042620" -- -- call generate_voucher_number(
+            zid=current_zid,
+            prefix='RE--',
+            table='imtrn',
+            column='ximtrnnum'
+"xitem"	"10-045" -- pogdt cart item code
+"xwh"	"Fixit Gulshan" -- pogrn warehouse
+"xdate"	"2025-09-30" -- pogrn xdate
+"xyear"	"2025" -- pogrn xyear
+"xper"	"9" -- pogrn xper
+"xqty"	"24.000" --pogdt item
+"xval"	"2400.000000" -- import from apps.utils.average_price_calculation import get_average_price
+def get_average_price(zid: int, xitem: str, current_date: str = None) -> float: function to generate average price of the item code
+"xvalpost"	"2400.000000" -- same as xval
+"xdoctype"	"0027" -- default 0027
+"xdocnum"	"GRN-002713" -- pogrn xgrnnum
+"xdocrow"	"1" -- serial number of items
+"xnote"	"Goods Received" -- default Goods Received
+"xaltqty"	"0.000" --n default 0
+"xsec"	"Any" -- default Any
+"xproj"	"HMBR FIXIT GULSHAN" -- pogrn xproj
+"xdateexp"	"2025-09-30" -- pogrn xdate
+"xdaterec"	"2025-09-30" -- pogrn xdate
+"xsup"	"SUP-000001" -- pogrn xsup
+"xaction"	"Receipt" -- default Receipt
+"xsign"	"1" -- default 1
+"xtime"	"2025-09-30T15:03:28" --  current timestamp
+"zemail"	"manager@fixit.com" -- session user email
+"xtrnim"	"RE--" default RE--
+"xmember"	"manager@fixit.com"

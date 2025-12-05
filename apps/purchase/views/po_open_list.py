@@ -103,7 +103,7 @@ def po_open_list(request):
                 xsup,
                 supplier_name,
                 status,
-                xpornum,  # Confirm column data (PO Number)
+                xgrnnum,
                 xpornum,  # Quick Act column data (PO Number)
                 xpornum   # Actions column data (PO Number)
             ])

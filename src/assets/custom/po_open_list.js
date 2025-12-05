@@ -101,8 +101,8 @@ $(function () {
           width: '100px',
           render: function (data, type, row) {
             if (type === 'display' && data) {
-              var poNumber = data;
-              return '<button type="button" class="btn btn-sm btn-primary" data-po="' + poNumber + '" title="Confirm">Confirm</button>';
+              var grnNumber = data;
+              return '<button type="button" class="btn btn-sm btn-primary btn-confirm-grn" data-grn="' + grnNumber + '" title="Confirm">Confirm</button>';
             }
             return '';
           }
