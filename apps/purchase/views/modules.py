@@ -36,8 +36,8 @@ class POConfirmView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
 
 # PO List
 class POListView(ZidRequiredMixin, ModulePermissionMixin, TemplateView):
-    module_code = 'po_list'
-    template_name = 'po_list.html'
+    module_code = 'po_confirm_list'
+    template_name = 'po_confirm_list.html'
 
     def get_context_data(self, **kwargs):
         # A function to init the global layout. It is defined in web_project/__init__.py file

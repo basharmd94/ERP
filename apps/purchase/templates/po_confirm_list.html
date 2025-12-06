@@ -1,0 +1,64 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+{% load menu_permissions %}
+
+{% block title %}{% trans "Purchase Order List" %}{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+<script src="{% static 'custom/po_confirm_list.js' %}"></script>
+<script src="{% static 'custom/po_delete.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'purchase-order' %}">{% trans "Purchase Order" %}</a>
+    </li>
+    <li class="breadcrumb-item active">{% trans "Confirmed GRN List" %}</li>
+  </ol>
+</nav>
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title mb-0">{% trans "Confirmed GRNs" %}</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table id="po-confirm-list-table" class="table table-striped table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>{% trans "Date" %}</th>
+            <th>{% trans "PO Number" %}</th>
+            <th>{% trans "GRN Number" %}</th>
+            <th>{% trans "Supplier" %}</th>
+            <th>{% trans "Supplier Name" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Invoice" %}</th>
+            <th>{% trans "Quick Act" %}</th>
+            <th>{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

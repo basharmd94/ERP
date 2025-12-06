@@ -8,9 +8,11 @@ from .reports.modules import (
 from .views.po_create import po_create # Purchase Order Create function
 from .views.po_open_list import po_open_list # Show Purchase Open List in Confirm GRN/MRR Page
 from .views.po_confirm import po_confirm # Purchase Order Confirm function
+from .views.po_confirm_list import po_confirm_list # Confirmed GRN List API
 from .reports.po_req_print import po_req_print # Purchase Requisition Print function
 from .reports.po_grn_print import po_grn_print # Purchase/GRN Print function
 from .views.po_delete import po_delete # Delete Purchase order using Po number
+from .views.po_export_excel import po_export_excel # PO/GRN Excel export
 
 
 
@@ -19,7 +21,7 @@ urlpatterns = [
     # |   Purchase Menu List     |
     # +--------------------------+
 
-    # Purchase Order Page
+    # Purchase Order Page/module
     path('purchase-order/', PurchaseOrderView.as_view(), name='purchase-order'),
 
     # Purchase Order Create function
@@ -31,19 +33,32 @@ urlpatterns = [
     # Show Purchase Open List in Confirm GRN/MRR Page
     path('po-open-list/', po_open_list, name='po-open-list'),
 
-    # Purchase Confirm Page
+    # Purchase Confirm Page/module
     path('po-confirm/', POConfirmView.as_view(), name='po-confirm'),
 
     # purchase order confirm
     path('po-confirm/<str:transaction_id>/', po_confirm, name='po-confirm-detail'),
 
+
+
     # Purchase/GRN Print
     path('po-grn-print/<str:transaction_id>/', po_grn_print, name='po-grn-print'),
+
 
     # Delete Purchase  order using Po number
     path('po-delete/<str:po_number>/', po_delete, name='po-delete'),
 
-    path('po-list/', POListView.as_view(), name='po-list'),
+    # Purchase Confirmed List Page/module
+    path('po-confirmed-list/', POListView.as_view(), name='po-confirmed-list'),
+
+    # Confirmed GRN List endpoint (DataTables API)
+    path('po-confirm-list/', po_confirm_list, name='po-confirm-list-data'),
+
+    # po export to excel
+    path('po-export-excel/<str:grn_number>/', po_export_excel, name='po-export-excel'),
+
+
+
     # +--------------------------+
     # |   Purchase Return URLS   |
     # +--------------------------+

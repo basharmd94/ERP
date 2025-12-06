@@ -2,82 +2,57 @@ $(function () {
   let poTable;
 
   function initializeDataTable() {
-    if ($.fn.DataTable.isDataTable('#po-open-list-table')) {
-      $('#po-open-list-table').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#po-confirm-list-table')) {
+      $('#po-confirm-list-table').DataTable().destroy();
     }
 
-    poTable = $('#po-open-list-table').DataTable({
+    poTable = $('#po-confirm-list-table').DataTable({
       processing: true,
       serverSide: true,
       ajax: {
-        url: '/purchase/po-open-list/',
+        url: '/purchase/po-confirm-list/',
         type: 'GET',
-        error: function (xhr, error) {
-          showError('Failed to load purchase orders. Please try again.');
+        error: function () {
+          showError('Failed to load confirmed GRNs. Please try again.');
         }
       },
       columns: [
-        {
+        { // Date
           data: 0,
           title: 'Date',
           orderable: true,
           searchable: true,
-          render: function (data, type) {
-            if (type === 'display' && data) {
-              return '<span class="badge rounded-pill bg-label-dark">' + data + '</span>';
-            }
-            return data || '';
-          }
+          render: function (data, type) { return (type === 'display' && data) ? '<span class="badge rounded-pill bg-label-dark">' + data + '</span>' : (data || ''); }
         },
-        {
+        { // PO Number
           data: 1,
           title: 'PO Number',
           orderable: true,
           searchable: true,
-          render: function (data, type) {
-            if (type === 'display' && data) {
-              return '<strong class="text-primary">' + data + '</strong>';
-            }
-            return data || '';
-          }
+          render: function (data, type) { return (type === 'display' && data) ? '<strong class="text-primary">' + data + '</strong>' : (data || ''); }
         },
-        {
+        { // GRN Number
           data: 2,
           title: 'GRN Number',
           orderable: true,
           searchable: true,
-          render: function (data, type) {
-            if (type === 'display' && data) {
-              return '<strong class="text-info">' + data + '</strong>';
-            }
-            return data || '';
-          }
+          render: function (data, type) { return (type === 'display' && data) ? '<strong class="text-info">' + data + '</strong>' : (data || ''); }
         },
-        {
+        { // Supplier
           data: 3,
           title: 'Supplier',
           orderable: true,
           searchable: true,
-          render: function (data, type) {
-            if (type === 'display' && data) {
-              return '<span class="badge rounded-pill bg-label-primary">' + data + '</span>';
-            }
-            return data || '';
-          }
+          render: function (data, type) { return (type === 'display' && data) ? '<span class="badge rounded-pill bg-label-primary">' + data + '</span>' : (data || ''); }
         },
-        {
+        { // Supplier Name
           data: 4,
           title: 'Supplier Name',
           orderable: true,
           searchable: true,
-          render: function (data, type) {
-            if (type === 'display' && data) {
-              return '<span class="text-muted">' + data + '</span>';
-            }
-            return data || '';
-          }
+          render: function (data, type) { return (type === 'display' && data) ? '<span class="text-muted">' + data + '</span>' : (data || ''); }
         },
-        {
+        { // Status
           data: 5,
           title: 'Status',
           orderable: true,
@@ -85,29 +60,20 @@ $(function () {
           render: function (data, type) {
             if (type === 'display' && data) {
               var badgeClass = 'bg-secondary';
-              if (data === '1-Open') badgeClass = 'bg-warning';
               if (data === '5-Confirmed') badgeClass = 'badge rounded-pill bg-label-success';
               return '<span class="badge ' + badgeClass + '">' + data + '</span>';
             }
             return data || '';
           }
         },
-        {
+        { // Invoice
           data: 6,
-          title: 'Confirm',
-          orderable: false,
-          searchable: false,
-          className: 'text-center',
-          width: '100px',
-          render: function (data, type, row) {
-            if (type === 'display' && data) {
-              var grnNumber = data;
-              return '<button type="button" class="btn btn-sm btn-primary btn-confirm-grn" data-grn="' + grnNumber + '" title="Confirm">Confirm</button>';
-            }
-            return '';
-          }
+          title: 'Invoice',
+          orderable: true,
+          searchable: true,
+          render: function (data, type) { return data || ''; }
         },
-        {
+        { // Quick Act
           data: 7,
           title: 'Quick Act',
           orderable: false,
@@ -135,7 +101,7 @@ $(function () {
             return '';
           }
         },
-        {
+        { // Actions
           data: 8,
           title: 'Actions',
           orderable: false,
@@ -177,11 +143,11 @@ $(function () {
           '<div class="d-flex justify-content-center align-items-center">' +
           '<div class="spinner-border text-primary me-2" role="status">' +
           '<span class="visually-hidden">Loading...</span></div>' +
-          'Loading purchase orders...</div>',
+          'Loading confirmed GRNs...</div>',
         emptyTable:
           '<div class="text-center py-4">' +
           '<i class="tf-icons ti ti-arrow-back-up ti-lg text-muted mb-2 d-block"></i>' +
-          '<div class="text-muted">No purchase orders found</div>' +
+          '<div class="text-muted">No confirmed GRNs found</div>' +
           '<small class="text-muted">Try adjusting your search criteria</small></div>',
         zeroRecords:
           '<div class="text-center py-4">' +
@@ -189,7 +155,7 @@ $(function () {
           '<div class="text-muted">No matching records found</div>' +
           '<small class="text-muted">Try different search terms</small></div>',
         search: '<i class="tf-icons ti ti-search me-1"></i>',
-        searchPlaceholder: 'Search purchase orders...',
+        searchPlaceholder: 'Search confirmed GRNs...',
         lengthMenu: 'Show _MENU_ entries',
         info: 'Showing _START_ to _END_ of _TOTAL_ entries',
         infoEmpty: 'No entries available',
@@ -221,18 +187,3 @@ $(function () {
     }
   }
 });
-
-function deletePO(poNumber) {
-  if (typeof Swal !== 'undefined') {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Delete functionality will be implemented later.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes',
-      cancelButtonText: 'Cancel'
-    });
-  }
-}

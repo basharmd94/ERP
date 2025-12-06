@@ -195,11 +195,11 @@
           "permission": "po_confirm.view"
         },
         {
-          "url": "/purchase/po-list/",
+          "url": "/purchase/po-confirmed-list/",
           "icon": "menu-icon tf-icons ti ti-briefcase",
-          "name": "Purchase List",
-          "slug": "po-list",
-          "permission": "po_list.view"
+          "name": "PO Confirmed List",
+          "slug": "po-confirmed-list",
+          "permission": "po_confirmed_list.view"
         },
         {
           "url": "/purchase/po-return/",
