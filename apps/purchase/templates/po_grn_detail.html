@@ -1,0 +1,246 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}GRN - GRN Detail {% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/toastr/toastr.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<script src="{% static 'vendor/libs/toastr/toastr.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'purchase-order' %}">{% trans "Purchase Order" %}</a>
+    </li>
+    <li class="breadcrumb-item active">GRN Detail</li>
+  </ol>
+</nav>
+
+{% if error %}
+<div class="alert alert-danger" role="alert">
+  <i class="ti ti-alert-circle me-2"></i>{{ error }}
+</div>
+{% else %}
+
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">
+      <i class="ti ti-receipt me-2"></i>
+      GRN Detail - {{ header.xgrnnum|default:transaction_id }}
+    </h5>
+    <div class="btn-group">
+      {% if prev_grn %}
+      <a href="{% url 'po-grn-detail' prev_grn %}" class="btn btn-outline-primary btn-sm">
+        <i class="ti ti-arrow-left me-1"></i>Prev
+      </a>
+      {% else %}
+      <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+        <i class="ti ti-arrow-left me-1"></i>Prev
+      </button>
+      {% endif %}
+      {% if next_grn %}
+      <a href="{% url 'po-grn-detail' next_grn %}" class="btn btn-outline-primary btn-sm">
+        <i class="ti ti-arrow-right me-1"></i>Next
+      </a>
+      {% else %}
+      <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+        <i class="ti ti-arrow-right me-1"></i>Next
+      </button>
+      {% endif %}
+      <button type="button" class="btn btn-outline-primary btn-sm" onclick="window.location.reload()">
+        <i class="ti ti-refresh me-1"></i>Refresh
+      </button>
+      <a href="{% url 'po-grn-print' transaction_id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+        <i class="ti ti-printer me-1"></i>Print
+      </a>
+      <a href="{% url 'po-export-excel' transaction_id %}" class="btn btn-outline-success btn-sm">
+        <i class="ti ti-file-spreadsheet me-1"></i>Export to Excel
+      </a>
+      {% if header.xpornum %}
+      <button type="button" class="btn btn-outline-danger btn-sm" onclick="deletePO('{{ header.xpornum }}')">
+        <i class="ti ti-trash me-1"></i>Delete PO
+      </button>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <table class="table table-borderless">
+          <tr>
+            <td class="fw-medium text-muted">GRN Number:</td>
+            <td>{{ header.xgrnnum|default:transaction_id }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Date:</td>
+            <td>{{ header.xdate|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Project:</td>
+            <td>{{ header.xproj|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Warehouse:</td>
+            <td>{{ header.xwh|default:"-" }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <table class="table table-borderless">
+          <tr>
+            <td class="fw-medium text-muted">Status:</td>
+            <td>
+              {% if header.xstatusgrn == "5-Confirmed" %}
+              <span class="badge bg-label-success">{{ header.xstatusgrn }}</span>
+              {% elif header.xstatusgrn == "1-Open" %}
+              <span class="badge bg-label-warning">{{ header.xstatusgrn }}</span>
+              {% else %}
+              <span class="badge bg-label-info">{{ header.xstatusgrn|default:"-" }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Supplier:</td>
+            <td>{{ header.xsup|default:"-" }}{% if header.supplier_name %} - {{ header.supplier_name }}{% endif %}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">PO Number:</td>
+            <td>{{ header.xpornum|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Invoice:</td>
+            <td>{{ header.xref|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Email:</td>
+            <td>{{ header.zemail|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td class="fw-medium text-muted">Remarks:</td>
+            <td>{{ header.xrem|default:"-" }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="card-title mb-0">
+      <i class="ti ti-list-details me-2"></i>
+      Line Items
+    </h5>
+  </div>
+  <div class="card-body">
+    {% if line_items %}
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th class="text-center">Line No.</th>
+            <th>Item Code</th>
+            <th>Item Description</th>
+            <th class="text-end">Qty Supplied</th>
+            <th class="text-end">Qty Received</th>
+            <th class="text-center">Unit</th>
+            <th class="text-end">Rate</th>
+            <th class="text-end">Total Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in line_items %}
+          <tr>
+            <td class="text-center">{{ item.xrow|default:"-" }}</td>
+            <td><strong>{{ item.xitem|default:"-" }}</strong></td>
+            <td>{{ item.xdesc|default:"-" }}</td>
+            <td class="text-end">{{ item.xqty|floatformat:2 }}</td>
+            <td class="text-end">{{ item.xqtygrn|floatformat:2 }}</td>
+            <td class="text-center">{{ item.xunitstk|default:"-" }}</td>
+            <td class="text-end">{{ item.xrate|floatformat:2 }}</td>
+            <td class="text-end"><strong>{{ item.xlineamt|floatformat:2 }}</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-4">
+      <i class="ti ti-inbox me-2"></i>No line items found
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if totals %}
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title mb-0">
+      <i class="ti ti-calculator me-2"></i>
+      Summary Totals
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="d-flex align-items-center">
+          <div class="avatar avatar-sm me-3">
+            <span class="avatar-initial rounded bg-label-primary">
+              <i class="ti ti-package"></i>
+            </span>
+          </div>
+          <div>
+            <small class="text-muted d-block">Total Items</small>
+            <h6 class="mb-0">{{ totals.item_count|default:0 }}</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex align-items-center">
+          <div class="avatar avatar-sm me-3">
+            <span class="avatar-initial rounded bg-label-info">
+              <i class="ti ti-sum"></i>
+            </span>
+          </div>
+          <div>
+            <small class="text-muted d-block">Total Quantity</small>
+            <h6 class="mb-0">{{ totals.total_quantity|floatformat:2|default:"0.00" }}</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex align-items-center">
+          <div class="avatar avatar-sm me-3">
+            <span class="avatar-initial rounded bg-label-success">
+              <i class="ti ti-currency-dollar"></i>
+            </span>
+          </div>
+          <div>
+            <small class="text-muted d-block">Total Value</small>
+            <h6 class="mb-0">{{ totals.total_value|floatformat:2|default:"0.00" }}</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'custom/po_delete.js' %}"></script>
+{% endblock page_js %}

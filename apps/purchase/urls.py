@@ -9,10 +9,12 @@ from .views.po_create import po_create # Purchase Order Create function
 from .views.po_open_list import po_open_list # Show Purchase Open List in Confirm GRN/MRR Page
 from .views.po_confirm import po_confirm # Purchase Order Confirm function
 from .views.po_confirm_list import po_confirm_list # Confirmed GRN List API
+from .views.po_grn_detail import POGrnDetailView # GRN Detail view
 from .reports.po_req_print import po_req_print # Purchase Requisition Print function
 from .reports.po_grn_print import po_grn_print # Purchase/GRN Print function
 from .views.po_delete import po_delete # Delete Purchase order using Po number
 from .views.po_export_excel import po_export_excel # PO/GRN Excel export
+
 
 
 
@@ -57,6 +59,9 @@ urlpatterns = [
     # po export to excel
     path('po-export-excel/<str:grn_number>/', po_export_excel, name='po-export-excel'),
 
+    # GRN Detail Page
+    path('po-grn-detail/<str:transaction_id>/', POGrnDetailView.as_view(), name='po-grn-detail'),
+
 
 
     # +--------------------------+
@@ -77,3 +82,4 @@ urlpatterns = [
     path('po-reports-item-wise/', ItemWiseMrrReportView.as_view(), name='po-reports-item-wise'),
     path('po-reports-stat-supplier/', StatementBySupplierView.as_view(), name='po-reports-stat-supplier'),
 ]
+

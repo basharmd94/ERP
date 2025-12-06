@@ -120,8 +120,8 @@ $(function () {
               var grnNumber = row[2];
               return (
                 '<div class="btn-group" role="group" aria-label="Quick Actions">' +
-                '<a href="/purchase/po-detail/' + poNumber + '/" target="_blank" class="btn btn-sm btn-outline-primary" title="View Details">' +
-                '<i class="tf-icons ti ti-eye"></i></a>' +
+
+                (grnNumber ? '<a href="/purchase/po-grn-detail/' + grnNumber + '/" target="_blank" class="btn btn-sm btn-outline-primary" title="GRN Detail"><i class="tf-icons ti ti-eye"></i></a>' : '') +
                 '<a href="/purchase/po-update/' + poNumber + '/" class="btn btn-sm btn-outline-warning" title="Edit">' +
                 '<i class="tf-icons ti ti-edit"></i></a>' +
                 '<a href="/purchase/po-req-print/' + poNumber + '/" target="_blank" class="btn btn-sm btn-outline-info" title="Print Requisition">' +
@@ -150,7 +150,8 @@ $(function () {
                 '<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">' +
                 '<i class="tf-icons ti ti-dots-vertical"></i></button>' +
                 '<ul class="dropdown-menu">' +
-                '<li><a class="dropdown-item" href="/purchase/po-detail/' + poNumber + '/"><i class="tf-icons ti ti-eye me-1"></i>View</a></li>' +
+
+                (grnNumber ? '<li><a class="dropdown-item" href="/purchase/po-grn-detail/' + grnNumber + '/"><i class="tf-icons ti ti-eye me-1"></i>View GRN</a></li>' : '') +
                 '<li><a class="dropdown-item" href="/purchase/po-update/' + poNumber + '/"><i class="tf-icons ti ti-edit me-1"></i>Edit</a></li>' +
                 '<li><a class="dropdown-item" href="/purchase/po-req-print/' + poNumber + '/" target="_blank"><i class="tf-icons ti ti-printer me-1"></i>Print Requisition</a></li>' +
                 (grnNumber ? '<li><a class="dropdown-item" href="/purchase/po-grn-print/' + grnNumber + '/" target="_blank"><i class="tf-icons ti ti-printer me-1"></i>Print GRN</a></li>' : '') +
