@@ -118,12 +118,14 @@ $(function () {
             if (type === 'display' && data) {
               var poNumber = data;
               var grnNumber = row[2];
+              var status = row[5];
+              var editUrl = grnNumber && status === '1-Open' ? ('/purchase/po-grn-edit/' + grnNumber + '/') : ('/purchase/po-update/' + poNumber + '/');
+              var editTitle = grnNumber && status === '1-Open' ? 'Edit GRN' : 'Edit PO';
               return (
                 '<div class="btn-group" role="group" aria-label="Quick Actions">' +
 
                 (grnNumber ? '<a href="/purchase/po-grn-detail/' + grnNumber + '/" target="_blank" class="btn btn-sm btn-outline-primary" title="GRN Detail"><i class="tf-icons ti ti-eye"></i></a>' : '') +
-                '<a href="/purchase/po-update/' + poNumber + '/" class="btn btn-sm btn-outline-warning" title="Edit">' +
-                '<i class="tf-icons ti ti-edit"></i></a>' +
+                '<a href="' + editUrl + '" class="btn btn-sm btn-outline-warning" title="' + editTitle + '"><i class="tf-icons ti ti-edit"></i></a>' +
                 '<a href="/purchase/po-req-print/' + poNumber + '/" target="_blank" class="btn btn-sm btn-outline-info" title="Print Requisition">' +
                 '<i class="tf-icons ti ti-printer"></i></a>' +
                 (grnNumber ? '<a href="/purchase/po-grn-print/' + grnNumber + '/" target="_blank" class="btn btn-sm btn-outline-info" title="Print GRN"><i class="tf-icons ti ti-printer"></i></a>' : '') +
@@ -145,6 +147,7 @@ $(function () {
             if (type === 'display' && data) {
               var poNumber = data;
               var grnNumber = row[2];
+              var status = row[5];
               return (
                 '<div class="dropdown">' +
                 '<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">' +
@@ -152,7 +155,7 @@ $(function () {
                 '<ul class="dropdown-menu">' +
 
                 (grnNumber ? '<li><a class="dropdown-item" href="/purchase/po-grn-detail/' + grnNumber + '/"><i class="tf-icons ti ti-eye me-1"></i>View GRN</a></li>' : '') +
-                '<li><a class="dropdown-item" href="/purchase/po-update/' + poNumber + '/"><i class="tf-icons ti ti-edit me-1"></i>Edit</a></li>' +
+                (grnNumber && status === '1-Open' ? '<li><a class="dropdown-item" href="/purchase/po-grn-edit/' + grnNumber + '/"><i class="tf-icons ti ti-edit me-1"></i>Edit GRN</a></li>' : '<li><a class="dropdown-item" href="/purchase/po-update/' + poNumber + '/"><i class="tf-icons ti ti-edit me-1"></i>Edit PO</a></li>') +
                 '<li><a class="dropdown-item" href="/purchase/po-req-print/' + poNumber + '/" target="_blank"><i class="tf-icons ti ti-printer me-1"></i>Print Requisition</a></li>' +
                 (grnNumber ? '<li><a class="dropdown-item" href="/purchase/po-grn-print/' + grnNumber + '/" target="_blank"><i class="tf-icons ti ti-printer me-1"></i>Print GRN</a></li>' : '') +
                 (grnNumber ? '<li><a class="dropdown-item" href="/purchase/po-export-excel/' + grnNumber + '/"><i class="tf-icons ti ti-file-spreadsheet me-1"></i>Export Excel</a></li>' : '') +
