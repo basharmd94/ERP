@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "apps.home.apps.HomeConfig",  # Add the home app with proper config
-    "apps.crossapp",  # Add the Cross App
+    
     "apps.dashboards",
     "apps.layouts",
     "apps.front_pages",
@@ -82,7 +82,14 @@ INSTALLED_APPS = [
     "apps.opord",  # New OpOrd app
     "apps.sales",  # New Sales Management app
     "apps.inventory",  # New Inventory Management app
+    "apps.receive",
+    "apps.issue",
+    "apps.transfer",
     "apps.api",
+    "apps.crossapp",  # Add the Cross App
+    "apps.suppliers",
+    "apps.customers",
+    "apps.items",
     "apps.accounting",  # New Accounting app
     "apps.purchase",  # New Purchase Management app
     # Celery
