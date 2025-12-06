@@ -24,6 +24,7 @@
 {% block page_js %}
 <script src="{% static 'custom/po_open_list.js' %}"></script>
 <script src="{% static 'custom/po_confirm.js' %}"></script>
+<script src="{% static 'custom/po_delete.js' %}"></script>
 {% endblock page_js %}
 
 {% block content %}
@@ -34,7 +35,7 @@
     </li>
     <li class="breadcrumb-item active">{% trans "Open PO List" %}</li>
   </ol>
-  </nav>
+</nav>
 
 <div class="card">
   <div class="card-header">
@@ -70,5 +71,5 @@
       <p class="mt-2 text-muted">No purchase orders found</p>
     </div>
   </div>
- </div>
+</div>
 {% endblock %}

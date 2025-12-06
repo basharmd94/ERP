@@ -114,17 +114,19 @@ $(function () {
           searchable: false,
           className: 'text-center',
           width: '120px',
-          render: function (data, type) {
+          render: function (data, type, row) {
             if (type === 'display' && data) {
               var poNumber = data;
+              var grnNumber = row[2];
               return (
                 '<div class="btn-group" role="group" aria-label="Quick Actions">' +
                 '<a href="/purchase/po-detail/' + poNumber + '/" target="_blank" class="btn btn-sm btn-outline-primary" title="View Details">' +
                 '<i class="tf-icons ti ti-eye"></i></a>' +
                 '<a href="/purchase/po-update/' + poNumber + '/" class="btn btn-sm btn-outline-warning" title="Edit">' +
                 '<i class="tf-icons ti ti-edit"></i></a>' +
-                '<a href="/purchase/po-req-print/' + poNumber + '/" target="_blank" class="btn btn-sm btn-outline-info" title="Print">' +
+                '<a href="/purchase/po-req-print/' + poNumber + '/" target="_blank" class="btn btn-sm btn-outline-info" title="Print Requisition">' +
                 '<i class="tf-icons ti ti-printer"></i></a>' +
+                (grnNumber ? '<a href="/purchase/po-grn-print/' + grnNumber + '/" target="_blank" class="btn btn-sm btn-outline-info" title="Print GRN"><i class="tf-icons ti ti-printer"></i></a>' : '') +
                 '<a href="/purchase/po-export-excel/' + poNumber + '/" class="btn btn-sm btn-outline-success" title="Export Excel">' +
                 '<i class="tf-icons ti ti-file-spreadsheet"></i></a>' +
                 '</div>'
@@ -139,9 +141,10 @@ $(function () {
           orderable: false,
           searchable: false,
           className: 'text-center',
-          render: function (data, type) {
+          render: function (data, type, row) {
             if (type === 'display' && data) {
               var poNumber = data;
+              var grnNumber = row[2];
               return (
                 '<div class="dropdown">' +
                 '<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">' +
@@ -149,7 +152,8 @@ $(function () {
                 '<ul class="dropdown-menu">' +
                 '<li><a class="dropdown-item" href="/purchase/po-detail/' + poNumber + '/"><i class="tf-icons ti ti-eye me-1"></i>View</a></li>' +
                 '<li><a class="dropdown-item" href="/purchase/po-update/' + poNumber + '/"><i class="tf-icons ti ti-edit me-1"></i>Edit</a></li>' +
-                '<li><a class="dropdown-item" href="/purchase/po-req-print/' + poNumber + '/" target="_blank"><i class="tf-icons ti ti-printer me-1"></i>Print</a></li>' +
+                '<li><a class="dropdown-item" href="/purchase/po-req-print/' + poNumber + '/" target="_blank"><i class="tf-icons ti ti-printer me-1"></i>Print Requisition</a></li>' +
+                (grnNumber ? '<li><a class="dropdown-item" href="/purchase/po-grn-print/' + grnNumber + '/" target="_blank"><i class="tf-icons ti ti-printer me-1"></i>Print GRN</a></li>' : '') +
                 '<li><a class="dropdown-item" href="/purchase/po-export-excel/' + poNumber + '/"><i class="tf-icons ti ti-file-spreadsheet me-1"></i>Export Excel</a></li>' +
                 '<li><hr class="dropdown-divider"></li>' +
                 '<li><a class="dropdown-item text-danger" href="#" onclick="deletePO(\'' + poNumber + '\')"><i class="tf-icons ti ti-trash me-1"></i>Delete</a></li>' +

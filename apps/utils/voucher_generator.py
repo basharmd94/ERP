@@ -5,6 +5,7 @@ Simple and Flexible Voucher Number Generation System
 import re
 from django.db import transaction, connection
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -93,6 +94,65 @@ def generate_voucher_number(zid: int, prefix: str, table: str, column: str, leng
     except Exception as e:
         logger.error(f"Error generating voucher number for table {table}, column {column}, prefix {prefix}: {str(e)}")
         raise ValidationError(f"Failed to generate voucher number: {str(e)}")
+
+def generate_sinv_voucher(zid: int, prefix: str) -> str:
+    """
+    Generate supplier invoice voucher in format "SINVMMYY-XXXXXX" with month-based serial reset.
+
+    Args:
+        zid: Business identifier used for scoping.
+        prefix: Fixed prefix, typically "SINV".
+
+    Returns:
+        Voucher string formatted as "SINVMMYY-XXXXXX".
+
+    Raises:
+        ValidationError: If database access fails or voucher generation encounters an error.
+
+    Thread Safety:
+        Uses a transaction with SELECT FOR UPDATE to serialize concurrent generations
+        for an existing month scope.
+    """
+    try:
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                now = timezone.now()
+                month = f"{now.month:02d}"
+                year_short = f"{now.year % 100:02d}"
+                base_prefix = f"{prefix}{month}{year_short}-"
+
+                cursor.execute(
+                    """
+                    SELECT xvoucher
+                    FROM glheader
+                    WHERE zid = %s AND xvoucher LIKE %s
+                    ORDER BY xvoucher DESC
+                    LIMIT 1
+                    FOR UPDATE
+                    """,
+                    [zid, f"{base_prefix}%"],
+                )
+                row = cursor.fetchone()
+
+                if row and row[0]:
+                    serial_str = row[0].split('-')[-1]
+                    try:
+                        last_serial = int(serial_str)
+                    except ValueError:
+                        last_serial = 0
+                    next_serial = last_serial + 1
+                else:
+                    next_serial = 1
+
+                voucher = f"{base_prefix}{next_serial:06d}"
+                logger.info(f"Generated voucher {voucher} for zid={zid}")
+                return voucher
+    except Exception as e:
+        logger.error(
+            f"Error generating {prefix} voucher for zid={zid}: {str(e)}",
+            exc_info=True,
+        )
+        raise ValidationError(f"Failed to generate {prefix} voucher: {str(e)}")
 
 
 # Usage Examples:

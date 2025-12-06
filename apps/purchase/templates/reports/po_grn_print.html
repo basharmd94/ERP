@@ -1,0 +1,140 @@
+{% extends 'reports/base_report.html' %}
+{% load bdt_filters %}
+
+{% block title %}Goods Receipt Note{% endblock %}
+{% block header_title %}MATERIAL RECEIPT REPORT (MRR){% endblock %}
+
+{% block header_info %}
+<style>
+.mrr-table th,
+.mrr-table td {
+  border: 1px solid #000;
+  padding: 2px;
+}
+
+.mrr-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 9px;
+  table-layout: fixed;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tfoot {
+  display: table-footer-group;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+</style>
+<div style="margin-bottom: 8px;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+    <tr>
+      <td style="width: 50%; text-align: left; border: 1px solid #000; padding: 4px; vertical-align: top;">
+        <strong>MRR No:</strong> {{ header.xgrnnum }}<br>
+        <strong>Supplier's ID &amp; Name:</strong> {{ header.xsup }}{% if header.supplier_name %} - {{ header.supplier_name }}{% endif %}<br>
+        <strong>Purchase Order No:</strong> {{ header.xpornum|default:"-" }}<br>
+        <strong>Project:</strong> {{ header.xproj|default:"-" }} <br>
+        <strong>GRN Status:</strong> {{ header.xstatusgrn|default:"-" }}
+
+      </td>
+      <td style="width: 50%; text-align: right; border: 1px solid #000; padding: 4px; vertical-align: top;">
+        <strong>MRR Date:</strong> {{ header.xdate|default:"-" }}<br>
+        <strong>Warehouse:</strong> {{ header.xwh|default:"-" }}<br>
+        <strong>Confirmed Date:</strong> {{ header.xconfirmt|default:"-" }}<br>
+        <strong>PO Date:</strong> {{ header.po_date|default:"-" }} <br>
+        <strong>INVOICE#:</strong> {{ header.xref|default:"-" }}<br>
+      </td>
+    </tr>
+  </table>
+</div>
+{% endblock %}
+
+{% block content %}
+<table class="mrr-table" cellspacing="0" cellpadding="2">
+  <thead>
+    <tr>
+      <th style="width: 5%;" class="text-center">Sl No</th>
+      <th style="width: 12%;" class="text-center">Item Code</th>
+      <th style="width: 35%;" class="text-center">Description of Goods</th>
+      <th style="width: 8%;" class="text-center">Unit</th>
+      <th style="width: 10%;" class="text-center">Quantity Supplied</th>
+      <th style="width: 10%;" class="text-center">Quantity Received</th>
+      <th style="width: 10%;" class="text-center">Unit Value</th>
+      <th style="width: 10%;" class="text-center">Total Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in line_items %}
+    <tr>
+      <td class="text-center">{{ forloop.counter }}</td>
+      <td class="text-center">{{ item.xitem }}</td>
+      <td class="text-left">{{ item.xdesc }}</td>
+      <td class="text-center">{{ item.xunitstk|default:"" }}</td>
+      <td class="text-center">{{ item.qty_supplied|bdt_with_decimals:2 }}</td>
+      <td class="text-center">{{ item.qty_received|bdt_with_decimals:2 }}</td>
+      <td class="text-right">{{ item.xrate|bdt_with_decimals:2 }}</td>
+      <td class="text-right">{{ item.xlineamt|bdt_with_decimals:2 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div style="margin-top: 10px; font-size: 10px;">
+  <div style="margin: 6px 0;">
+    <strong>Taka (in Words):</strong> {{ totals.grand_total|inword_currency|default:"Zero Taka Only" }}
+  </div>
+  <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+    <tr>
+      <td style="width: 70%;"></td>
+      <td style="width: 30%; padding: 2.5px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td class="text-left" style="border: 1px solid #000;">Sub Total</td>
+            <td class="text-right" style="border: 1px solid #000;">{{ totals.subtotal|bdt_with_decimals:2 }}</td>
+          </tr>
+          <tr>
+            <td class="text-left" style="border: 1px solid #000;">Discount</td>
+            <td class="text-right" style="border: 1px solid #000;">{{ totals.discount|bdt_with_decimals:2 }}</td>
+          </tr>
+          <tr>
+            <td class="text-left" style="border: 1px solid #000;">Tax</td>
+            <td class="text-right" style="border: 1px solid #000;">{{ totals.tax|bdt_with_decimals:2 }}</td>
+          </tr>
+          <tr>
+            <td class="text-left" style="border: 1px solid #000;"><strong>Total</strong></td>
+            <td class="text-right" style="border: 1px solid #000;"><strong>{{ totals.grand_total|bdt_with_decimals:2 }}</strong></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <table style="width: 100%; border-collapse: collapse; text-align: center; margin-top: 30px;">
+    <tr>
+      <td style="width: 33%; vertical-align: top;">
+        <div style="border-top: 1px solid #000; margin: 0 20px; padding-top: 3px;">Prepared By {{ header.zemail|default:"-" }}</div>
+      </td>
+      <td style="width: 34%; vertical-align: top;">
+        <div style="border-top: 1px solid #000; margin: 0 20px; padding-top: 3px;">Approved By</div>
+      </td>
+      <td style="width: 33%; vertical-align: top;">
+        <div style="border-top: 1px solid #000; margin: 0 20px; padding-top: 3px;">Received By</div>
+      </td>
+    </tr>
+  </table>
+</div>
+{% endblock %}

@@ -29,6 +29,9 @@ $(function () {
             if (typeof toastr !== 'undefined') {
               toastr.success('GRN confirmed successfully');
             }
+            try {
+              window.open('/purchase/po-grn-print/' + encodeURIComponent(grn) + '/', '_blank');
+            } catch (e) {}
             if ($.fn.DataTable.isDataTable('#po-open-list-table')) {
               $('#po-open-list-table').DataTable().ajax.reload(null, false);
             }
@@ -65,4 +68,3 @@ $(function () {
     }
   });
 });
-

@@ -9,6 +9,8 @@ from .views.po_create import po_create # Purchase Order Create function
 from .views.po_open_list import po_open_list # Show Purchase Open List in Confirm GRN/MRR Page
 from .views.po_confirm import po_confirm # Purchase Order Confirm function
 from .reports.po_req_print import po_req_print # Purchase Requisition Print function
+from .reports.po_grn_print import po_grn_print # Purchase/GRN Print function
+from .views.po_delete import po_delete # Delete Purchase order using Po number
 
 
 
@@ -34,6 +36,12 @@ urlpatterns = [
 
     # purchase order confirm
     path('po-confirm/<str:transaction_id>/', po_confirm, name='po-confirm-detail'),
+
+    # Purchase/GRN Print
+    path('po-grn-print/<str:transaction_id>/', po_grn_print, name='po-grn-print'),
+
+    # Delete Purchase  order using Po number
+    path('po-delete/<str:po_number>/', po_delete, name='po-delete'),
 
     path('po-list/', POListView.as_view(), name='po-list'),
     # +--------------------------+
